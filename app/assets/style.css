@@ -1,0 +1,500 @@
+/* ─────────────────────────────────────────────
+   MONITOR ENSO · Design System
+   Paleta: Verde Bosque Oscuro — misma identidad visual
+   que los otros dashboards del VPS (mapas.resiliencia.cloud,
+   riesgo.resiliencia.cloud / Scraping_Peru).
+   ───────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+:root {
+  --bg:        #0d2a1e;
+  --panel:     rgba(6, 12, 8, 0.95);
+  --glass:     rgba(255,255,255,0.04);
+  --glass-2:   rgba(255,255,255,0.08);
+
+  --accent:    #2f6b46;
+  --accent-glow: rgba(47,107,70,0.35);
+  --accent-2:  #5fcf8d;
+  --accent-2-glow: rgba(95,207,141,0.25);
+  --green:     #5fcf8d;
+
+  --text:      #e2f0e8;
+  --text-2:    #a0bfaa;
+  --muted:     #5a8f70;
+
+  --border:    rgba(255,255,255,0.07);
+  --border-2:  rgba(47,107,70,0.35);
+
+  --success:   #22c55e;
+  --warn:      #f59e0b;
+  --error:     #ef4444;
+
+  --shadow-sm:  0 2px 8px rgba(0,0,0,0.5);
+  --shadow:     0 8px 32px rgba(0,0,0,0.55);
+  --shadow-lg:  0 20px 60px rgba(0,0,0,0.65);
+
+  --r-sm: 8px;
+  --r:    12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+
+  --t: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(47,107,70,0.16), transparent),
+    radial-gradient(ellipse 40% 30% at 90% 80%, rgba(95,207,141,0.06), transparent),
+    radial-gradient(ellipse 60% 40% at 0% 100%, rgba(13,42,30,0.6), transparent);
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  min-height: 100%;
+  margin: 0;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-track { background: rgba(0,0,0,0.15); border-radius: 99px; }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #3d8a5a; }
+
+/* ═══════════════════════════════════════════
+   HEADER
+   ═══════════════════════════════════════════ */
+.enso-header {
+  background: var(--panel);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-2);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 0 rgba(47,107,70,0.2), var(--shadow);
+}
+
+.logo { display: flex; align-items: center; gap: 12px; }
+
+.logo-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #1e4a30, #2f6b46);
+  border: 1px solid var(--border-2);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.logo-top {
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.logo-sub {
+  font-size: 0.7rem;
+  color: var(--muted);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.header-right { display: flex; align-items: center; gap: 14px; }
+
+.live-badge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(95,207,141,0.08);
+  border: 1px solid rgba(95,207,141,0.25);
+  padding: 6px 13px;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--green);
+  letter-spacing: 0.08em;
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  background: var(--green);
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: pulse-dot 2s ease-in-out infinite;
+  box-shadow: 0 0 8px var(--green);
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 8px var(--green); }
+  50%       { opacity: 0.6; transform: scale(0.85); box-shadow: 0 0 4px var(--green); }
+}
+
+.refresh-status {
+  font-size: 0.75rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.apply-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--accent);
+  color: #e2f0e8;
+  border-radius: var(--r-sm);
+  border: 0;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+  white-space: nowrap;
+  transition: var(--t);
+  letter-spacing: 0.01em;
+}
+
+.apply-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px var(--accent-glow);
+  filter: brightness(1.1);
+}
+
+.apply-btn:active:not(:disabled) { transform: translateY(0); }
+
+.apply-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.header-time {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-2);
+  letter-spacing: 0.02em;
+  background: var(--glass-2);
+  padding: 6px 13px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════════
+   PAGE SHELL
+   ═══════════════════════════════════════════ */
+.enso-shell {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 18px 20px 40px;
+}
+
+.page-intro { margin: 4px 2px 18px; }
+
+.page-title {
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.page-sub {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+/* ═══════════════════════════════════════════
+   TAB SWITCHER (dcc.Tabs)
+   ═══════════════════════════════════════════ */
+.enso-tabs.tabs-container,
+.enso-tabs {
+  border-bottom: none !important;
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 6px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 6px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.enso-tab {
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--muted) !important;
+  padding: 9px 16px !important;
+  font-weight: 600 !important;
+  font-size: 0.82rem !important;
+  border-radius: var(--r-sm) !important;
+  transition: var(--t) !important;
+  letter-spacing: 0.01em;
+}
+
+.enso-tab:hover {
+  color: var(--text-2) !important;
+  background: var(--glass-2) !important;
+}
+
+.enso-tab--selected {
+  background: var(--accent) !important;
+  color: #e2f0e8 !important;
+  box-shadow: 0 4px 14px var(--accent-glow);
+}
+
+/* ═══════════════════════════════════════════
+   CARDS
+   ═══════════════════════════════════════════ */
+.chart-card {
+  background: var(--panel);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.chart-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--r-lg);
+  background: linear-gradient(135deg, rgba(47,107,70,0.06) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* Variant for content that is inherently light (matplotlib map figures) —
+   mirrors the map-panel treatment used across the other resiliencia.cloud
+   dashboards so baked-in white plot backgrounds still read cleanly. */
+.chart-card.map-panel {
+  background: rgba(232, 234, 237, 0.97);
+  border-color: rgba(160,165,170,0.3);
+}
+.chart-card.map-panel .chart-title { color: #1e4a30; }
+.chart-card.map-panel .chart-sub   { color: #4a7059; }
+
+.chart-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  position: relative;
+  z-index: 1;
+  flex-wrap: wrap;
+}
+
+.chart-title {
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-weight: 700;
+  color: var(--text);
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+}
+
+.chart-sub {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-top: 3px;
+}
+
+.chart-badge {
+  background: var(--glass-2);
+  border: 1px solid var(--border-2);
+  padding: 6px 12px;
+  border-radius: var(--r-sm);
+  color: var(--accent-2);
+  font-weight: 700;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+.chart-figure { position: relative; z-index: 1; }
+
+.chart-figure img {
+  max-width: 100%;
+  display: block;
+  margin: 0 auto;
+  border-radius: var(--r-sm);
+  border: 1px solid rgba(0,0,0,0.12);
+}
+
+/* ═══════════════════════════════════════════
+   DROPDOWN (dcc.Dropdown / react-select)
+   ═══════════════════════════════════════════ */
+.enso-dropdown, .enso-dropdown .Select {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+}
+
+.enso-dropdown .Select-control {
+  background: var(--glass) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--r-sm) !important;
+  color: var(--text) !important;
+  min-height: 38px !important;
+  box-shadow: none !important;
+  transition: var(--t);
+}
+
+.enso-dropdown .Select-control:hover { border-color: var(--border-2) !important; }
+.enso-dropdown.is-open .Select-control,
+.enso-dropdown.is-focused .Select-control {
+  border-color: var(--accent-2) !important;
+  background: var(--glass-2) !important;
+}
+
+.enso-dropdown .Select-value-label,
+.enso-dropdown .Select-input > input { color: var(--text) !important; }
+
+.enso-dropdown .Select-placeholder { color: var(--text-2) !important; }
+
+.enso-dropdown .Select-arrow { border-color: var(--muted) transparent transparent !important; }
+
+.enso-dropdown .Select-menu-outer {
+  background: #0b1f16 !important;
+  border: 1px solid var(--border-2) !important;
+  border-radius: var(--r-sm) !important;
+  box-shadow: var(--shadow-lg) !important;
+  margin-top: 4px !important;
+  overflow: hidden;
+}
+
+.enso-dropdown .VirtualizedSelectOption,
+.enso-dropdown .Select-option {
+  background: transparent !important;
+  color: var(--text-2) !important;
+  padding: 9px 12px !important;
+}
+
+.enso-dropdown .VirtualizedSelectFocusedOption,
+.enso-dropdown .Select-option.is-focused {
+  background: rgba(47,107,70,0.25) !important;
+  color: var(--text) !important;
+}
+
+/* ═══════════════════════════════════════════
+   ALERTS (dbc.Alert)
+   ═══════════════════════════════════════════ */
+.alert {
+  background: rgba(245,158,11,0.08) !important;
+  border: 1px solid rgba(245,158,11,0.3) !important;
+  color: #f3c375 !important;
+  border-radius: var(--r-sm) !important;
+}
+
+/* ═══════════════════════════════════════════
+   EVENT CARDS (contexto histórico)
+   ═══════════════════════════════════════════ */
+.event-row {
+  display: flex;
+  overflow-x: auto;
+  gap: 12px;
+  padding-bottom: 10px;
+}
+
+.event-card {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--accent-2);
+  border-radius: var(--r-sm);
+  padding: 14px 16px;
+  min-width: 235px;
+  max-width: 235px;
+  flex-shrink: 0;
+  transition: var(--t);
+}
+
+.event-card:hover {
+  background: var(--glass-2);
+  border-color: var(--border-2);
+  transform: translateY(-2px);
+}
+
+.event-year {
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  color: var(--accent-2);
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+}
+
+.event-title {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 0.9rem;
+  margin: 6px 0 5px;
+}
+
+.event-stat {
+  font-weight: 700;
+  color: var(--text-2);
+  font-size: 0.78rem;
+  margin-bottom: 6px;
+}
+
+.event-desc {
+  color: var(--text-2);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  margin-bottom: 8px;
+}
+
+.event-src {
+  text-transform: uppercase;
+  color: var(--muted);
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+}
+
+/* ═══════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════ */
+.enso-footer {
+  border-top: 1px solid var(--border);
+  margin-top: 20px;
+  padding-top: 16px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+/* ═══════════════════════════════════════════
+   PLOTLY OVERRIDES
+   ═══════════════════════════════════════════ */
+.js-plotly-plot .plotly .modebar { background: transparent !important; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 760px) {
+  .enso-header { padding: 0 14px; }
+  .enso-shell { padding: 14px 12px 32px; }
+  .header-time { display: none; }
+  .refresh-status { display: none; }
+}
