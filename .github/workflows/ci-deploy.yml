@@ -1,0 +1,55 @@
+name: CI/CD
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "app/**"
+      - "pipeline/**"
+      - "tests/**"
+      - "docker/**"
+      - "docker-compose.yml"
+  push:
+    branches: [main]
+    paths:
+      - "app/**"
+      - "pipeline/**"
+      - "tests/**"
+      - "docker/**"
+      - "docker-compose.yml"
+
+jobs:
+  test:
+    name: Tests (build imagen + pytest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Construir la imagen de la app
+        run: docker build -f docker/Dockerfile -t enso-dashboard:ci .
+
+      - name: Correr pytest dentro de la imagen
+        run: |
+          docker run --rm --user root \
+            -v "${{ github.workspace }}:/repo" -w /repo \
+            enso-dashboard:ci \
+            sh -c "pip install -q pytest && python -m pytest tests -v"
+
+  deploy:
+    name: Deploy a producción
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Desplegar por SSH (comando restringido en el servidor)
+        env:
+          SSH_KEY: ${{ secrets.ENSO_DEPLOY_SSH_KEY }}
+          SSH_HOST: ${{ secrets.ENSO_DEPLOY_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          # El comando real que corre lo decide authorized_keys en el
+          # servidor (forced command) — esto solo dispara la conexión.
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@"$SSH_HOST" deploy
