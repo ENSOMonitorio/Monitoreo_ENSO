@@ -56,6 +56,15 @@ jobs:
             exit 1
           fi
 
+          # Saca espacios/saltos de línea invisibles que a veces quedan al
+          # pegar el secret (causa típica de "hostname contains invalid characters").
+          SSH_HOST="$(printf '%s' "$SSH_HOST" | tr -d '[:space:]')"
+          echo "HOST recibido, entre corchetes para ver si hay algo raro: [$SSH_HOST]"
+          if ! printf '%s' "$SSH_HOST" | grep -qE '^[A-Za-z0-9.-]+$'; then
+            echo "::error::ENSO_DEPLOY_HOST tiene caracteres inválidos: [$SSH_HOST]. Debe ser solo la IP o el dominio, sin comillas ni espacios."
+            exit 1
+          fi
+
           mkdir -p ~/.ssh
           printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
