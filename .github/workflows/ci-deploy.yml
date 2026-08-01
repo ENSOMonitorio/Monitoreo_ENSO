@@ -1,6 +1,7 @@
 name: CI/CD
 
 on:
+  workflow_dispatch:
   pull_request:
     branches: [main]
     paths:
@@ -9,6 +10,7 @@ on:
       - "tests/**"
       - "docker/**"
       - "docker-compose.yml"
+      - ".github/workflows/**"
   push:
     branches: [main]
     paths:
@@ -17,6 +19,7 @@ on:
       - "tests/**"
       - "docker/**"
       - "docker-compose.yml"
+      - ".github/workflows/**"
 
 jobs:
   test:
@@ -46,10 +49,29 @@ jobs:
           SSH_KEY: ${{ secrets.ENSO_DEPLOY_SSH_KEY }}
           SSH_HOST: ${{ secrets.ENSO_DEPLOY_HOST }}
         run: |
+          set -e
+
+          if [ -z "$SSH_HOST" ] || [ -z "$SSH_KEY" ]; then
+            echo "::error::Falta ENSO_DEPLOY_HOST o ENSO_DEPLOY_SSH_KEY en los secrets del repo."
+            exit 1
+          fi
+
           mkdir -p ~/.ssh
-          echo "$SSH_KEY" > ~/.ssh/deploy_key
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
+
+          echo "== validando formato de la llave privada =="
+          if ! ssh-keygen -y -f ~/.ssh/deploy_key > /tmp/derived_pub 2>/tmp/keygen_err; then
+            echo "::error::La llave privada en ENSO_DEPLOY_SSH_KEY no tiene un formato válido."
+            cat /tmp/keygen_err
+            exit 1
+          fi
+          echo "Llave cargada OK, fingerprint:"
+          ssh-keygen -lf /tmp/derived_pub
+
           ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
           # El comando real que corre lo decide authorized_keys en el
           # servidor (forced command) — esto solo dispara la conexión.
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@"$SSH_HOST" deploy
+          ssh -v -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o ConnectTimeout=15 \
+            root@"$SSH_HOST" deploy
