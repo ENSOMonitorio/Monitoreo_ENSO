@@ -22,4 +22,3 @@ def test_import_layout_historico():
 
 def test_import_indices():
     importlib.import_module("indices")
-
