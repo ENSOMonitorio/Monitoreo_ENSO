@@ -12,6 +12,8 @@ services:
       - "8082:8082"
     volumes:
       - ./data:/app/data
+    env_file:
+      - secrets.env
     environment:
       - PYTHONUNBUFFERED=1
     healthcheck:
@@ -20,3 +22,15 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    networks:
+      - default
+      - vps_network
+
+networks:
+  default: {}
+  # Red del nginx-proxy compartido (mapas.resiliencia.cloud, riesgo.resiliencia.cloud)
+  # — se une acá para que ese nginx pueda resolver "enso_dashboard" por nombre
+  # y rutear monitoreoenso.igdanielporrasn.cloud, sin salir del host.
+  vps_network:
+    external: true
+    name: docker_vps_network

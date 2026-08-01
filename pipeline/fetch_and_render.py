@@ -71,10 +71,26 @@ SLP_LAT_RANGE = (-65, 25)
 
 
 def download_conditional(url, dest):
+    """Descarga a un archivo temporal y solo reemplaza `dest` si terminó
+    completa — si se escribiera directo sobre `dest` y el proceso se corta
+    a la mitad (p.ej. el contenedor se reinicia durante un deploy), queda
+    un archivo corrupto con mtime reciente, que además curl -z ya no vuelve
+    a intentar descargar por creerlo al día. Pasó de verdad con sst_mean.nc."""
     log.info("Verificando %s", os.path.basename(dest))
+    tmp = dest + ".part"
     cmd = ["curl", "-sS", "-fL", "--retry", "3", "--retry-delay", "5",
-           "-z", dest, "-o", dest, url]
-    subprocess.run(cmd, check=True)
+           "-z", dest, "-o", tmp, url]
+    try:
+        subprocess.run(cmd, check=True)
+        if os.path.exists(tmp):
+            if os.path.getsize(tmp) > 0:
+                os.replace(tmp, dest)
+            else:
+                os.remove(tmp)
+    except subprocess.CalledProcessError:
+        if os.path.exists(tmp):
+            os.remove(tmp)
+        raise
 
 
 def open_with_time_repair(path):
@@ -168,27 +184,38 @@ def render_subsurface_section(pottmp_path):
         title_suffix=f" · {latest_month_ts.strftime('%b %Y')}")
     log.info("Corte subsuperficial (Onda Kelvin) generado para %s", latest_label)
 
-    # GIF con todos los meses disponibles del año en curso (evolución de la onda)
+    # Composite con mapa inclinado (temperatura observada + anomalía), mismo
+    # mes más reciente — reemplaza el intento anterior de "3D" interactivo.
+    plotting.plot_subsurf_composite(
+        band_mean.isel(time=latest_idx), climatology, latest_month_ts.month,
+        os.path.join(FIGURES, "subsurf_composite.png"),
+        date_label=latest_month_ts.strftime("%b %Y"))
+    log.info("Composite profundidad-longitud (mapa + T observada/anomalía) generado para %s", latest_label)
+
+    # GIF del composite (mapa + T observada + anomalía) con todos los meses
+    # disponibles del año en curso — mismo patrón que subsurf_anim.gif, pero
+    # con el panel compuesto en vez del snapshot de un solo panel.
     try:
         import imageio.v2 as imageio
         frame_paths = []
-        tmp_dir = os.path.join(FIGURES, "_subsurf_frames")
+        tmp_dir = os.path.join(FIGURES, "_subsurf_composite_frames")
         os.makedirs(tmp_dir, exist_ok=True)
         for i in range(len(months_available)):
             ts = months_available[i]
             fp = os.path.join(tmp_dir, f"frame_{i:02d}.png")
-            plotting.plot_equatorial_depth_section(
+            plotting.plot_subsurf_composite(
                 band_mean.isel(time=i), climatology, ts.month, fp,
-                title_suffix=f" · {ts.strftime('%b %Y')}")
+                date_label=ts.strftime("%b %Y"))
             frame_paths.append(fp)
         frames = [imageio.imread(fp) for fp in frame_paths]
-        imageio.mimsave(os.path.join(FIGURES, "subsurf_anim.gif"), frames, duration=800, loop=0)
+        imageio.mimsave(os.path.join(FIGURES, "subsurf_composite_anim.gif"), frames, duration=900, loop=0)
         for fp in frame_paths:
             os.remove(fp)
         os.rmdir(tmp_dir)
-        log.info("GIF de evolución subsuperficial actualizado (%d meses)", len(frame_paths))
+        log.info("GIF del composite (mapa + T observada/anomalía) actualizado (%d meses)", len(frame_paths))
     except ImportError:
-        log.warning("imageio no instalado — se omite el GIF de evolución subsuperficial.")
+        log.warning("imageio no instalado — se omite el GIF del composite subsuperficial.")
+
 
 
 def latest_time_str(da):
@@ -252,6 +279,20 @@ def prune_old_figures(days=60):
 
 
 LOCK_PATH = os.path.join(BASE_DIR, "data", ".pipeline.lock")
+STATUS_PATH = os.path.join(BASE_DIR, "data", "processed", "pipeline_status.json")
+
+
+def _write_status(ok, error=None):
+    """El dashboard lee esto para avisar si la última corrida (cron o botón
+    "Actualizar datos") falló, en vez de quedarse callado mostrando la fecha
+    vieja como si no hubiera pasado nada — exactamente lo que pasó cuando
+    sst_mean.nc quedó corrupto por una descarga cortada a la mitad."""
+    import json
+    with open(STATUS_PATH, "w") as f:
+        json.dump({
+            "ok": ok, "error": error,
+            "ts": datetime.now(timezone.utc).isoformat(),
+        }, f)
 
 
 def main():
@@ -273,6 +314,12 @@ def main():
         f.write(str(os.getpid()))
     try:
         _run()
+    except Exception as e:
+        log.exception("La actualización falló")
+        _write_status(ok=False, error=f"{type(e).__name__}: {e}")
+        raise
+    else:
+        _write_status(ok=True)
     finally:
         try:
             os.remove(LOCK_PATH)

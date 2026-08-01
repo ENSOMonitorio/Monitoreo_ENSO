@@ -187,6 +187,16 @@ body {
   filter: none !important;
 }
 
+.logout-link {
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 6px 4px;
+  transition: var(--t);
+}
+
+.logout-link:hover { color: var(--accent-2); }
+
 .header-time {
   font-family: 'Space Grotesk', monospace;
   font-size: 0.85rem;

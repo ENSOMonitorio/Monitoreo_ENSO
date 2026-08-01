@@ -1,3 +1,7 @@
 data/raw/
+data/figures/
+data/processed/
+run/*.log
 __pycache__/
 *.pyc
+secrets.env
