@@ -165,8 +165,8 @@ def make_frame(
 	img1 = ax.imshow(
 		data,
 		origin="upper",
-		vmin=-103.0,
-		vmax=84.0,
+		vmin=-90.0,
+		vmax=50.0,
 		extent=img_extent,
 		cmap=cmap,
 		alpha=1.0,
@@ -197,7 +197,8 @@ def make_frame(
 	fig.canvas.draw()
 	map_pos = ax.get_position()
 	cbar_ax = fig.add_axes([map_pos.x1 + 0.015, map_pos.y0, 0.015, map_pos.height])
-	fig.colorbar(img1, cax=cbar_ax, label="Temperatura de brillo (C)", extend="both")
+	cbar = fig.colorbar(img1, cax=cbar_ax, label="Temperatura de brillo (C)", extend="both")
+	cbar.set_ticks(range(-90, 51, 5))
 
 	# fig.text() en vez de plt.title() (que ancla al axes): con extents muy
 	# anchos cartopy encoge el GeoAxes para preservar el aspecto real en
