@@ -221,7 +221,7 @@ def generate_goes19_animation(config: Optional[Goes19Config] = None) -> Path:
 	samples_dir = cfg.samples_dir or samples_dir
 	output_dir = cfg.output_dir or output_dir
 	figures_dir = cfg.figures_dir or figures_dir
-	cpt_path = cfg.cpt_path or (Path(__file__).resolve().parent / "IR4AVHRR6.cpt")
+	cpt_path = cfg.cpt_path or (Path(__file__).resolve().parent / "SENAMHI_IR.cpt")
 
 	samples_dir.mkdir(parents=True, exist_ok=True)
 	output_dir.mkdir(parents=True, exist_ok=True)
