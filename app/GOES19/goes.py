@@ -34,13 +34,14 @@ from plotting.common import _autocrop_whitespace
 
 
 
-# lon_min, lat_min, lon_max, lat_max. Ampliado al máximo Pacífico que
-# GOES-19 realmente alcanza a ver (geoestacionario sobre América, ~75°W —
-# no puede ver el Pacífico occidental como el resto de los mapas del
-# dashboard, que sí usan datos satelitales polares/reanálisis). Latitud
-# alineada a EXTENT_PACIFICO (app/plotting/common.py) para que las cajas
-# Niño 1+2 / 3 / parte de 3.4 queden comparables con el resto del tablero.
-DEFAULT_EXTENT = [-165.0, -21.0, -25.0, 21.0]
+# lon_min, lat_min, lon_max, lat_max. Ampliado al Pacífico que GOES-19
+# alcanza a ver con datos válidos (geoestacionario sobre América, ~75°W).
+# Más allá de 150°W la reproyección ya cae fuera del dominio de la
+# proyección del satélite ("Point outside of projection domain" en el
+# log) y queda una franja sin datos — se corta ahí. Latitud alineada a
+# EXTENT_PACIFICO (app/plotting/common.py) para que las cajas Niño 1+2 /
+# 3 / parte de 3.4 queden comparables con el resto del tablero.
+DEFAULT_EXTENT = [-150.0, -21.0, -25.0, 21.0]
 
 
 @dataclass
