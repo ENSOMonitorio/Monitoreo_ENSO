@@ -488,6 +488,40 @@ def _poll_refresh(n_intervals):
     return _status_text(), True, False, "/"
 
 
+def _goes19_tab():
+    """Tab para la animación GOES-19 Band 13 (temperatura de brillo)."""
+    anim_url = _fig_url("goes19_anim.gif")
+    if not anim_url:
+        return html.Div([
+            html.Div([
+                html.Div([
+                    html.Div("GOES-19 — Temperatura de brillo", className="chart-title"),
+                    html.Div("Animación de las últimas imágenes del satélite GOES-19 (Banda 13).",
+                             className="chart-sub"),
+                ]),
+            ], className="chart-header"),
+            dbc.Alert(
+                "Todavía no se generó la animación GOES-19. "
+                "Ejecuta python -m app.GOES19.goes para generarla.",
+                color="warning",
+            ),
+        ], className="chart-card map-panel")
+
+    return html.Div([
+        html.Div([
+            html.Div([
+                html.Div("GOES-19 — Temperatura de brillo", className="chart-title"),
+                html.Div("Animación de las últimas imágenes del satélite GOES-19 (Banda 13). "
+                         "Actualizada manualmente o vía pipeline.", className="chart-sub"),
+            ]),
+        ], className="chart-header"),
+        html.Div(
+            html.Img(src=anim_url, style={"width": "100%", "borderRadius": "8px"}),
+            className="chart-figure",
+        ),
+    ], className="chart-card map-panel")
+
+
 def serve_layout():
     """Función (no objeto fijo) para que cada recarga del navegador refleje
     las figuras/índices más recientes sin tener que reiniciar el contenedor."""
@@ -504,6 +538,8 @@ def serve_layout():
                         className="enso-tab", selected_className="enso-tab--selected")
                 for prefix, title in MAP_TABS
             ] + [
+                dcc.Tab(label="GOES19", children=_goes19_tab(),
+                        className="enso-tab", selected_className="enso-tab--selected"),
                 dcc.Tab(label="Índices", children=_indices_tab(),
                         className="enso-tab", selected_className="enso-tab--selected"),
                 dcc.Tab(label="Contexto histórico", children=layout_historico.layout(),
