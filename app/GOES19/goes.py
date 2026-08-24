@@ -186,14 +186,17 @@ def make_frame(
 	gl.top_labels = False
 	gl.right_labels = False
 
-	plt.colorbar(
-		img1,
-		label="Temperatura de brillo (C)",
-		extend="both",
-		orientation="vertical",
-		pad=0.03,
-		fraction=0.05,
-	)
+	# El colorbar automático (plt.colorbar/fraction) se dimensiona contra el
+	# tamaño ORIGINAL del axes, antes de que cartopy lo encoja para
+	# preservar el aspecto real en grados — con extents muy anchos como
+	# este queda mucho más alto que el mapa ya encogido. Se fuerza un draw
+	# para que cartopy aplique el encogido, se lee la posición real del
+	# axes (mismo truco que plot_subsurf_composite en plotting/subsuperficie.py)
+	# y se arma un colorbar a mano con esa misma altura.
+	fig.canvas.draw()
+	map_pos = ax.get_position()
+	cbar_ax = fig.add_axes([map_pos.x1 + 0.015, map_pos.y0, 0.015, map_pos.height])
+	fig.colorbar(img1, cax=cbar_ax, label="Temperatura de brillo (C)", extend="both")
 
 	# fig.text() en vez de plt.title() (que ancla al axes): con extents muy
 	# anchos cartopy encoge el GeoAxes para preservar el aspecto real en
