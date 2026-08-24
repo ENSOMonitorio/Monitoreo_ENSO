@@ -12,6 +12,6 @@ numpy>=1.24
 gunicorn==21.2.0
 imageio>=2.34
 boto3>=1.28
-gdal>=3.6
+gdal==3.10.3
 shapely>=2.0
 pyproj>=3.5
