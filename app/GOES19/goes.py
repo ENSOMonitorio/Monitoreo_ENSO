@@ -30,6 +30,8 @@ try:
 except ImportError:
 	from utilities_2 import download_CMI, loadCPT, reproject
 
+from plotting.common import _autocrop_whitespace
+
 
 DEFAULT_EXTENT = [-93.0, -60.0, -25.0, 18.0]
 
@@ -147,6 +149,7 @@ def make_frame(
 ) -> Path:
 	fig = plt.figure(figsize=(12, 12), dpi=120)
 	ax = plt.axes(projection=ccrs.PlateCarree())
+	fig.subplots_adjust(left=0.06, right=0.85, top=0.92, bottom=0.06)
 
 	img_extent = [extent[0], extent[2], extent[1], extent[3]]
 	ax.set_extent(img_extent, ccrs.PlateCarree())
@@ -194,8 +197,9 @@ def make_frame(
 	plt.title(f"Reg.: {list(extent)}", fontsize=10, loc="right")
 
 	out_path = output_dir / f"frame_{frame_idx:02d}_{dt.strftime('%Y%m%d%H%M')}.png"
-	plt.savefig(str(out_path), bbox_inches="tight", pad_inches=0)
+	plt.savefig(str(out_path), dpi=120)
 	plt.close(fig)
+	_autocrop_whitespace(str(out_path))
 	return out_path
 
 
