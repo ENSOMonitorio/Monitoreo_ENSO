@@ -33,7 +33,14 @@ except ImportError:
 from plotting.common import _autocrop_whitespace
 
 
-DEFAULT_EXTENT = [-93.0, -60.0, -25.0, 18.0]
+
+# lon_min, lat_min, lon_max, lat_max. Ampliado al máximo Pacífico que
+# GOES-19 realmente alcanza a ver (geoestacionario sobre América, ~75°W —
+# no puede ver el Pacífico occidental como el resto de los mapas del
+# dashboard, que sí usan datos satelitales polares/reanálisis). Latitud
+# alineada a EXTENT_PACIFICO (app/plotting/common.py) para que las cajas
+# Niño 1+2 / 3 / parte de 3.4 queden comparables con el resto del tablero.
+DEFAULT_EXTENT = [-165.0, -21.0, -25.0, 21.0]
 
 
 @dataclass
@@ -188,13 +195,13 @@ def make_frame(
 		fraction=0.05,
 	)
 
-	plt.title(
-		f"GOES-19 Band {band}  {dt.strftime('%Y-%m-%d %H:%M')} UTC",
-		fontweight="bold",
-		fontsize=10,
-		loc="left",
-	)
-	plt.title(f"Reg.: {list(extent)}", fontsize=10, loc="right")
+	# fig.text() en vez de plt.title() (que ancla al axes): con extents muy
+	# anchos cartopy encoge el GeoAxes para preservar el aspecto real en
+	# grados, y un título anclado al axes queda empujado fuera del canvas
+	# guardado. Mismo fix que _base_map()/fig.suptitle() en plotting/common.py.
+	fig.text(0.06, 0.965, f"GOES-19 Band {band}  {dt.strftime('%Y-%m-%d %H:%M')} UTC",
+			 fontweight="bold", fontsize=10, ha="left", va="top")
+	fig.text(0.85, 0.965, f"Reg.: {list(extent)}", fontsize=10, ha="right", va="top")
 
 	out_path = output_dir / f"frame_{frame_idx:02d}_{dt.strftime('%Y%m%d%H%M')}.png"
 	plt.savefig(str(out_path), dpi=120)
