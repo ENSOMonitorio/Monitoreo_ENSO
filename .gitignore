@@ -1,6 +1,7 @@
 data/raw/
 data/figures/
 data/processed/
+data/goes19/
 run/*.log
 __pycache__/
 *.pyc
