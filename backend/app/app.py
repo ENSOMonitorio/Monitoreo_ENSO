@@ -18,7 +18,7 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.graph_objects as go
 from dash import Dash, Input, Output, dcc, html, no_update
-from flask import redirect, request, send_from_directory, session
+from flask import abort, jsonify, redirect, request, send_from_directory, session, Response
 from werkzeug.security import check_password_hash
 
 import layout_historico
@@ -69,6 +69,17 @@ MAP_TABS = [
     ("hovmoller_nino12", "Hovmöller — Niño 1+2"),
     ("subsurf", "Subsuperficie — Onda Kelvin"),
 ]
+_MAP_TAB_PREFIXES = {prefix for prefix, _ in MAP_TABS}
+
+# Mismas 4 regiones que indices.py/pipeline calculan en el CSV; hoy la
+# pestaña "Índices" del Dash solo dibuja nino12/nino34, pero la API expone
+# las 4 para que el frontend decida cuáles mostrar.
+INDEX_REGIONS = {
+    "nino12": {"label": "Niño 1+2", "color": "#e2574a"},
+    "nino34": {"label": "Niño 3.4", "color": "#5b9bdb"},
+    "nino3": {"label": "Niño 3", "color": "#f0a35f"},
+    "nino4": {"label": "Niño 4", "color": "#9b7fd1"},
+}
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP], suppress_callback_exceptions=True)
 app.title = "Monitor ENSO — resiliencia.cloud"
@@ -519,6 +530,104 @@ def serve_layout():
 
 
 app.layout = serve_layout
+
+
+# ---------------------------------------------------------------------------
+# API JSON (Fase B de la migración a Angular) — endpoints aditivos que
+# envuelven la misma lógica que usa el layout de Dash de arriba, para que el
+# futuro frontend consuma exactamente los mismos datos/figuras sin
+# reimplementar nada. Quedan protegidos por el mismo _require_login que el
+# resto del sitio (no están en el allowlist de arriba).
+# ---------------------------------------------------------------------------
+
+@server.route("/api/config")
+def api_config():
+    return jsonify({
+        "map_tabs": [
+            {"prefix": prefix, "title": title, "has_daily_anim": prefix in DAILY_ANIM_PREFIXES}
+            for prefix, title in MAP_TABS
+        ],
+        "auth_enabled": bool(AUTH_PASS_HASH),
+    })
+
+
+@server.route("/api/figures/<prefix>")
+def api_figures(prefix):
+    if prefix not in _MAP_TAB_PREFIXES:
+        abort(404)
+    dates = _dates_for(prefix)
+    selected = request.args.get("date") or (dates[0] if dates else None)
+    return jsonify({
+        "prefix": prefix,
+        "dates": dates,
+        "selected_date": selected,
+        "image_url": _fig_url(f"{prefix}_{selected}.png") if selected else None,
+        "anim_url": _fig_url(f"{prefix}_anim.gif") if prefix in DAILY_ANIM_PREFIXES else None,
+        "composite_anim_url": _fig_url("subsurf_composite_anim.gif") if prefix == "subsurf" else None,
+    })
+
+
+@server.route("/api/indices")
+def api_indices():
+    return jsonify({"regions": [{"key": key, **meta} for key, meta in INDEX_REGIONS.items()]})
+
+
+@server.route("/api/indices/<region>")
+def api_indices_region(region):
+    if region not in INDEX_REGIONS:
+        abort(404)
+    csv_path = os.path.join(PROCESSED_DIR, "indices_diarios.csv")
+    if not os.path.exists(csv_path):
+        return jsonify({"available": False})
+    df = pd.read_csv(csv_path, parse_dates=["fecha"])
+    if region not in df.columns:
+        return jsonify({"available": False})
+    meta = INDEX_REGIONS[region]
+    fig = _index_region_figure(df, region, meta["label"], meta["color"])
+    # fig.to_json() (no jsonify(fig.to_dict())): el encoder de Plotly sabe
+    # serializar los pandas.Timestamp de las anotaciones, el de Flask no.
+    return Response(fig.to_json(), mimetype="application/json")
+
+
+@server.route("/api/historico/oni")
+def api_historico_oni():
+    fig = layout_historico.build_oni_figure()
+    return Response(fig.to_json(), mimetype="application/json")
+
+
+@server.route("/api/historico/eventos")
+def api_historico_eventos():
+    return jsonify(layout_historico.EVENTS)
+
+
+@server.route("/api/status")
+def api_status():
+    is_running = _pipeline_running()
+    return jsonify({
+        "text": "Actualizando…" if is_running else _status_text(),
+        "is_running": is_running,
+    })
+
+
+@server.route("/api/pipeline/status")
+def api_pipeline_status():
+    status = _read_pipeline_status()
+    return jsonify({
+        "running": _pipeline_running(),
+        "ok": status.get("ok") if status else None,
+        "error": status.get("error") if status else None,
+        "last_attempt_ts": status.get("ts") if status else None,
+        "last_success": _read_latest(),
+    })
+
+
+@server.route("/api/pipeline/run", methods=["POST"])
+def api_pipeline_run():
+    if _pipeline_running():
+        return jsonify({"started": False, "reason": "already_running"}), 409
+    subprocess.Popen([sys.executable, PIPELINE_SCRIPT], cwd=PROJECT_ROOT)
+    return jsonify({"started": True}), 202
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8082, debug=False)
