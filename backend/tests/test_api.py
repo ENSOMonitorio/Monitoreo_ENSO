@@ -74,6 +74,13 @@ def test_api_historico_eventos_returns_nine_events():
     assert {"yr", "title", "stat", "desc", "src"} <= body[0].keys()
 
 
+def test_api_goes19_shape():
+    _, client = _client()
+    resp = client.get("/api/goes19")
+    assert resp.status_code == 200
+    assert "anim_url" in resp.get_json()
+
+
 def test_api_status_shape():
     _, client = _client()
     resp = client.get("/api/status")

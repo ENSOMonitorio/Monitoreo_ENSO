@@ -47,6 +47,10 @@ export interface EnsoEvent {
   src: string;
 }
 
+export interface Goes19Response {
+  anim_url: string | null;
+}
+
 export interface StatusResponse {
   text: string;
   is_running: boolean;
@@ -92,6 +96,10 @@ export class ApiService {
 
   getHistoricoEventos(): Observable<EnsoEvent[]> {
     return this.http.get<EnsoEvent[]>('/api/historico/eventos');
+  }
+
+  getGoes19(): Observable<Goes19Response> {
+    return this.http.get<Goes19Response>('/api/goes19');
   }
 
   getStatus(): Observable<StatusResponse> {

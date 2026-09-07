@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { Goes19Component } from './goes19/goes19.component';
 import { HistoricoComponent } from './historico/historico.component';
 import { IndicesComponent } from './indices/indices.component';
 import { MapTabComponent } from './map-tab/map-tab.component';
@@ -23,6 +24,7 @@ export const routes: Routes = [
     component: MapTabComponent,
     data: { prefix: tab.prefix, title: tab.title },
   })),
+  { path: 'goes19', component: Goes19Component },
   { path: 'indices', component: IndicesComponent },
   { path: 'historico', component: HistoricoComponent },
 ];

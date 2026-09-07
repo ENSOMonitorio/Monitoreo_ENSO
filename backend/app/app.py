@@ -410,6 +410,15 @@ def api_historico_eventos():
     return jsonify(layout_historico.EVENTS)
 
 
+@server.route("/api/goes19")
+def api_goes19():
+    """Animación GOES-19 Banda 13 (temperatura de brillo) — a diferencia de
+    los MAP_TABS no tiene selector de fecha ni serie histórica: es un único
+    GIF de nombre fijo, regenerado a mano con `python -m GOES19.goes` (desde
+    backend/app/) o vía el pipeline cuando se agende."""
+    return jsonify({"anim_url": _fig_url("goes19_anim.gif")})
+
+
 @server.route("/api/status")
 def api_status():
     is_running = _pipeline_running()
@@ -457,7 +466,6 @@ def spa(path):
     if not os.path.exists(index_path):
         abort(404)
     return send_from_directory(STATIC_DIR, "index.html")
-
 
 if __name__ == "__main__":
     server.run(host="0.0.0.0", port=8082, debug=False)

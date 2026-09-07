@@ -1,0 +1,23 @@
+<div class="chart-card map-panel">
+  <div class="chart-header">
+    <div>
+      <div class="chart-title">GOES-19 — Temperatura de brillo</div>
+      <div class="chart-sub">
+        Animación de las últimas imágenes del satélite GOES-19 (Banda 13). Actualizada
+        manualmente o vía pipeline.
+      </div>
+    </div>
+  </div>
+
+  <ng-container *ngIf="!loading">
+    <div class="chart-figure" *ngIf="animUrl; else noData">
+      <img [src]="animUrl" alt="Animación GOES-19" />
+    </div>
+    <ng-template #noData>
+      <div class="alert-warning">
+        Todavía no se generó la animación GOES-19. Ejecuta <code>python -m GOES19.goes</code>
+        (desde <code>backend/app/</code>) para generarla.
+      </div>
+    </ng-template>
+  </ng-container>
+</div>
