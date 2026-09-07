@@ -1,5 +1,6 @@
 # ---- Stage 1: build del frontend Angular ----
-FROM node:20-alpine AS frontend-build
+# Angular 22 exige Node >=22.22.3/24.15.0/26 — node:20 no alcanza.
+FROM node:24-alpine AS frontend-build
 WORKDIR /frontend
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
