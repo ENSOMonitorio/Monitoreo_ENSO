@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService, FiguresResponse } from '../shared/api.service';
 
@@ -12,8 +12,8 @@ import { ApiService, FiguresResponse } from '../shared/api.service';
 export class MapTabComponent implements OnInit {
   prefix = '';
   title = '';
-  data: FiguresResponse | null = null;
-  loading = true;
+  data = signal<FiguresResponse | null>(null);
+  loading = signal(true);
 
   constructor(
     private route: ActivatedRoute,
@@ -29,10 +29,10 @@ export class MapTabComponent implements OnInit {
   }
 
   load(date?: string): void {
-    this.loading = true;
+    this.loading.set(true);
     this.api.getFigures(this.prefix, date).subscribe((res) => {
-      this.data = res;
-      this.loading = false;
+      this.data.set(res);
+      this.loading.set(false);
     });
   }
 

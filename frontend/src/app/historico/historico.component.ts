@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { ApiService, EnsoEvent, PlotlyFigure } from '../shared/api.service';
 import { EventCardComponent } from '../event-card/event-card.component';
 import { PlotlyChartComponent } from '../shared/plotly-chart.component';
@@ -11,13 +11,13 @@ import { PlotlyChartComponent } from '../shared/plotly-chart.component';
   templateUrl: './historico.component.html',
 })
 export class HistoricoComponent implements OnInit {
-  oniFigure: PlotlyFigure | null = null;
-  events: EnsoEvent[] = [];
+  oniFigure = signal<PlotlyFigure | null>(null);
+  events = signal<EnsoEvent[]>([]);
 
   constructor(private api: ApiService) {}
 
   ngOnInit(): void {
-    this.api.getHistoricoOni().subscribe((fig) => (this.oniFigure = fig));
-    this.api.getHistoricoEventos().subscribe((events) => (this.events = events));
+    this.api.getHistoricoOni().subscribe((fig) => this.oniFigure.set(fig));
+    this.api.getHistoricoEventos().subscribe((events) => this.events.set(events));
   }
 }

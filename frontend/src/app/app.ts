@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { ApiService, MapTabConfig } from './shared/api.service';
 
@@ -11,11 +11,11 @@ import { ApiService, MapTabConfig } from './shared/api.service';
   styleUrl: './app.scss',
 })
 export class App implements OnInit, OnDestroy {
-  mapTabs: MapTabConfig[] = [];
-  clock = '';
-  statusText = '';
-  isRunning = false;
-  authEnabled = false;
+  mapTabs = signal<MapTabConfig[]>([]);
+  clock = signal('');
+  statusText = signal('');
+  isRunning = signal(false);
+  authEnabled = signal(false);
 
   private clockTimer?: ReturnType<typeof setInterval>;
   private pollTimer?: ReturnType<typeof setInterval>;
@@ -24,8 +24,8 @@ export class App implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.api.getConfig().subscribe((cfg) => {
-      this.mapTabs = cfg.map_tabs;
-      this.authEnabled = cfg.auth_enabled;
+      this.mapTabs.set(cfg.map_tabs);
+      this.authEnabled.set(cfg.auth_enabled);
     });
     this.refreshStatus();
     this.tickClock();
@@ -42,23 +42,25 @@ export class App implements OnInit, OnDestroy {
   }
 
   private tickClock(): void {
-    this.clock = new Date().toLocaleString('es-PE', {
-      timeZone: 'America/Lima',
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-    });
+    this.clock.set(
+      new Date().toLocaleString('es-PE', {
+        timeZone: 'America/Lima',
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+      }),
+    );
   }
 
   private refreshStatus(): void {
     this.api.getStatus().subscribe((res) => {
-      this.statusText = res.text;
-      this.isRunning = res.is_running;
-      if (this.isRunning && !this.pollTimer) {
+      this.statusText.set(res.text);
+      this.isRunning.set(res.is_running);
+      if (res.is_running && !this.pollTimer) {
         this.pollTimer = setInterval(() => this.pollPipeline(), 4000);
       }
     });

@@ -8,12 +8,12 @@
       </div>
     </div>
   </div>
-  <app-plotly-chart *ngIf="oniFigure" [figure]="oniFigure"></app-plotly-chart>
+  <app-plotly-chart *ngIf="oniFigure()" [figure]="oniFigure()"></app-plotly-chart>
 </div>
 
 <div class="chart-card">
   <div class="chart-title mb-3">Grandes eventos ENOS en Perú</div>
   <div class="event-row">
-    <app-event-card *ngFor="let ev of events" [event]="ev"></app-event-card>
+    <app-event-card *ngFor="let ev of events()" [event]="ev"></app-event-card>
   </div>
 </div>

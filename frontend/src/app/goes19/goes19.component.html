@@ -9,9 +9,9 @@
     </div>
   </div>
 
-  <ng-container *ngIf="!loading">
-    <div class="chart-figure" *ngIf="animUrl; else noData">
-      <img [src]="animUrl" alt="Animación GOES-19" />
+  <ng-container *ngIf="!loading()">
+    <div class="chart-figure" *ngIf="animUrl(); else noData">
+      <img [src]="animUrl()" alt="Animación GOES-19" />
     </div>
     <ng-template #noData>
       <div class="alert-warning">

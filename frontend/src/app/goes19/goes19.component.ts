@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { ApiService } from '../shared/api.service';
 
 @Component({
@@ -9,15 +9,15 @@ import { ApiService } from '../shared/api.service';
   templateUrl: './goes19.component.html',
 })
 export class Goes19Component implements OnInit {
-  animUrl: string | null = null;
-  loading = true;
+  animUrl = signal<string | null>(null);
+  loading = signal(true);
 
   constructor(private api: ApiService) {}
 
   ngOnInit(): void {
     this.api.getGoes19().subscribe((res) => {
-      this.animUrl = res.anim_url;
-      this.loading = false;
+      this.animUrl.set(res.anim_url);
+      this.loading.set(false);
     });
   }
 }

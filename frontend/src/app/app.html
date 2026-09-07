@@ -6,13 +6,13 @@
     </div>
   </div>
   <div class="header-right">
-    <div class="refresh-status">{{ statusText }}</div>
-    <button class="apply-btn" [disabled]="isRunning" (click)="onRefreshClick()">
+    <div class="refresh-status">{{ statusText() }}</div>
+    <button class="apply-btn" [disabled]="isRunning()" (click)="onRefreshClick()">
       ↻ Actualizar datos
     </button>
     <div class="live-badge"><span class="live-dot"></span>EN VIVO</div>
-    <div class="header-time">{{ clock }}</div>
-    <a *ngIf="authEnabled" class="logout-link" href="/logout">Cerrar sesión</a>
+    <div class="header-time">{{ clock() }}</div>
+    <a *ngIf="authEnabled()" class="logout-link" href="/logout">Cerrar sesión</a>
   </div>
 </header>
 
@@ -27,7 +27,7 @@
 
   <nav class="enso-tabs">
     <a
-      *ngFor="let tab of mapTabs"
+      *ngFor="let tab of mapTabs()"
       class="enso-tab"
       [routerLink]="['/', tab.prefix]"
       routerLinkActive="enso-tab--selected"
