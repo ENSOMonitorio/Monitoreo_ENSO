@@ -7,6 +7,7 @@ del índice de tendencia. Pensado para correr vía cron (run_enso_update.sh).
 Fuentes (mismas que el notebook original del usuario, solo automatizadas):
   - OISST v2 high-res (SST + anomalía diaria)  -> downloads.psl.noaa.gov
   - NCEP GDAS (viento 850hPa, SLP diaria)      -> downloads.psl.noaa.gov
+  - GOES-19 Banda 13 (temperatura de brillo)   -> bucket S3 público de NOAA
 
 Nota importante: OISST y GDAS se actualizan a diario, pero cada uno con su
 propio rezago de publicación. Por eso cada variable usa su propia "última
@@ -22,6 +23,7 @@ import re
 import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -219,6 +221,17 @@ def render_subsurface_section(pottmp_path):
 
 
 
+def render_goes19_animation():
+    """Animación GOES-19 Banda 13 (temperatura de brillo). A diferencia del
+    resto del pipeline no depende de ninguna descarga previa: trae sus
+    propias imágenes recientes desde el bucket S3 público de NOAA (últimas
+    `max_hours_back` horas). Import diferido (no al tope del módulo) para
+    que, si gdal/boto3/shapely fallaran en algún entorno, el resto del
+    pipeline (TSM/viento/SLP/índices) siga corriendo igual."""
+    from GOES19.goes import Goes19Config, generate_goes19_animation
+    generate_goes19_animation(Goes19Config(figures_dir=Path(FIGURES)))
+
+
 def latest_time_str(da):
     return pd.Timestamp(da["time"].max().values).strftime("%Y-%m-%d")
 
@@ -377,6 +390,11 @@ def _run():
         render_subsurface_section(os.path.join(RAW, "pottmp.nc"))
     except Exception:
         log.exception("Fallo generando el corte subsuperficial (Onda Kelvin) — se continúa sin él.")
+
+    try:
+        render_goes19_animation()
+    except Exception:
+        log.exception("Fallo generando la animación GOES-19 — se continúa sin ella.")
 
     # Guarda qué fecha corresponde a cada variable para que la app Dash no adivine
     with open(os.path.join(PROCESSED, "latest.json"), "w") as f:
