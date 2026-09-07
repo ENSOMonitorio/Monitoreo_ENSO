@@ -6,3 +6,4 @@ __pycache__/
 *.pyc
 secrets.env
 .venv/
+backend/app/static/

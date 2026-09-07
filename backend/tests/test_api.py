@@ -1,4 +1,5 @@
 import importlib
+import os
 
 
 def _client():
@@ -95,6 +96,16 @@ def test_api_pipeline_run_rejects_when_already_running(monkeypatch):
     resp = client.post("/api/pipeline/run")
     assert resp.status_code == 409
     assert resp.get_json()["started"] is False
+
+
+def test_spa_fallback_404s_without_a_frontend_build(monkeypatch):
+    # En este checkout backend/app/static/ no existe (se genera recién en el
+    # stage de build de Angular del Dockerfile) — la SPA debe degradar a 404
+    # en vez de reventar, tanto para "/" como para una ruta profunda.
+    app_module, client = _client()
+    assert not os.path.exists(app_module.STATIC_DIR)
+    assert client.get("/").status_code == 404
+    assert client.get("/indices").status_code == 404
 
 
 def test_api_pipeline_run_spawns_when_idle(monkeypatch):

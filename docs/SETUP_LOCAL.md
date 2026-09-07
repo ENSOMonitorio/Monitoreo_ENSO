@@ -43,14 +43,38 @@ set ENSO_AUTH_USER=admin
 set ENSO_AUTH_PASS_HASH=<hash generado arriba>
 ```
 
-## 4. Arrancar el dashboard
+## 4. Arrancar el backend
 
 ```bash
 cd backend/app
 python app.py
 ```
 
-Abre **http://localhost:8082**
+Esto sirve la API (`/api/*`, `/figures/*`, `/health`) en **http://localhost:8082**. Sin el
+frontend compilado (ver 4b), la raíz `/` devuelve 404 — `backend/app/static/` recién se
+genera al construir Angular o al armar la imagen Docker.
+
+## 4b. Ver el frontend Angular
+
+Dos formas, desde `frontend/`:
+
+- **Modo desarrollo** (recarga en caliente, recomendado mientras se edita):
+  ```bash
+  cd frontend
+  npm install
+  npm run start -- --proxy-config proxy.conf.json
+  ```
+  Abre **http://localhost:4200** (el backend de 8082 debe estar corriendo — el proxy le
+  reenvía `/api`, `/figures`, `/login`, `/logout` y `/health`).
+
+- **Build de producción servido por el propio Flask** (para probar tal cual queda en Docker):
+  ```bash
+  cd frontend
+  npm install
+  npm run build
+  ```
+  Copia el contenido de `frontend/dist/frontend/browser/` a `backend/app/static/` y abre
+  **http://localhost:8082**.
 
 ## 5. Poblar con datos reales de NOAA
 

@@ -6,3 +6,7 @@ __pycache__
 .pytest_cache
 data
 secrets.env
+frontend/node_modules
+frontend/dist
+frontend/.angular
+backend/app/static

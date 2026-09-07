@@ -1,3 +1,12 @@
+# ---- Stage 1: build del frontend Angular ----
+FROM node:20-alpine AS frontend-build
+WORKDIR /frontend
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+COPY frontend/ ./
+RUN npm run build -- --configuration production
+
+# ---- Stage 2: backend Python/GDAL + build de Angular ya compilado ----
 FROM continuumio/miniconda3:latest
 
 LABEL description="Monitor ENSO — TSM, anomalía, viento 850hPa, SLP, Hovmöller"
@@ -26,6 +35,7 @@ RUN pip install --upgrade pip setuptools wheel && \
 
 COPY backend/app/ ./backend/app/
 COPY backend/pipeline/ ./backend/pipeline/
+COPY --from=frontend-build /frontend/dist/frontend/browser ./backend/app/static
 
 RUN mkdir -p /app/data/raw /app/data/processed /app/data/figures && \
     useradd -m -u 1000 appuser && \
