@@ -1,3 +1,12 @@
+# ---- Stage 1: build del frontend Angular ----
+FROM node:20-alpine AS frontend-build
+WORKDIR /frontend
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+COPY frontend/ ./
+RUN npm run build -- --configuration production
+
+# ---- Stage 2: backend Python/GDAL + build de Angular ya compilado ----
 FROM continuumio/miniconda3:latest
 
 LABEL description="Monitor ENSO — TSM, anomalía, viento 850hPa, SLP, Hovmöller"
@@ -20,12 +29,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ENV CPLUS_INCLUDE_PATH=/usr/include/gdal \
     C_INCLUDE_PATH=/usr/include/gdal
 
-COPY app/requirements.txt ./app/requirements.txt
+COPY backend/app/requirements.txt ./backend/app/requirements.txt
 RUN pip install --upgrade pip setuptools wheel && \
-    pip install --no-cache-dir -r app/requirements.txt
+    pip install --no-cache-dir -r backend/app/requirements.txt
 
-COPY app/ ./app/
-COPY pipeline/ ./pipeline/
+COPY backend/app/ ./backend/app/
+COPY backend/pipeline/ ./backend/pipeline/
+COPY --from=frontend-build /frontend/dist/frontend/browser ./backend/app/static
 
 RUN mkdir -p /app/data/raw /app/data/processed /app/data/figures && \
     useradd -m -u 1000 appuser && \
@@ -33,7 +43,7 @@ RUN mkdir -p /app/data/raw /app/data/processed /app/data/figures && \
 
 USER appuser
 
-WORKDIR /app/app
+WORKDIR /app/backend/app
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:8082/health || exit 1

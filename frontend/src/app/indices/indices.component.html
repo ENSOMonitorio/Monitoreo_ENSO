@@ -1,0 +1,15 @@
+<div class="chart-card" *ngFor="let card of cards">
+  <div class="chart-header">
+    <div>
+      <div class="chart-title">Evolución de la anomalía de TSM — Región {{ card.label }}</div>
+      <div class="chart-sub">
+        Anomalía diaria respecto al promedio histórico de NOAA (índice propio derivado de OISST,
+        no el ONI oficial).
+      </div>
+    </div>
+  </div>
+  <app-plotly-chart *ngIf="card.available && card.figure" [figure]="card.figure"></app-plotly-chart>
+  <div class="alert-warning" *ngIf="!card.available">
+    Aún no hay datos — se generan tras la primera corrida del pipeline.
+  </div>
+</div>

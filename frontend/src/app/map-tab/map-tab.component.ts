@@ -1,0 +1,43 @@
+import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { ApiService, FiguresResponse } from '../shared/api.service';
+
+@Component({
+  selector: 'app-map-tab',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './map-tab.component.html',
+})
+export class MapTabComponent implements OnInit {
+  prefix = '';
+  title = '';
+  data: FiguresResponse | null = null;
+  loading = true;
+
+  constructor(
+    private route: ActivatedRoute,
+    private api: ApiService,
+  ) {}
+
+  ngOnInit(): void {
+    this.route.data.subscribe((routeData) => {
+      this.prefix = routeData['prefix'];
+      this.title = routeData['title'];
+      this.load();
+    });
+  }
+
+  load(date?: string): void {
+    this.loading = true;
+    this.api.getFigures(this.prefix, date).subscribe((res) => {
+      this.data = res;
+      this.loading = false;
+    });
+  }
+
+  onDateChange(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
+    this.load(value);
+  }
+}

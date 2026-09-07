@@ -1,8 +1,10 @@
 """
-Monitor ENSO — Dash app. Sirve las figuras generadas por
-pipeline/fetch_and_render.py y el resumen histórico. Expuesto vía gunicorn
-como `app:server` en el puerto 8082 (mismo patrón que los otros dashboards
-de este VPS: mapas.resiliencia.cloud y riesgo.resiliencia.cloud).
+Monitor ENSO — backend Flask. Sirve la API JSON (/api/*), las figuras
+generadas por backend/pipeline/fetch_and_render.py (/figures/<file>) y el
+frontend Angular ya compilado (backend/app/static/, generado en la imagen
+Docker por el stage de build de frontend/). Expuesto vía gunicorn como
+`app:server` en el puerto 8082 (mismo patrón que los otros dashboards de
+este VPS: mapas.resiliencia.cloud y riesgo.resiliencia.cloud).
 """
 
 import glob
@@ -14,23 +16,29 @@ import subprocess
 import sys
 from datetime import datetime, timezone, timedelta
 
-import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.graph_objects as go
-from dash import Dash, Input, Output, dcc, html, no_update
-from flask import redirect, request, send_from_directory, session
+from flask import Flask, Response, abort, jsonify, redirect, request, send_from_directory, session
 from werkzeug.security import check_password_hash
 
 import layout_historico
 import theme
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(APP_DIR)
+BACKEND_DIR = os.path.dirname(APP_DIR)
+PROJECT_ROOT = os.path.dirname(BACKEND_DIR)
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 FIGURES_DIR = os.path.join(DATA_DIR, "figures")
 PROCESSED_DIR = os.path.join(DATA_DIR, "processed")
 
-PIPELINE_SCRIPT = os.path.join(PROJECT_ROOT, "pipeline", "fetch_and_render.py")
+# Build de Angular (frontend/), copiado acá por el Dockerfile en producción.
+# En dev local sin Docker, este directorio no existe hasta que se corra
+# `ng build` a mano y se copie su salida — mientras tanto la SPA devuelve
+# 404 en vez de romper el resto del backend (ver spa() más abajo).
+STATIC_DIR = os.path.join(APP_DIR, "static")
+LOGIN_ASSETS_DIR = os.path.join(APP_DIR, "assets", "Logos")
+
+PIPELINE_SCRIPT = os.path.join(BACKEND_DIR, "pipeline", "fetch_and_render.py")
 PIPELINE_LOCK = os.path.join(DATA_DIR, ".pipeline.lock")
 
 
@@ -68,28 +76,19 @@ MAP_TABS = [
     ("hovmoller_nino12", "Hovmöller — Niño 1+2"),
     ("subsurf", "Subsuperficie — Onda Kelvin"),
 ]
+_MAP_TAB_PREFIXES = {prefix for prefix, _ in MAP_TABS}
 
-app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP], suppress_callback_exceptions=True)
-app.title = "Monitor ENSO — resiliencia.cloud"
-app.index_string = """<!DOCTYPE html>
-<html>
-    <head>
-        {%metas%}
-        <title>{%title%}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌊</text></svg>">
-        {%favicon%}
-        {%css%}
-    </head>
-    <body>
-        {%app_entry%}
-        <footer>
-            {%config%}
-            {%scripts%}
-            {%renderer%}
-        </footer>
-    </body>
-</html>"""
-server = app.server
+# Mismas 4 regiones que indices.py/pipeline calculan en el CSV; hoy la
+# pestaña "Índices" del frontend solo dibuja nino12/nino34, pero la API
+# expone las 4 por si se quiere ampliar luego.
+INDEX_REGIONS = {
+    "nino12": {"label": "Niño 1+2", "color": "#e2574a"},
+    "nino34": {"label": "Niño 3.4", "color": "#5b9bdb"},
+    "nino3": {"label": "Niño 3", "color": "#f0a35f"},
+    "nino4": {"label": "Niño 4", "color": "#9b7fd1"},
+}
+
+server = Flask(__name__)
 
 # Login propio (reemplaza el basic-auth de nginx — mismo usuario/clave, pero
 # con una pantalla en vez del popup nativo del navegador). El hash nunca
@@ -154,7 +153,7 @@ LOGIN_HTML = """<!DOCTYPE html>
 </head>
 <body>
   <div class="card">
-    <div class="media"><img src="/assets/Logos/past-el-nino-gif-1.webp" alt="El Niño"></div>
+    <div class="media"><img src="/login-assets/past-el-nino-gif-1.webp" alt="El Niño"></div>
     <div class="panel">
       <div class="logo">
         <h1><span class="r">E</span>l <span class="r">N</span>iño-<span class="b">O</span>scilación del <span class="b">S</span>ur (ENSO)</h1>
@@ -178,7 +177,7 @@ LOGIN_HTML = """<!DOCTYPE html>
 def _require_login():
     if not AUTH_PASS_HASH:
         return  # sin credenciales configuradas -> sin login (evita bloquearse afuera)
-    if request.path in ("/login", "/health") or request.path.startswith("/assets/"):
+    if request.path in ("/login", "/health") or request.path.startswith("/login-assets/"):
         return
     if not session.get("logged_in"):
         return redirect(f"/login?next={request.path}")
@@ -202,6 +201,11 @@ def login():
 def logout():
     session.clear()
     return redirect("/login")
+
+
+@server.route("/login-assets/<path:filename>")
+def login_assets(filename):
+    return send_from_directory(LOGIN_ASSETS_DIR, filename)
 
 
 @server.route("/figures/<path:filename>")
@@ -233,69 +237,6 @@ def _dates_for(prefix):
         if m:
             dates.append(m.group(1))
     return sorted(dates, reverse=True)
-
-
-def _map_tab(prefix, title):
-    dates = _dates_for(prefix)
-    header = html.Div([
-        html.Div([
-            html.Div(title, className="chart-title"),
-            html.Div("Elige una fecha para ver el panel correspondiente", className="chart-sub"),
-        ]),
-        dcc.Dropdown(
-            id=f"{prefix}-date",
-            options=[{"label": d, "value": d} for d in dates],
-            value=(dates[0] if dates else None),
-            clearable=False, style={"minWidth": "180px"},
-            placeholder="Aún no hay datos — corre el pipeline",
-            className="enso-dropdown",
-        ),
-    ], className="chart-header")
-
-    body = [
-        html.Div(
-            html.Img(id=f"{prefix}-img", src=(_fig_url(f"{prefix}_{dates[0]}.png") if dates else None)),
-            className="chart-figure",
-        ) if dates else dbc.Alert(
-            "Todavía no se generó ninguna figura para esta variable. "
-            "Corre pipeline/fetch_and_render.py (o espera al cron diario).",
-            color="warning",
-        ),
-    ]
-    if prefix in DAILY_ANIM_PREFIXES:
-        anim_url = _fig_url(f"{prefix}_anim.gif")
-        if anim_url:
-            body.append(html.Div("Evolución — últimos 15 días", className="chart-title mt-3 mb-2"))
-            body.append(html.Div(html.Img(src=anim_url), className="chart-figure"))
-
-    if prefix == "subsurf":
-        body.append(html.P(
-            "Fuente: NCEP GODAS (mensual, no diario). Anomalía respecto a la climatología "
-            "2015-2024 calculada para este panel — no es el ONI oficial.",
-            className="chart-sub mt-2",
-        ))
-        composite_url = _fig_url("subsurf_composite_anim.gif")
-        if composite_url:
-            body.append(html.Div("Temperatura observada + anomalía — Pacífico ecuatorial", className="chart-title mt-3 mb-2"))
-            body.append(html.Div(
-                "Corte 2°S-2°N con el mapa de las regiones Niño arriba, animado mes a mes (año en curso).",
-                className="chart-sub mb-2",
-            ))
-            body.append(html.Div(html.Img(src=composite_url), className="chart-figure"))
-
-    return html.Div([header] + body, className="chart-card map-panel")
-
-
-def _register_map_callback(prefix):
-    @app.callback(Output(f"{prefix}-img", "src"), Input(f"{prefix}-date", "value"))
-    def _update(date_value, prefix=prefix):
-        if not date_value:
-            return None
-        return _fig_url(f"{prefix}_{date_value}.png")
-
-
-for _prefix, _title in MAP_TABS:
-    _register_map_callback(_prefix)
 
 
 def _hex_to_rgba(hex_color, alpha):
@@ -359,34 +300,6 @@ def _index_region_figure(df, col, label, color):
     return fig
 
 
-def _indices_tab():
-    csv_path = os.path.join(PROCESSED_DIR, "indices_diarios.csv")
-    if not os.path.exists(csv_path):
-        return html.Div([
-            html.Div("Índices Niño — tendencia diaria", className="chart-title"),
-            dbc.Alert("Aún no hay datos — se generan tras la primera corrida del pipeline.",
-                      color="warning", className="mt-3"),
-        ], className="chart-card")
-
-    df = pd.read_csv(csv_path, parse_dates=["fecha"])
-    regions = [("nino12", "Niño 1+2", "#e2574a"), ("nino34", "Niño 3.4", "#5b9bdb")]
-    cards = []
-    for col, label, color in regions:
-        if col not in df.columns:
-            continue
-        cards.append(html.Div([
-            html.Div([
-                html.Div([
-                    html.Div(f"Evolución de la anomalía de TSM — Región {label}", className="chart-title"),
-                    html.Div("Anomalía diaria respecto al promedio histórico de NOAA (índice propio "
-                              "derivado de OISST, no el ONI oficial).", className="chart-sub"),
-                ]),
-            ], className="chart-header"),
-            dcc.Graph(figure=_index_region_figure(df, col, label, color), config={"displayModeBar": False}),
-        ], className="chart-card"))
-    return html.Div(cards)
-
-
 def _read_latest():
     path = os.path.join(PROCESSED_DIR, "latest.json")
     if not os.path.exists(path):
@@ -430,130 +343,129 @@ def _status_text():
     return base
 
 
-def _header():
+# ---------------------------------------------------------------------------
+# API JSON — consumida por el frontend Angular (frontend/src/app). Cada
+# endpoint envuelve la misma lógica que antes usaba el layout de Dash, para
+# no reimplementar nada. Quedan protegidos por el mismo _require_login que
+# el resto del sitio (no están en el allowlist de arriba).
+# ---------------------------------------------------------------------------
+
+@server.route("/api/config")
+def api_config():
+    return jsonify({
+        "map_tabs": [
+            {"prefix": prefix, "title": title, "has_daily_anim": prefix in DAILY_ANIM_PREFIXES}
+            for prefix, title in MAP_TABS
+        ],
+        "auth_enabled": bool(AUTH_PASS_HASH),
+    })
+
+
+@server.route("/api/figures/<prefix>")
+def api_figures(prefix):
+    if prefix not in _MAP_TAB_PREFIXES:
+        abort(404)
+    dates = _dates_for(prefix)
+    selected = request.args.get("date") or (dates[0] if dates else None)
+    return jsonify({
+        "prefix": prefix,
+        "dates": dates,
+        "selected_date": selected,
+        "image_url": _fig_url(f"{prefix}_{selected}.png") if selected else None,
+        "anim_url": _fig_url(f"{prefix}_anim.gif") if prefix in DAILY_ANIM_PREFIXES else None,
+        "composite_anim_url": _fig_url("subsurf_composite_anim.gif") if prefix == "subsurf" else None,
+    })
+
+
+@server.route("/api/indices")
+def api_indices():
+    return jsonify({"regions": [{"key": key, **meta} for key, meta in INDEX_REGIONS.items()]})
+
+
+@server.route("/api/indices/<region>")
+def api_indices_region(region):
+    if region not in INDEX_REGIONS:
+        abort(404)
+    csv_path = os.path.join(PROCESSED_DIR, "indices_diarios.csv")
+    if not os.path.exists(csv_path):
+        return jsonify({"available": False})
+    df = pd.read_csv(csv_path, parse_dates=["fecha"])
+    if region not in df.columns:
+        return jsonify({"available": False})
+    meta = INDEX_REGIONS[region]
+    fig = _index_region_figure(df, region, meta["label"], meta["color"])
+    # fig.to_json() (no jsonify(fig.to_dict())): el encoder de Plotly sabe
+    # serializar los pandas.Timestamp de las anotaciones, el de Flask no.
+    return Response(fig.to_json(), mimetype="application/json")
+
+
+@server.route("/api/historico/oni")
+def api_historico_oni():
+    fig = layout_historico.build_oni_figure()
+    return Response(fig.to_json(), mimetype="application/json")
+
+
+@server.route("/api/historico/eventos")
+def api_historico_eventos():
+    return jsonify(layout_historico.EVENTS)
+
+
+@server.route("/api/goes19")
+def api_goes19():
+    """Animación GOES-19 Banda 13 (temperatura de brillo) — a diferencia de
+    los MAP_TABS no tiene selector de fecha ni serie histórica: es un único
+    GIF de nombre fijo, regenerado a mano con `python -m GOES19.goes` (desde
+    backend/app/) o vía el pipeline cuando se agende."""
+    return jsonify({"anim_url": _fig_url("goes19_anim.gif")})
+
+
+@server.route("/api/status")
+def api_status():
     is_running = _pipeline_running()
-    status_text = "Actualizando…" if is_running else _status_text()
-    return html.Header([
-        html.Div([
-            html.Div("🌊", className="logo-icon", style={"visibility": "hidden"}),
-            html.Div([
-                html.Div("Monitor ENSO", className="logo-top"),
-                html.Div("Perú · Pacífico tropical", className="logo-sub"),
-            ]),
-        ], className="logo"),
-        html.Div([
-            html.Div(status_text, id="refresh-status", className="refresh-status"),
-            html.Button("↻ Actualizar datos", id="refresh-btn", className="apply-btn",
-                        n_clicks=0, disabled=is_running),
-            html.Div([html.Span(className="live-dot"), "EN VIVO"], className="live-badge"),
-            html.Div(id="header-clock", className="header-time"),
-            dcc.Interval(id="clock-tick", interval=1000),
-            dcc.Interval(id="refresh-poll", interval=4000, disabled=not is_running),
-            dcc.Location(id="refresh-reload", refresh=True),
-            html.A("Cerrar sesión", href="/logout", className="logout-link") if AUTH_PASS_HASH else None,
-        ], className="header-right"),
-    ], className="enso-header")
+    return jsonify({
+        "text": "Actualizando…" if is_running else _status_text(),
+        "is_running": is_running,
+    })
 
 
-@app.callback(Output("header-clock", "children"), Input("clock-tick", "n_intervals"))
-def _update_clock(_):
-    return datetime.now(LIMA_TZ).strftime("%d %b %Y · %H:%M:%S")
+@server.route("/api/pipeline/status")
+def api_pipeline_status():
+    status = _read_pipeline_status()
+    return jsonify({
+        "running": _pipeline_running(),
+        "ok": status.get("ok") if status else None,
+        "error": status.get("error") if status else None,
+        "last_attempt_ts": status.get("ts") if status else None,
+        "last_success": _read_latest(),
+    })
 
 
-@app.callback(
-    Output("refresh-status", "children"),
-    Output("refresh-poll", "disabled"),
-    Output("refresh-btn", "disabled"),
-    Input("refresh-btn", "n_clicks"),
-    prevent_initial_call=True,
-)
-def _trigger_refresh(n_clicks):
+@server.route("/api/pipeline/run", methods=["POST"])
+def api_pipeline_run():
     if _pipeline_running():
-        return "Ya hay una actualización en curso…", False, True
+        return jsonify({"started": False, "reason": "already_running"}), 409
     subprocess.Popen([sys.executable, PIPELINE_SCRIPT], cwd=PROJECT_ROOT)
-    return "Actualizando…", False, True
+    return jsonify({"started": True}), 202
 
 
-@app.callback(
-    Output("refresh-status", "children", allow_duplicate=True),
-    Output("refresh-poll", "disabled", allow_duplicate=True),
-    Output("refresh-btn", "disabled", allow_duplicate=True),
-    Output("refresh-reload", "pathname"),
-    Input("refresh-poll", "n_intervals"),
-    prevent_initial_call=True,
-)
-def _poll_refresh(n_intervals):
-    if _pipeline_running():
-        return "Actualizando…", False, True, no_update
-    return _status_text(), True, False, "/"
+# ---------------------------------------------------------------------------
+# Frontend Angular ya compilado (backend/app/static/, generado por el stage
+# de build de frontend/ en el Dockerfile). Cualquier ruta que no sea una API
+# ni un archivo estático conocido cae al index.html de la SPA, para que el
+# router de Angular la resuelva del lado del cliente (soporta refrescar el
+# navegador en una ruta profunda como /indices sin dar 404).
+# ---------------------------------------------------------------------------
 
-
-def _goes19_tab():
-    """Tab para la animación GOES-19 Band 13 (temperatura de brillo)."""
-    anim_url = _fig_url("goes19_anim.gif")
-    if not anim_url:
-        return html.Div([
-            html.Div([
-                html.Div([
-                    html.Div("GOES-19 — Temperatura de brillo", className="chart-title"),
-                    html.Div("Animación de las últimas imágenes del satélite GOES-19 (Banda 13).",
-                             className="chart-sub"),
-                ]),
-            ], className="chart-header"),
-            dbc.Alert(
-                "Todavía no se generó la animación GOES-19. "
-                "Ejecuta python -m app.GOES19.goes para generarla.",
-                color="warning",
-            ),
-        ], className="chart-card map-panel")
-
-    return html.Div([
-        html.Div([
-            html.Div([
-                html.Div("GOES-19 — Temperatura de brillo", className="chart-title"),
-                html.Div("Animación de las últimas imágenes del satélite GOES-19 (Banda 13). "
-                         "Actualizada manualmente o vía pipeline.", className="chart-sub"),
-            ]),
-        ], className="chart-header"),
-        html.Div(
-            html.Img(src=anim_url, style={"width": "100%", "borderRadius": "8px"}),
-            className="chart-figure",
-        ),
-    ], className="chart-card map-panel")
-
-
-def serve_layout():
-    """Función (no objeto fijo) para que cada recarga del navegador refleje
-    las figuras/índices más recientes sin tener que reiniciar el contenedor."""
-    return html.Div([
-        _header(),
-        html.Div([
-            html.Div([
-                html.Div("Monitor ENSO — Perú / Pacífico tropical", className="page-title"),
-                html.Div("TSM, anomalías, viento, presión y subsuperficie del Pacífico ecuatorial, "
-                         "actualizado diariamente.", className="page-sub"),
-            ], className="page-intro"),
-            dcc.Tabs([
-                dcc.Tab(label=title, children=_map_tab(prefix, title),
-                        className="enso-tab", selected_className="enso-tab--selected")
-                for prefix, title in MAP_TABS
-            ] + [
-                dcc.Tab(label="GOES19", children=_goes19_tab(),
-                        className="enso-tab", selected_className="enso-tab--selected"),
-                dcc.Tab(label="Índices", children=_indices_tab(),
-                        className="enso-tab", selected_className="enso-tab--selected"),
-                dcc.Tab(label="Contexto histórico", children=layout_historico.layout(),
-                        className="enso-tab", selected_className="enso-tab--selected"),
-            ], className="enso-tabs", parent_className="enso-tabs-parent"),
-            html.Footer([
-                html.P("Fuentes: NOAA OISST v2 · NCEP GDAS · NOAA CPC. "
-                       "Pipeline propio ejecutado diariamente en este servidor."),
-            ], className="enso-footer"),
-        ], className="enso-shell"),
-    ])
-
-
-app.layout = serve_layout
+@server.route("/", defaults={"path": ""})
+@server.route("/<path:path>")
+def spa(path):
+    candidate = os.path.join(STATIC_DIR, path) if path else None
+    if candidate and os.path.isfile(candidate):
+        return send_from_directory(STATIC_DIR, path)
+    index_path = os.path.join(STATIC_DIR, "index.html")
+    if not os.path.exists(index_path):
+        abort(404)
+    return send_from_directory(STATIC_DIR, "index.html")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8082, debug=False)
+    server.run(host="0.0.0.0", port=8082, debug=False)

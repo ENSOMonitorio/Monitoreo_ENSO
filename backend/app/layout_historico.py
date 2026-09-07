@@ -1,11 +1,11 @@
 """
-Pestaña "Contexto histórico": port del panel estático (Artifact) con la
-serie ONI 1950-2026 y los grandes eventos ENOS en Perú, para que quede
-integrado en el mismo dashboard del VPS en vez de vivir solo en un link aparte.
+Contexto histórico ENOS: serie ONI 1950-2026 y grandes eventos en Perú.
+Consumido por la API (/api/historico/oni y /api/historico/eventos) —
+la UI (antes una pestaña de Dash, ahora la pestaña "Contexto histórico"
+del frontend Angular) vive en frontend/src/app/historico/.
 """
 
 import plotly.graph_objects as go
-from dash import dcc, html
 
 import theme
 
@@ -100,33 +100,3 @@ def build_oni_figure():
         bargap=0.15,
     ))
     return fig
-
-
-def _event_card(ev):
-    return html.Div([
-        html.Div(ev["yr"], className="event-year"),
-        html.Div(ev["title"], className="event-title"),
-        html.Div(ev["stat"], className="event-stat"),
-        html.P(ev["desc"], className="event-desc"),
-        html.Div(ev["src"], className="event-src"),
-    ], className="event-card")
-
-
-def layout():
-    return html.Div([
-        html.Div([
-            html.Div([
-                html.Div([
-                    html.Div("Contexto histórico ENOS en Perú", className="chart-title"),
-                    html.Div("Serie reconstruida a partir de NOAA CPC (ERSST v5) vía ggweather.com; "
-                              "2025-2026 son valores provisionales. Para cifras oficiales exactas "
-                              "consulte cpc.ncep.noaa.gov.", className="chart-sub"),
-                ]),
-            ], className="chart-header"),
-            dcc.Graph(figure=build_oni_figure(), config={"displayModeBar": False}),
-        ], className="chart-card"),
-        html.Div([
-            html.Div("Grandes eventos ENOS en Perú", className="chart-title mb-3"),
-            html.Div([_event_card(ev) for ev in EVENTS], className="event-row"),
-        ], className="chart-card"),
-    ])

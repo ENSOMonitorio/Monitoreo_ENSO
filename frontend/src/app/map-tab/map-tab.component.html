@@ -1,0 +1,49 @@
+<div class="chart-card map-panel">
+  <div class="chart-header">
+    <div>
+      <div class="chart-title">{{ title }}</div>
+      <div class="chart-sub">Elige una fecha para ver el panel correspondiente</div>
+    </div>
+    <select
+      *ngIf="data && data.dates.length"
+      class="enso-dropdown"
+      [value]="data.selected_date"
+      (change)="onDateChange($event)"
+    >
+      <option *ngFor="let d of data.dates" [value]="d">{{ d }}</option>
+    </select>
+  </div>
+
+  <ng-container *ngIf="!loading && data">
+    <div class="chart-figure" *ngIf="data.image_url; else noData">
+      <img [src]="data.image_url" [alt]="title" />
+    </div>
+    <ng-template #noData>
+      <div class="alert-warning">
+        Todavía no se generó ninguna figura para esta variable. Corre
+        backend/pipeline/fetch_and_render.py (o espera al cron diario).
+      </div>
+    </ng-template>
+
+    <ng-container *ngIf="data.anim_url">
+      <div class="chart-title mt-3 mb-2">Evolución — últimos 15 días</div>
+      <div class="chart-figure"><img [src]="data.anim_url" alt="Animación reciente" /></div>
+    </ng-container>
+
+    <ng-container *ngIf="prefix === 'subsurf'">
+      <p class="chart-sub mt-2">
+        Fuente: NCEP GODAS (mensual, no diario). Anomalía respecto a la climatología 2015-2024
+        calculada para este panel — no es el ONI oficial.
+      </p>
+      <ng-container *ngIf="data.composite_anim_url">
+        <div class="chart-title mt-3 mb-2">
+          Temperatura observada + anomalía — Pacífico ecuatorial
+        </div>
+        <div class="chart-sub mb-2">
+          Corte 2°S-2°N con el mapa de las regiones Niño arriba, animado mes a mes (año en curso).
+        </div>
+        <div class="chart-figure"><img [src]="data.composite_anim_url" alt="Composite subsuperficie" /></div>
+      </ng-container>
+    </ng-container>
+  </ng-container>
+</div>

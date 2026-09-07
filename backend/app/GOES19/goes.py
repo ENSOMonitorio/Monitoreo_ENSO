@@ -48,7 +48,9 @@ class Goes19Config:
 
 
 def _project_root() -> Path:
-	return Path(__file__).resolve().parents[2]
+	# .../backend/app/GOES19/goes.py -> parents[0]=GOES19, [1]=app,
+	# [2]=backend, [3]=raíz del repo (donde vive data/).
+	return Path(__file__).resolve().parents[3]
 
 
 def _default_data_dirs() -> tuple[Path, Path, Path]:
