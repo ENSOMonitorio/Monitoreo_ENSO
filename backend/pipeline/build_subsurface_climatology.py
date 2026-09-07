@@ -6,7 +6,7 @@ profundidad-longitud ("Onda Kelvin"). No corre en el cron diario — se
 ejecuta manualmente cuando se quiere (re)establecer el período base.
 
 Uso:
-    python pipeline/build_subsurface_climatology.py [año_inicio] [año_fin]
+    python backend/pipeline/build_subsurface_climatology.py [año_inicio] [año_fin]
     (por defecto 2015-2024, ambos incluidos)
 
 Fuente: NCEP GODAS (Global Ocean Data Assimilation System) vía
@@ -22,9 +22,10 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CLIM_CACHE = os.path.join(BASE_DIR, "data", "raw", "godas_clim_cache")
-PROCESSED = os.path.join(BASE_DIR, "data", "processed")
+BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.dirname(BACKEND_DIR)
+CLIM_CACHE = os.path.join(PROJECT_ROOT, "data", "raw", "godas_clim_cache")
+PROCESSED = os.path.join(PROJECT_ROOT, "data", "processed")
 os.makedirs(CLIM_CACHE, exist_ok=True)
 os.makedirs(PROCESSED, exist_ok=True)
 

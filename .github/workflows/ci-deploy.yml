@@ -5,18 +5,18 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - "app/**"
-      - "pipeline/**"
-      - "tests/**"
+      - "backend/app/**"
+      - "backend/pipeline/**"
+      - "backend/tests/**"
       - "docker/**"
       - "docker-compose.yml"
       - ".github/workflows/**"
   push:
     branches: [main]
     paths:
-      - "app/**"
-      - "pipeline/**"
-      - "tests/**"
+      - "backend/app/**"
+      - "backend/pipeline/**"
+      - "backend/tests/**"
       - "docker/**"
       - "docker-compose.yml"
       - ".github/workflows/**"
@@ -36,7 +36,7 @@ jobs:
           docker run --rm --user root \
             -v "${{ github.workspace }}:/repo" -w /repo \
             enso-dashboard:ci \
-            sh -c "pip install -q pytest && python -m pytest tests -v"
+            sh -c "pip install -q pytest && python -m pytest backend/tests -v"
 
   deploy:
     name: Deploy a producción

@@ -9,7 +9,7 @@
 
 set -euo pipefail
 
-RUN_DIR="/root/ENSO_DASHBOARD/run"
+RUN_DIR="/root/ENSO_DASHBOARD/scripts"
 LOCK_FILE="${RUN_DIR}/.run_enso_update.lock"
 
 if [ -f "${LOCK_FILE}" ] && kill -0 "$(cat "${LOCK_FILE}")" 2>/dev/null; then
@@ -26,6 +26,6 @@ if ! docker ps --format '{{.Names}}' | grep -q '^enso_dashboard$'; then
     exit 1
 fi
 
-docker exec -w /app enso_dashboard python pipeline/fetch_and_render.py
+docker exec -w /app enso_dashboard python backend/pipeline/fetch_and_render.py
 
 echo "[$(date -u +%FT%TZ)] Actualización ENSO completa."

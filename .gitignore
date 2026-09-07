@@ -1,7 +1,7 @@
 data/raw/
 data/figures/
 data/processed/
-run/*.log
+scripts/*.log
 __pycache__/
 *.pyc
 secrets.env

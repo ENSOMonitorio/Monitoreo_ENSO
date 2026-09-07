@@ -27,14 +27,15 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.join(BASE_DIR, "app"))
+BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.dirname(BACKEND_DIR)
+sys.path.insert(0, os.path.join(BACKEND_DIR, "app"))
 import indices  # noqa: E402
 import plotting  # noqa: E402
 
-RAW = os.path.join(BASE_DIR, "data", "raw")
-PROCESSED = os.path.join(BASE_DIR, "data", "processed")
-FIGURES = os.path.join(BASE_DIR, "data", "figures")
+RAW = os.path.join(PROJECT_ROOT, "data", "raw")
+PROCESSED = os.path.join(PROJECT_ROOT, "data", "processed")
+FIGURES = os.path.join(PROJECT_ROOT, "data", "figures")
 for _d in (RAW, PROCESSED, FIGURES):
     os.makedirs(_d, exist_ok=True)
 
@@ -56,7 +57,7 @@ SOURCES = {
     "pottmp": f"{NOAA_BASE}/godas/pottmp.{YEAR}.nc",
 }
 
-# Debe coincidir con pipeline/build_subsurface_climatology.py
+# Debe coincidir con backend/pipeline/build_subsurface_climatology.py
 SUBSURF_LAT_BAND = (-2, 2)
 SUBSURF_LAT_MARGIN = (-6, 6)
 SUBSURF_MAX_DEPTH_M = 600
@@ -161,7 +162,7 @@ def equatorial_band_mean(path):
 def render_subsurface_section(pottmp_path):
     """Corte profundidad-longitud de anomalía subsuperficial (Onda Kelvin).
     Requiere que ya exista data/processed/godas_climatology.nc — generado una
-    sola vez con pipeline/build_subsurface_climatology.py. Si no existe, se
+    sola vez con backend/pipeline/build_subsurface_climatology.py. Si no existe, se
     omite este paso sin romper el resto del pipeline."""
     clim_path = os.path.join(PROCESSED, "godas_climatology.nc")
     if not os.path.exists(clim_path):
@@ -278,8 +279,8 @@ def prune_old_figures(days=60):
         log.info("Figuras podadas (> %s días desde su generación): %d", days, removed)
 
 
-LOCK_PATH = os.path.join(BASE_DIR, "data", ".pipeline.lock")
-STATUS_PATH = os.path.join(BASE_DIR, "data", "processed", "pipeline_status.json")
+LOCK_PATH = os.path.join(PROJECT_ROOT, "data", ".pipeline.lock")
+STATUS_PATH = os.path.join(PROJECT_ROOT, "data", "processed", "pipeline_status.json")
 
 
 def _write_status(ok, error=None):

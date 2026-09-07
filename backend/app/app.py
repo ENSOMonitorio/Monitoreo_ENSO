@@ -1,6 +1,6 @@
 """
 Monitor ENSO — Dash app. Sirve las figuras generadas por
-pipeline/fetch_and_render.py y el resumen histórico. Expuesto vía gunicorn
+backend/pipeline/fetch_and_render.py y el resumen histórico. Expuesto vía gunicorn
 como `app:server` en el puerto 8082 (mismo patrón que los otros dashboards
 de este VPS: mapas.resiliencia.cloud y riesgo.resiliencia.cloud).
 """
@@ -25,12 +25,13 @@ import layout_historico
 import theme
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(APP_DIR)
+BACKEND_DIR = os.path.dirname(APP_DIR)
+PROJECT_ROOT = os.path.dirname(BACKEND_DIR)
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 FIGURES_DIR = os.path.join(DATA_DIR, "figures")
 PROCESSED_DIR = os.path.join(DATA_DIR, "processed")
 
-PIPELINE_SCRIPT = os.path.join(PROJECT_ROOT, "pipeline", "fetch_and_render.py")
+PIPELINE_SCRIPT = os.path.join(BACKEND_DIR, "pipeline", "fetch_and_render.py")
 PIPELINE_LOCK = os.path.join(DATA_DIR, ".pipeline.lock")
 
 
@@ -258,7 +259,7 @@ def _map_tab(prefix, title):
             className="chart-figure",
         ) if dates else dbc.Alert(
             "Todavía no se generó ninguna figura para esta variable. "
-            "Corre pipeline/fetch_and_render.py (o espera al cron diario).",
+            "Corre backend/pipeline/fetch_and_render.py (o espera al cron diario).",
             color="warning",
         ),
     ]
