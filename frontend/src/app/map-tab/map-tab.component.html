@@ -2,10 +2,10 @@
   <div class="chart-header">
     <div>
       <div class="chart-title">{{ title }}</div>
-      <div class="chart-sub">Elige una fecha para ver el panel correspondiente</div>
+      <div class="chart-sub" *ngIf="prefix !== 'subsurf'">Elige una fecha para ver el panel correspondiente</div>
     </div>
     <select
-      *ngIf="data() && data()!.dates.length"
+      *ngIf="prefix !== 'subsurf' && data() && data()!.dates.length"
       class="enso-dropdown"
       [value]="data()!.selected_date"
       (change)="onDateChange($event)"
@@ -15,19 +15,21 @@
   </div>
 
   <ng-container *ngIf="!loading() && data() as d">
-    <div class="chart-figure" *ngIf="d.image_url; else noData">
-      <img [src]="d.image_url" [alt]="title" />
-    </div>
-    <ng-template #noData>
-      <div class="alert-warning">
-        Todavía no se generó ninguna figura para esta variable. Corre
-        backend/pipeline/fetch_and_render.py (o espera al cron diario).
+    <ng-container *ngIf="prefix !== 'subsurf'">
+      <div class="chart-figure" *ngIf="d.image_url; else noData">
+        <img [src]="d.image_url" [alt]="title" />
       </div>
-    </ng-template>
+      <ng-template #noData>
+        <div class="alert-warning">
+          Todavía no se generó ninguna figura para esta variable. Corre
+          backend/pipeline/fetch_and_render.py (o espera al cron diario).
+        </div>
+      </ng-template>
 
-    <ng-container *ngIf="d.anim_url">
-      <div class="chart-title mt-3 mb-2">Evolución — últimos 15 días</div>
-      <div class="chart-figure"><img [src]="d.anim_url" alt="Animación reciente" /></div>
+      <ng-container *ngIf="d.anim_url">
+        <div class="chart-title mt-3 mb-2">Evolución — últimos 15 días</div>
+        <div class="chart-figure"><img [src]="d.anim_url" alt="Animación reciente" /></div>
+      </ng-container>
     </ng-container>
 
     <ng-container *ngIf="prefix === 'subsurf'">
