@@ -57,7 +57,7 @@
         </button>
       </div>
 
-      <ng-container *ngIf="showFlatMap(); else seaVariablesView">
+      <ng-container *ngIf="showFlatMap(); else seaVariablesTemplate">
         <div class="view-toggle mb-2">
           <button
             type="button"
@@ -92,17 +92,62 @@
           </div>
         </ng-template>
       </ng-container>
-      <ng-template #seaVariablesView>
-        <ng-container *ngIf="d.composite_anim_url">
-          <div class="chart-title mt-3 mb-2">
-            Temperatura observada + anomalía — Pacífico ecuatorial
-          </div>
-          <div class="chart-sub mb-2">
-            Corte 2°S-2°N con el mapa de las regiones Niño arriba, animado mes a mes (año en curso).
-          </div>
-          <div class="chart-figure flip-in">
-            <img [src]="d.composite_anim_url" alt="Composite subsuperficie" />
-          </div>
+      <ng-template #seaVariablesTemplate>
+        <div class="view-toggle mt-3 mb-2">
+          <button
+            type="button"
+            class="view-toggle-btn view-toggle-btn--sm"
+            [class.view-toggle-btn--active]="seaVariablesView() === 'composite'"
+            (click)="setSeaVariablesView('composite')"
+          >
+            Temperatura + anomalía
+          </button>
+          <button
+            type="button"
+            class="view-toggle-btn view-toggle-btn--sm"
+            [class.view-toggle-btn--active]="seaVariablesView() === 'hov34'"
+            (click)="setSeaVariablesView('hov34')"
+          >
+            Hovmöller — Niño 3.4
+          </button>
+          <button
+            type="button"
+            class="view-toggle-btn view-toggle-btn--sm"
+            [class.view-toggle-btn--active]="seaVariablesView() === 'hov12'"
+            (click)="setSeaVariablesView('hov12')"
+          >
+            Hovmöller — Niño 1+2
+          </button>
+        </div>
+
+        <ng-container [ngSwitch]="seaVariablesView()">
+          <ng-container *ngSwitchCase="'composite'">
+            <ng-container *ngIf="d.composite_anim_url">
+              <div class="chart-title mt-2 mb-2">
+                Temperatura observada + anomalía — Pacífico ecuatorial
+              </div>
+              <div class="chart-sub mb-2">
+                Corte 2°S-2°N con el mapa de las regiones Niño arriba, animado mes a mes (año en curso).
+              </div>
+              <div class="chart-figure flip-in">
+                <img [src]="d.composite_anim_url" alt="Composite subsuperficie" />
+              </div>
+            </ng-container>
+          </ng-container>
+          <ng-container *ngSwitchCase="'hov34'">
+            <div class="chart-title mt-2 mb-2">Hovmöller — Niño 3.4</div>
+            <div class="chart-sub mb-2">Dato más reciente — región Niño 3.4.</div>
+            <div class="chart-figure flip-in" *ngIf="hov34Data()?.image_url as hov34Url">
+              <img [src]="hov34Url" alt="Hovmöller Niño 3.4" />
+            </div>
+          </ng-container>
+          <ng-container *ngSwitchCase="'hov12'">
+            <div class="chart-title mt-2 mb-2">Hovmöller — Niño 1+2</div>
+            <div class="chart-sub mb-2">Dato más reciente — región Niño 1+2.</div>
+            <div class="chart-figure flip-in" *ngIf="hov12Data()?.image_url as hov12Url">
+              <img [src]="hov12Url" alt="Hovmöller Niño 1+2" />
+            </div>
+          </ng-container>
         </ng-container>
       </ng-template>
     </ng-container>
