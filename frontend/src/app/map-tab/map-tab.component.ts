@@ -32,11 +32,10 @@ export class MapTabComponent implements OnInit {
   hov34Data = signal<FiguresResponse | null>(null);
   hov12Data = signal<FiguresResponse | null>(null);
 
-  // Dentro de "Atmósfera": viento 850 hPa, presión a nivel del mar (SLP) y
-  // GOES-19 — mismos datos que esas pestañas.
-  atmosferaView = signal<'viento' | 'slp' | 'goes'>('viento');
+  // Dentro de "Atmósfera": viento 850 hPa y GOES-19 — mismos datos que esas
+  // pestañas.
+  atmosferaView = signal<'viento' | 'goes'>('viento');
   vientoData = signal<FiguresResponse | null>(null);
-  slpData = signal<FiguresResponse | null>(null);
   goesData = signal<Goes19Response | null>(null);
 
   constructor(
@@ -55,7 +54,6 @@ export class MapTabComponent implements OnInit {
         this.api.getFigures('hovmoller_nino34').subscribe((res) => this.hov34Data.set(res));
         this.api.getFigures('hovmoller_nino12').subscribe((res) => this.hov12Data.set(res));
         this.api.getFigures('viento').subscribe((res) => this.vientoData.set(res));
-        this.api.getFigures('slp').subscribe((res) => this.slpData.set(res));
         this.api.getGoes19().subscribe((res) => this.goesData.set(res));
       }
     });
@@ -77,7 +75,7 @@ export class MapTabComponent implements OnInit {
     this.seaVariablesView.set(view);
   }
 
-  setAtmosferaView(view: 'viento' | 'slp' | 'goes'): void {
+  setAtmosferaView(view: 'viento' | 'goes'): void {
     this.atmosferaView.set(view);
   }
 

@@ -172,14 +172,6 @@
           <button
             type="button"
             class="view-toggle-btn view-toggle-btn--sm"
-            [class.view-toggle-btn--active]="atmosferaView() === 'slp'"
-            (click)="setAtmosferaView('slp')"
-          >
-            Presión (SLP)
-          </button>
-          <button
-            type="button"
-            class="view-toggle-btn view-toggle-btn--sm"
             [class.view-toggle-btn--active]="atmosferaView() === 'goes'"
             (click)="setAtmosferaView('goes')"
           >
@@ -193,13 +185,6 @@
             <div class="chart-sub mb-2">Dato más reciente — Pacífico tropical.</div>
             <div class="chart-figure flip-in" *ngIf="vientoData()?.image_url as vientoUrl">
               <img [src]="vientoUrl" alt="Mapa de viento 850 hPa" />
-            </div>
-          </ng-container>
-          <ng-container *ngSwitchCase="'slp'">
-            <div class="chart-title mt-2 mb-2">Presión a nivel del mar (SLP)</div>
-            <div class="chart-sub mb-2">Dato más reciente — Pacífico tropical.</div>
-            <div class="chart-figure flip-in" *ngIf="slpData()?.image_url as slpUrl">
-              <img [src]="slpUrl" alt="Mapa de presión SLP" />
             </div>
           </ng-container>
           <ng-container *ngSwitchCase="'goes'">
