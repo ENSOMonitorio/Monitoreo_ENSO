@@ -16,6 +16,13 @@ export class MapTabComponent implements OnInit {
   loading = signal(true);
   showFlatMap = signal(false);
 
+  // Solo para prefix === 'subsurf': datos reales de TSM/Anomalía TSM (misma
+  // fuente que las pestañas TSM y Anomalía de TSM) para mostrar dentro de
+  // "Ver superficie", en vez de un mapa vacío de referencia.
+  surfaceView = signal<'tsm' | 'anom'>('tsm');
+  tsmData = signal<FiguresResponse | null>(null);
+  anomData = signal<FiguresResponse | null>(null);
+
   constructor(
     private route: ActivatedRoute,
     private api: ApiService,
@@ -26,6 +33,10 @@ export class MapTabComponent implements OnInit {
       this.prefix = routeData['prefix'];
       this.title = routeData['title'];
       this.load();
+      if (this.prefix === 'subsurf') {
+        this.api.getFigures('tsm').subscribe((res) => this.tsmData.set(res));
+        this.api.getFigures('anom').subscribe((res) => this.anomData.set(res));
+      }
     });
   }
 
@@ -35,6 +46,10 @@ export class MapTabComponent implements OnInit {
       this.data.set(res);
       this.loading.set(false);
     });
+  }
+
+  setSurfaceView(view: 'tsm' | 'anom'): void {
+    this.surfaceView.set(view);
   }
 
   onDateChange(event: Event): void {

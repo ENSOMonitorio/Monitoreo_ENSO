@@ -374,7 +374,6 @@ def api_figures(prefix):
         "image_url": _fig_url(f"{prefix}_{selected}.png") if selected else None,
         "anim_url": _fig_url(f"{prefix}_anim.gif") if prefix in DAILY_ANIM_PREFIXES else None,
         "composite_anim_url": _fig_url("subsurf_composite_anim.gif") if prefix == "subsurf" else None,
-        "flatmap_url": _fig_url("subsurf_flatmap.png") if prefix == "subsurf" else None,
     })
 
 
