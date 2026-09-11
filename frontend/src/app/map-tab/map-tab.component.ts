@@ -23,6 +23,13 @@ export class MapTabComponent implements OnInit {
   tsmData = signal<FiguresResponse | null>(null);
   anomData = signal<FiguresResponse | null>(null);
 
+  // Solo para prefix === 'subsurf': dentro de "Ver mapa de variables del
+  // mar", además del composite (mapa + T observada/anomalía) se puede ver
+  // Hovmöller 3.4 y 1+2 — mismos datos que esas pestañas.
+  seaVariablesView = signal<'composite' | 'hov34' | 'hov12'>('composite');
+  hov34Data = signal<FiguresResponse | null>(null);
+  hov12Data = signal<FiguresResponse | null>(null);
+
   constructor(
     private route: ActivatedRoute,
     private api: ApiService,
@@ -36,6 +43,8 @@ export class MapTabComponent implements OnInit {
       if (this.prefix === 'subsurf') {
         this.api.getFigures('tsm').subscribe((res) => this.tsmData.set(res));
         this.api.getFigures('anom').subscribe((res) => this.anomData.set(res));
+        this.api.getFigures('hovmoller_nino34').subscribe((res) => this.hov34Data.set(res));
+        this.api.getFigures('hovmoller_nino12').subscribe((res) => this.hov12Data.set(res));
       }
     });
   }
@@ -50,6 +59,10 @@ export class MapTabComponent implements OnInit {
 
   setSurfaceView(view: 'tsm' | 'anom'): void {
     this.surfaceView.set(view);
+  }
+
+  setSeaVariablesView(view: 'composite' | 'hov34' | 'hov12'): void {
+    this.seaVariablesView.set(view);
   }
 
   onDateChange(event: Event): void {
