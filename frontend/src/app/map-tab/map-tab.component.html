@@ -42,22 +42,30 @@
         <button
           type="button"
           class="view-toggle-btn"
-          [class.view-toggle-btn--active]="showFlatMap()"
-          (click)="showSurfaceView()"
+          [class.view-toggle-btn--active]="topView() === 'superficie'"
+          (click)="setTopView('superficie')"
         >
           Ver superficie
         </button>
         <button
           type="button"
           class="view-toggle-btn"
-          [class.view-toggle-btn--active]="!showFlatMap()"
-          (click)="showSeaVariablesView()"
+          [class.view-toggle-btn--active]="topView() === 'mar'"
+          (click)="setTopView('mar')"
         >
           Ver mapa de variables del mar
         </button>
+        <button
+          type="button"
+          class="view-toggle-btn"
+          [class.view-toggle-btn--active]="topView() === 'atmosfera'"
+          (click)="setTopView('atmosfera')"
+        >
+          Atmósfera
+        </button>
       </div>
 
-      <ng-container *ngIf="showFlatMap(); else seaVariablesTemplate">
+      <ng-container *ngIf="topView() === 'superficie'">
         <div class="view-toggle mb-2">
           <button
             type="button"
@@ -92,8 +100,8 @@
           </div>
         </ng-template>
       </ng-container>
-      <ng-template #seaVariablesTemplate>
-        <div class="view-toggle mt-3 mb-2">
+      <ng-container *ngIf="topView() === 'mar'">
+        <div class="view-toggle mb-2">
           <button
             type="button"
             class="view-toggle-btn view-toggle-btn--sm"
@@ -149,7 +157,43 @@
             </div>
           </ng-container>
         </ng-container>
-      </ng-template>
+      </ng-container>
+
+      <ng-container *ngIf="topView() === 'atmosfera'">
+        <div class="view-toggle mb-2">
+          <button
+            type="button"
+            class="view-toggle-btn view-toggle-btn--sm"
+            [class.view-toggle-btn--active]="atmosferaView() === 'viento'"
+            (click)="setAtmosferaView('viento')"
+          >
+            Viento 850 hPa
+          </button>
+          <button
+            type="button"
+            class="view-toggle-btn view-toggle-btn--sm"
+            [class.view-toggle-btn--active]="atmosferaView() === 'slp'"
+            (click)="setAtmosferaView('slp')"
+          >
+            Presión (SLP)
+          </button>
+        </div>
+
+        <ng-container *ngIf="atmosferaView() === 'viento'; else atmosferaSlpView">
+          <div class="chart-title mt-2 mb-2">Viento zonal y vectores a 850 hPa</div>
+          <div class="chart-sub mb-2">Dato más reciente — Pacífico tropical.</div>
+          <div class="chart-figure flip-in" *ngIf="vientoData()?.image_url as vientoUrl">
+            <img [src]="vientoUrl" alt="Mapa de viento 850 hPa" />
+          </div>
+        </ng-container>
+        <ng-template #atmosferaSlpView>
+          <div class="chart-title mt-2 mb-2">Presión a nivel del mar (SLP)</div>
+          <div class="chart-sub mb-2">Dato más reciente — Pacífico tropical.</div>
+          <div class="chart-figure flip-in" *ngIf="slpData()?.image_url as slpUrl">
+            <img [src]="slpUrl" alt="Mapa de presión SLP" />
+          </div>
+        </ng-template>
+      </ng-container>
     </ng-container>
   </ng-container>
 </div>

@@ -14,21 +14,29 @@ export class MapTabComponent implements OnInit {
   title = '';
   data = signal<FiguresResponse | null>(null);
   loading = signal(true);
-  showFlatMap = signal(false);
 
-  // Solo para prefix === 'subsurf': datos reales de TSM/Anomalía TSM (misma
-  // fuente que las pestañas TSM y Anomalía de TSM) para mostrar dentro de
-  // "Ver superficie", en vez de un mapa vacío de referencia.
+  // Solo para prefix === 'subsurf': 3 vistas de nivel superior.
+  topView = signal<'superficie' | 'mar' | 'atmosfera'>('mar');
+
+  // Dentro de "Ver superficie": datos reales de TSM/Anomalía TSM (misma
+  // fuente que las pestañas TSM y Anomalía de TSM), en vez de un mapa vacío
+  // de referencia.
   surfaceView = signal<'tsm' | 'anom'>('tsm');
   tsmData = signal<FiguresResponse | null>(null);
   anomData = signal<FiguresResponse | null>(null);
 
-  // Solo para prefix === 'subsurf': dentro de "Ver mapa de variables del
-  // mar", además del composite (mapa + T observada/anomalía) se puede ver
-  // Hovmöller 3.4 y 1+2 — mismos datos que esas pestañas.
+  // Dentro de "Ver mapa de variables del mar": además del composite (mapa +
+  // T observada/anomalía) se puede ver Hovmöller 3.4 y 1+2 — mismos datos
+  // que esas pestañas.
   seaVariablesView = signal<'composite' | 'hov34' | 'hov12'>('composite');
   hov34Data = signal<FiguresResponse | null>(null);
   hov12Data = signal<FiguresResponse | null>(null);
+
+  // Dentro de "Atmósfera": viento 850 hPa y presión a nivel del mar (SLP) —
+  // mismos datos que esas pestañas.
+  atmosferaView = signal<'viento' | 'slp'>('viento');
+  vientoData = signal<FiguresResponse | null>(null);
+  slpData = signal<FiguresResponse | null>(null);
 
   constructor(
     private route: ActivatedRoute,
@@ -45,6 +53,8 @@ export class MapTabComponent implements OnInit {
         this.api.getFigures('anom').subscribe((res) => this.anomData.set(res));
         this.api.getFigures('hovmoller_nino34').subscribe((res) => this.hov34Data.set(res));
         this.api.getFigures('hovmoller_nino12').subscribe((res) => this.hov12Data.set(res));
+        this.api.getFigures('viento').subscribe((res) => this.vientoData.set(res));
+        this.api.getFigures('slp').subscribe((res) => this.slpData.set(res));
       }
     });
   }
@@ -65,16 +75,16 @@ export class MapTabComponent implements OnInit {
     this.seaVariablesView.set(view);
   }
 
+  setAtmosferaView(view: 'viento' | 'slp'): void {
+    this.atmosferaView.set(view);
+  }
+
   onDateChange(event: Event): void {
     const value = (event.target as HTMLSelectElement).value;
     this.load(value);
   }
 
-  showSurfaceView(): void {
-    this.showFlatMap.set(true);
-  }
-
-  showSeaVariablesView(): void {
-    this.showFlatMap.set(false);
+  setTopView(view: 'superficie' | 'mar' | 'atmosfera'): void {
+    this.topView.set(view);
   }
 }
