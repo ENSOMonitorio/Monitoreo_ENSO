@@ -38,7 +38,7 @@
         calculada para este panel — no es el ONI oficial.
       </p>
 
-      <div class="view-toggle mt-3 mb-2" *ngIf="d.flatmap_url && d.composite_anim_url">
+      <div class="view-toggle mt-3 mb-2" *ngIf="d.composite_anim_url">
         <button
           type="button"
           class="view-toggle-btn"
@@ -57,14 +57,40 @@
         </button>
       </div>
 
-      <ng-container *ngIf="showFlatMap() && d.flatmap_url; else seaVariablesView">
-        <div class="chart-title mt-3 mb-2">Superficie — Pacífico ecuatorial</div>
-        <div class="chart-sub mb-2">
-          Mapa plano (sin inclinación) con las regiones Niño, de Indonesia a Sudamérica.
+      <ng-container *ngIf="showFlatMap(); else seaVariablesView">
+        <div class="view-toggle mb-2">
+          <button
+            type="button"
+            class="view-toggle-btn view-toggle-btn--sm"
+            [class.view-toggle-btn--active]="surfaceView() === 'tsm'"
+            (click)="setSurfaceView('tsm')"
+          >
+            TSM
+          </button>
+          <button
+            type="button"
+            class="view-toggle-btn view-toggle-btn--sm"
+            [class.view-toggle-btn--active]="surfaceView() === 'anom'"
+            (click)="setSurfaceView('anom')"
+          >
+            Anomalía de TSM
+          </button>
         </div>
-        <div class="chart-figure flip-in">
-          <img [src]="d.flatmap_url" alt="Mapa de superficie del Pacífico ecuatorial" />
-        </div>
+
+        <ng-container *ngIf="surfaceView() === 'tsm'; else surfaceAnomView">
+          <div class="chart-title mt-2 mb-2">Temperatura superficial del mar (TSM)</div>
+          <div class="chart-sub mb-2">Dato más reciente — Pacífico tropical.</div>
+          <div class="chart-figure flip-in" *ngIf="tsmData()?.image_url as tsmUrl">
+            <img [src]="tsmUrl" alt="Mapa de TSM" />
+          </div>
+        </ng-container>
+        <ng-template #surfaceAnomView>
+          <div class="chart-title mt-2 mb-2">Anomalía de TSM</div>
+          <div class="chart-sub mb-2">Dato más reciente — Pacífico tropical.</div>
+          <div class="chart-figure flip-in" *ngIf="anomData()?.image_url as anomUrl">
+            <img [src]="anomUrl" alt="Mapa de anomalía de TSM" />
+          </div>
+        </ng-template>
       </ng-container>
       <ng-template #seaVariablesView>
         <ng-container *ngIf="d.composite_anim_url">

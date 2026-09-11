@@ -372,6 +372,19 @@ body {
   box-shadow: 0 4px 14px rgba(30,74,48,0.3);
 }
 
+/* Variante para el sub-toggle TSM / Anomalía dentro de "Ver superficie" —
+   un poco más chico para leerse como un control secundario, anidado. */
+.view-toggle-btn--sm {
+  padding: 5px 11px;
+  font-size: 0.72rem;
+  background: rgba(255,255,255,0.4);
+}
+
+.view-toggle-btn--sm.view-toggle-btn--active {
+  background: #2f6b46;
+  border-color: #2f6b46;
+}
+
 /* Efecto "flip" al cambiar de vista: las imágenes son PNG/GIF generados en
    el servidor (no hay geometría 3D real en el navegador), así que el giro
    es un truco de CSS sobre el contenedor, no una rotación real del mapa.

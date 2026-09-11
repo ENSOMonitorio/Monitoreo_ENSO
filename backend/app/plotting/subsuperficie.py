@@ -46,7 +46,7 @@ def plot_equatorial_depth_section(band_mean_da, climatology_da, month, out_path,
 
 
 def plot_subsurf_composite(band_mean_da, climatology_da, month, out_path, date_label,
-                            nino_regions=NINO_REGIONS_EQ, min_depth=600, flatmap_out_path=None):
+                            nino_regions=NINO_REGIONS_EQ, min_depth=600):
     """Corte profundidad-longitud (temperatura observada + anomalía) con un
     mapa real (cartopy) inclinado en perspectiva pegado arriba, imitando los
     paneles ARGO/NOAA de referencia. La "inclinación 3D" es un efecto de
@@ -170,13 +170,6 @@ def plot_subsurf_composite(band_mean_da, climatology_da, month, out_path, date_l
     map_path = out_path.replace(".png", "_map.png")
     fig_map.savefig(map_path, dpi=150, facecolor="white")
     plt.close(fig_map)
-
-    # Copia persistente del mapa plano (sin el warp de perspectiva de más
-    # abajo) para el botón "Ver superficie" del frontend — mismo contenido,
-    # geográficamente correcto, sin la inclinación 3D.
-    if flatmap_out_path:
-        import shutil
-        shutil.copyfile(map_path, flatmap_out_path)
 
     # Título en su propia figura chica, sin projection ni warp — se pega
     # plano arriba del mapa ya inclinado, así que queda horizontal.
