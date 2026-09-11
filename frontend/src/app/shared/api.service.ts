@@ -20,6 +20,7 @@ export interface FiguresResponse {
   image_url: string | null;
   anim_url: string | null;
   composite_anim_url: string | null;
+  flatmap_url: string | null;
 }
 
 export interface IndexRegion {

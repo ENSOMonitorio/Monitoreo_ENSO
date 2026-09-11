@@ -189,10 +189,14 @@ def render_subsurface_section(pottmp_path):
 
     # Composite con mapa inclinado (temperatura observada + anomalía), mismo
     # mes más reciente — reemplaza el intento anterior de "3D" interactivo.
+    # flatmap_out_path: el mapa (cajas Niño) no tiene datos que varíen mes a
+    # mes, así que basta con generarlo una vez acá para el botón "Ver
+    # superficie" del frontend, no en cada frame del GIF de abajo.
     plotting.plot_subsurf_composite(
         band_mean.isel(time=latest_idx), climatology, latest_month_ts.month,
         os.path.join(FIGURES, "subsurf_composite.png"),
-        date_label=latest_month_ts.strftime("%b %Y"))
+        date_label=latest_month_ts.strftime("%b %Y"),
+        flatmap_out_path=os.path.join(FIGURES, "subsurf_flatmap.png"))
     log.info("Composite profundidad-longitud (mapa + T observada/anomalía) generado para %s", latest_label)
 
     # GIF del composite (mapa + T observada + anomalía) con todos los meses
