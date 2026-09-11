@@ -2,11 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService, FiguresResponse, Goes19Response } from '../shared/api.service';
+import { HistoricoComponent } from '../historico/historico.component';
 
 @Component({
   selector: 'app-map-tab',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, HistoricoComponent],
   templateUrl: './map-tab.component.html',
 })
 export class MapTabComponent implements OnInit {
@@ -15,8 +16,8 @@ export class MapTabComponent implements OnInit {
   data = signal<FiguresResponse | null>(null);
   loading = signal(true);
 
-  // Solo para prefix === 'subsurf': 3 vistas de nivel superior.
-  topView = signal<'superficie' | 'mar' | 'atmosfera'>('mar');
+  // Solo para prefix === 'subsurf': 4 vistas de nivel superior.
+  topView = signal<'superficie' | 'mar' | 'atmosfera' | 'otros'>('mar');
 
   // Dentro de "Ver superficie": datos reales de TSM/Anomalía TSM (misma
   // fuente que las pestañas TSM y Anomalía de TSM), en vez de un mapa vacío
@@ -37,6 +38,12 @@ export class MapTabComponent implements OnInit {
   atmosferaView = signal<'viento' | 'goes'>('viento');
   vientoData = signal<FiguresResponse | null>(null);
   goesData = signal<Goes19Response | null>(null);
+
+  // Dentro de "Otros": gatillador/inhibidor del fenómeno (APSO, ZCIT, etc.
+  // — proyección de la línea de investigación, todavía sin datos propios)
+  // y el contexto histórico ENOS (reusa <app-historico>, misma pestaña que
+  // "Contexto histórico").
+  otrosView = signal<'gatillador' | 'historico'>('gatillador');
 
   constructor(
     private route: ActivatedRoute,
@@ -79,12 +86,16 @@ export class MapTabComponent implements OnInit {
     this.atmosferaView.set(view);
   }
 
+  setOtrosView(view: 'gatillador' | 'historico'): void {
+    this.otrosView.set(view);
+  }
+
   onDateChange(event: Event): void {
     const value = (event.target as HTMLSelectElement).value;
     this.load(value);
   }
 
-  setTopView(view: 'superficie' | 'mar' | 'atmosfera'): void {
+  setTopView(view: 'superficie' | 'mar' | 'atmosfera' | 'otros'): void {
     this.topView.set(view);
   }
 }

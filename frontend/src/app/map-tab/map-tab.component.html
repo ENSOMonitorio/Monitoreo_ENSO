@@ -63,6 +63,14 @@
         >
           Atmósfera
         </button>
+        <button
+          type="button"
+          class="view-toggle-btn"
+          [class.view-toggle-btn--active]="topView() === 'otros'"
+          (click)="setTopView('otros')"
+        >
+          Otros
+        </button>
       </div>
 
       <ng-container *ngIf="topView() === 'superficie'">
@@ -195,6 +203,43 @@
             <div class="chart-figure flip-in" *ngIf="goesData()?.anim_url as goesUrl">
               <img [src]="goesUrl" alt="Animación GOES-19" />
             </div>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+
+      <ng-container *ngIf="topView() === 'otros'">
+        <div class="view-toggle mb-2">
+          <button
+            type="button"
+            class="view-toggle-btn view-toggle-btn--sm"
+            [class.view-toggle-btn--active]="otrosView() === 'gatillador'"
+            (click)="setOtrosView('gatillador')"
+          >
+            Gatillador/Inhibidor
+          </button>
+          <button
+            type="button"
+            class="view-toggle-btn view-toggle-btn--sm"
+            [class.view-toggle-btn--active]="otrosView() === 'historico'"
+            (click)="setOtrosView('historico')"
+          >
+            Evento histórico
+          </button>
+        </div>
+
+        <ng-container [ngSwitch]="otrosView()">
+          <ng-container *ngSwitchCase="'gatillador'">
+            <div class="chart-title mt-2 mb-2">Gatillador/Inhibidor</div>
+            <div class="alert-warning">
+              Próximamente: relación del ENSO con sus mecanismos gatilladores e
+              inhibidores (Anticiclón del Pacífico Sur Oriental – APSO, Zona de
+              Convergencia Intertropical – ZCIT, entre otros). Esta sección es
+              parte de la proyección de la línea de investigación, todavía sin
+              datos propios.
+            </div>
+          </ng-container>
+          <ng-container *ngSwitchCase="'historico'">
+            <app-historico></app-historico>
           </ng-container>
         </ng-container>
       </ng-container>
