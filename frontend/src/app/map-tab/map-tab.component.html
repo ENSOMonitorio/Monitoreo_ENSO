@@ -37,15 +37,48 @@
         Fuente: NCEP GODAS (mensual, no diario). Anomalía respecto a la climatología 2015-2024
         calculada para este panel — no es el ONI oficial.
       </p>
-      <ng-container *ngIf="d.composite_anim_url">
-        <div class="chart-title mt-3 mb-2">
-          Temperatura observada + anomalía — Pacífico ecuatorial
-        </div>
+
+      <div class="view-toggle mt-3 mb-2" *ngIf="d.flatmap_url && d.composite_anim_url">
+        <button
+          type="button"
+          class="view-toggle-btn"
+          [class.view-toggle-btn--active]="showFlatMap()"
+          (click)="showSurfaceView()"
+        >
+          Ver superficie
+        </button>
+        <button
+          type="button"
+          class="view-toggle-btn"
+          [class.view-toggle-btn--active]="!showFlatMap()"
+          (click)="showSeaVariablesView()"
+        >
+          Ver mapa de variables del mar
+        </button>
+      </div>
+
+      <ng-container *ngIf="showFlatMap() && d.flatmap_url; else seaVariablesView">
+        <div class="chart-title mt-3 mb-2">Superficie — Pacífico ecuatorial</div>
         <div class="chart-sub mb-2">
-          Corte 2°S-2°N con el mapa de las regiones Niño arriba, animado mes a mes (año en curso).
+          Mapa plano (sin inclinación) con las regiones Niño, de Indonesia a Sudamérica.
         </div>
-        <div class="chart-figure"><img [src]="d.composite_anim_url" alt="Composite subsuperficie" /></div>
+        <div class="chart-figure flip-in">
+          <img [src]="d.flatmap_url" alt="Mapa de superficie del Pacífico ecuatorial" />
+        </div>
       </ng-container>
+      <ng-template #seaVariablesView>
+        <ng-container *ngIf="d.composite_anim_url">
+          <div class="chart-title mt-3 mb-2">
+            Temperatura observada + anomalía — Pacífico ecuatorial
+          </div>
+          <div class="chart-sub mb-2">
+            Corte 2°S-2°N con el mapa de las regiones Niño arriba, animado mes a mes (año en curso).
+          </div>
+          <div class="chart-figure flip-in">
+            <img [src]="d.composite_anim_url" alt="Composite subsuperficie" />
+          </div>
+        </ng-container>
+      </ng-template>
     </ng-container>
   </ng-container>
 </div>

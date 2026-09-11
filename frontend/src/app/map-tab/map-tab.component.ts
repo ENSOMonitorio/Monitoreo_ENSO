@@ -14,6 +14,7 @@ export class MapTabComponent implements OnInit {
   title = '';
   data = signal<FiguresResponse | null>(null);
   loading = signal(true);
+  showFlatMap = signal(false);
 
   constructor(
     private route: ActivatedRoute,
@@ -39,5 +40,13 @@ export class MapTabComponent implements OnInit {
   onDateChange(event: Event): void {
     const value = (event.target as HTMLSelectElement).value;
     this.load(value);
+  }
+
+  showSurfaceView(): void {
+    this.showFlatMap.set(true);
+  }
+
+  showSeaVariablesView(): void {
+    this.showFlatMap.set(false);
   }
 }
