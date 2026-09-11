@@ -172,27 +172,31 @@
           <button
             type="button"
             class="view-toggle-btn view-toggle-btn--sm"
-            [class.view-toggle-btn--active]="atmosferaView() === 'slp'"
-            (click)="setAtmosferaView('slp')"
+            [class.view-toggle-btn--active]="atmosferaView() === 'goes'"
+            (click)="setAtmosferaView('goes')"
           >
-            Presión (SLP)
+            GOES-19
           </button>
         </div>
 
-        <ng-container *ngIf="atmosferaView() === 'viento'; else atmosferaSlpView">
-          <div class="chart-title mt-2 mb-2">Viento zonal y vectores a 850 hPa</div>
-          <div class="chart-sub mb-2">Dato más reciente — Pacífico tropical.</div>
-          <div class="chart-figure flip-in" *ngIf="vientoData()?.image_url as vientoUrl">
-            <img [src]="vientoUrl" alt="Mapa de viento 850 hPa" />
-          </div>
+        <ng-container [ngSwitch]="atmosferaView()">
+          <ng-container *ngSwitchCase="'viento'">
+            <div class="chart-title mt-2 mb-2">Viento zonal y vectores a 850 hPa</div>
+            <div class="chart-sub mb-2">Dato más reciente — Pacífico tropical.</div>
+            <div class="chart-figure flip-in" *ngIf="vientoData()?.image_url as vientoUrl">
+              <img [src]="vientoUrl" alt="Mapa de viento 850 hPa" />
+            </div>
+          </ng-container>
+          <ng-container *ngSwitchCase="'goes'">
+            <div class="chart-title mt-2 mb-2">GOES-19 — Temperatura de brillo</div>
+            <div class="chart-sub mb-2">
+              Animación de las últimas imágenes del satélite GOES-19 (Banda 13).
+            </div>
+            <div class="chart-figure flip-in" *ngIf="goesData()?.anim_url as goesUrl">
+              <img [src]="goesUrl" alt="Animación GOES-19" />
+            </div>
+          </ng-container>
         </ng-container>
-        <ng-template #atmosferaSlpView>
-          <div class="chart-title mt-2 mb-2">Presión a nivel del mar (SLP)</div>
-          <div class="chart-sub mb-2">Dato más reciente — Pacífico tropical.</div>
-          <div class="chart-figure flip-in" *ngIf="slpData()?.image_url as slpUrl">
-            <img [src]="slpUrl" alt="Mapa de presión SLP" />
-          </div>
-        </ng-template>
       </ng-container>
     </ng-container>
   </ng-container>
