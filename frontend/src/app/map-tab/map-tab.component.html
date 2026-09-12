@@ -225,21 +225,37 @@
           >
             Evento histórico
           </button>
+          <button
+            type="button"
+            class="view-toggle-btn view-toggle-btn--sm"
+            [class.view-toggle-btn--active]="otrosView() === 'indice'"
+            (click)="setOtrosView('indice')"
+          >
+            Índice
+          </button>
         </div>
 
         <ng-container [ngSwitch]="otrosView()">
           <ng-container *ngSwitchCase="'gatillador'">
             <div class="chart-title mt-2 mb-2">Gatillador/Inhibidor</div>
-            <div class="alert-warning">
-              Próximamente: relación del ENSO con sus mecanismos gatilladores e
-              inhibidores (Anticiclón del Pacífico Sur Oriental – APSO, Zona de
-              Convergencia Intertropical – ZCIT, entre otros). Esta sección es
-              parte de la proyección de la línea de investigación, todavía sin
-              datos propios.
+            <div class="alert-warning mb-3">
+              Proyección de la línea de investigación: relación del ENSO con
+              sus mecanismos gatilladores e inhibidores (Anticiclón del
+              Pacífico Sur Oriental – APSO, Zona de Convergencia Intertropical
+              – ZCIT, entre otros). Todavía sin análisis propio — como proxy
+              disponible hoy se muestra la presión a nivel del mar (SLP).
+            </div>
+            <div class="chart-title mt-2 mb-2">Presión a nivel del mar (SLP)</div>
+            <div class="chart-sub mb-2">Dato más reciente — Pacífico tropical.</div>
+            <div class="chart-figure flip-in" *ngIf="slpData()?.image_url as slpUrl">
+              <img [src]="slpUrl" alt="Mapa de presión SLP" />
             </div>
           </ng-container>
           <ng-container *ngSwitchCase="'historico'">
             <app-historico></app-historico>
+          </ng-container>
+          <ng-container *ngSwitchCase="'indice'">
+            <app-indices></app-indices>
           </ng-container>
         </ng-container>
       </ng-container>

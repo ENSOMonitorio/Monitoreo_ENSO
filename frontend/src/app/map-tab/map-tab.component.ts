@@ -3,11 +3,12 @@ import { Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService, FiguresResponse, Goes19Response } from '../shared/api.service';
 import { HistoricoComponent } from '../historico/historico.component';
+import { IndicesComponent } from '../indices/indices.component';
 
 @Component({
   selector: 'app-map-tab',
   standalone: true,
-  imports: [CommonModule, HistoricoComponent],
+  imports: [CommonModule, HistoricoComponent, IndicesComponent],
   templateUrl: './map-tab.component.html',
 })
 export class MapTabComponent implements OnInit {
@@ -39,11 +40,13 @@ export class MapTabComponent implements OnInit {
   vientoData = signal<FiguresResponse | null>(null);
   goesData = signal<Goes19Response | null>(null);
 
-  // Dentro de "Otros": gatillador/inhibidor del fenómeno (APSO, ZCIT, etc.
-  // — proyección de la línea de investigación, todavía sin datos propios)
-  // y el contexto histórico ENOS (reusa <app-historico>, misma pestaña que
-  // "Contexto histórico").
-  otrosView = signal<'gatillador' | 'historico'>('gatillador');
+  // Dentro de "Otros": gatillador/inhibidor del fenómeno (APSO, ZCIT, etc. —
+  // proyección de la línea de investigación, por ahora con SLP como proxy
+  // disponible), el contexto histórico ENOS (reusa <app-historico>) y los
+  // índices Niño 1+2/3.4 (reusa <app-indices>) — mismos componentes que sus
+  // pestañas propias.
+  otrosView = signal<'gatillador' | 'historico' | 'indice'>('gatillador');
+  slpData = signal<FiguresResponse | null>(null);
 
   constructor(
     private route: ActivatedRoute,
@@ -62,6 +65,7 @@ export class MapTabComponent implements OnInit {
         this.api.getFigures('hovmoller_nino12').subscribe((res) => this.hov12Data.set(res));
         this.api.getFigures('viento').subscribe((res) => this.vientoData.set(res));
         this.api.getGoes19().subscribe((res) => this.goesData.set(res));
+        this.api.getFigures('slp').subscribe((res) => this.slpData.set(res));
       }
     });
   }
@@ -86,7 +90,7 @@ export class MapTabComponent implements OnInit {
     this.atmosferaView.set(view);
   }
 
-  setOtrosView(view: 'gatillador' | 'historico'): void {
+  setOtrosView(view: 'gatillador' | 'historico' | 'indice'): void {
     this.otrosView.set(view);
   }
 
