@@ -30,8 +30,17 @@ try:
 except ImportError:
 	from utilities_2 import download_CMI, loadCPT, reproject
 
+from plotting.common import _autocrop_whitespace
 
-DEFAULT_EXTENT = [-93.0, -60.0, -25.0, 18.0]
+
+# lon_min, lat_min, lon_max, lat_max. Ampliado al Pacífico que GOES-19
+# alcanza a ver con datos válidos (geoestacionario sobre América, ~75°W).
+# Más allá de 150°W la reproyección cae fuera del dominio de la
+# proyección del satélite ("Point outside of projection domain" en el
+# log) y queda una franja sin datos — se corta ahí. Latitud alineada a
+# EXTENT_PACIFICO (app/plotting/common.py) para que las cajas Niño 1+2 /
+# 3 / parte de 3.4 queden comparables con el resto del tablero.
+DEFAULT_EXTENT = [-150.0, -21.0, -25.0, 21.0]
 
 
 @dataclass
@@ -149,6 +158,7 @@ def make_frame(
 ) -> Path:
 	fig = plt.figure(figsize=(12, 12), dpi=120)
 	ax = plt.axes(projection=ccrs.PlateCarree())
+	fig.subplots_adjust(left=0.06, right=0.85, top=0.92, bottom=0.06)
 
 	img_extent = [extent[0], extent[2], extent[1], extent[3]]
 	ax.set_extent(img_extent, ccrs.PlateCarree())
@@ -156,8 +166,8 @@ def make_frame(
 	img1 = ax.imshow(
 		data,
 		origin="upper",
-		vmin=-103.0,
-		vmax=84.0,
+		vmin=-90.0,
+		vmax=50.0,
 		extent=img_extent,
 		cmap=cmap,
 		alpha=1.0,
@@ -178,26 +188,31 @@ def make_frame(
 	gl.top_labels = False
 	gl.right_labels = False
 
-	plt.colorbar(
-		img1,
-		label="Temperatura de brillo (C)",
-		extend="both",
-		orientation="vertical",
-		pad=0.03,
-		fraction=0.05,
-	)
+	# El colorbar automático (plt.colorbar/fraction) se dimensiona contra el
+	# tamaño ORIGINAL del axes, antes de que cartopy lo encoja para
+	# preservar el aspecto real en grados — con extents muy anchos como
+	# este queda mucho más alto que el mapa ya encogido. Se fuerza un draw
+	# para que cartopy aplique el encogido, se lee la posición real del
+	# axes (mismo truco que plot_subsurf_composite en plotting/subsuperficie.py)
+	# y se arma un colorbar a mano con esa misma altura.
+	fig.canvas.draw()
+	map_pos = ax.get_position()
+	cbar_ax = fig.add_axes([map_pos.x1 + 0.015, map_pos.y0, 0.015, map_pos.height])
+	cbar = fig.colorbar(img1, cax=cbar_ax, label="Temperatura de brillo (C)", extend="both")
+	cbar.set_ticks(range(-90, 51, 5))
 
-	plt.title(
-		f"GOES-19 Band {band}  {dt.strftime('%Y-%m-%d %H:%M')} UTC",
-		fontweight="bold",
-		fontsize=10,
-		loc="left",
-	)
-	plt.title(f"Reg.: {list(extent)}", fontsize=10, loc="right")
+	# fig.text() en vez de plt.title() (que ancla al axes): con extents muy
+	# anchos cartopy encoge el GeoAxes para preservar el aspecto real en
+	# grados, y un título anclado al axes queda empujado fuera del canvas
+	# guardado. Mismo fix que _base_map()/fig.suptitle() en plotting/common.py.
+	fig.text(0.06, 0.965, f"GOES-19 Band {band}  {dt.strftime('%Y-%m-%d %H:%M')} UTC",
+			 fontweight="bold", fontsize=10, ha="left", va="top")
+	fig.text(0.85, 0.965, f"Reg.: {list(extent)}", fontsize=10, ha="right", va="top")
 
 	out_path = output_dir / f"frame_{frame_idx:02d}_{dt.strftime('%Y%m%d%H%M')}.png"
-	plt.savefig(str(out_path), bbox_inches="tight", pad_inches=0)
+	plt.savefig(str(out_path), dpi=120)
 	plt.close(fig)
+	_autocrop_whitespace(str(out_path))
 	return out_path
 
 
@@ -208,7 +223,7 @@ def generate_goes19_animation(config: Optional[Goes19Config] = None) -> Path:
 	samples_dir = cfg.samples_dir or samples_dir
 	output_dir = cfg.output_dir or output_dir
 	figures_dir = cfg.figures_dir or figures_dir
-	cpt_path = cfg.cpt_path or (Path(__file__).resolve().parent / "IR4AVHRR6.cpt")
+	cpt_path = cfg.cpt_path or (Path(__file__).resolve().parent / "SENAMHI_IR.cpt")
 
 	samples_dir.mkdir(parents=True, exist_ok=True)
 	output_dir.mkdir(parents=True, exist_ok=True)
