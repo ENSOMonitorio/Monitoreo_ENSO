@@ -40,12 +40,12 @@ export class MapTabComponent implements OnInit {
   vientoData = signal<FiguresResponse | null>(null);
   goesData = signal<Goes19Response | null>(null);
 
-  // Dentro de "Otros": gatillador/inhibidor del fenómeno (APSO, ZCIT, etc. —
-  // proyección de la línea de investigación, por ahora con SLP como proxy
-  // disponible), el contexto histórico ENOS (reusa <app-historico>) y los
-  // índices Niño 1+2/3.4 (reusa <app-indices>) — mismos componentes que sus
-  // pestañas propias.
-  otrosView = signal<'gatillador' | 'historico' | 'indice'>('gatillador');
+  // Dentro de "Otros": todo junto en una sola vista (sin sub-botones) —
+  // gatillador/inhibidor del fenómeno (APSO, ZCIT, etc. — proyección de la
+  // línea de investigación, por ahora con SLP como proxy disponible), el
+  // contexto histórico ENOS (reusa <app-historico>) y los índices Niño
+  // 1+2/3.4 (reusa <app-indices>) — mismos componentes que sus pestañas
+  // propias.
   slpData = signal<FiguresResponse | null>(null);
 
   constructor(
@@ -88,10 +88,6 @@ export class MapTabComponent implements OnInit {
 
   setAtmosferaView(view: 'viento' | 'goes'): void {
     this.atmosferaView.set(view);
-  }
-
-  setOtrosView(view: 'gatillador' | 'historico' | 'indice'): void {
-    this.otrosView.set(view);
   }
 
   onDateChange(event: Event): void {
