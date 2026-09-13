@@ -208,56 +208,23 @@
       </ng-container>
 
       <ng-container *ngIf="topView() === 'otros'">
-        <div class="view-toggle mb-2">
-          <button
-            type="button"
-            class="view-toggle-btn view-toggle-btn--sm"
-            [class.view-toggle-btn--active]="otrosView() === 'gatillador'"
-            (click)="setOtrosView('gatillador')"
-          >
-            Gatillador/Inhibidor
-          </button>
-          <button
-            type="button"
-            class="view-toggle-btn view-toggle-btn--sm"
-            [class.view-toggle-btn--active]="otrosView() === 'historico'"
-            (click)="setOtrosView('historico')"
-          >
-            Evento histórico
-          </button>
-          <button
-            type="button"
-            class="view-toggle-btn view-toggle-btn--sm"
-            [class.view-toggle-btn--active]="otrosView() === 'indice'"
-            (click)="setOtrosView('indice')"
-          >
-            Índice
-          </button>
+        <div class="chart-title mt-2 mb-2">Gatillador/Inhibidor</div>
+        <div class="alert-warning mb-3">
+          Proyección de la línea de investigación: relación del ENSO con sus
+          mecanismos gatilladores e inhibidores (Anticiclón del Pacífico Sur
+          Oriental – APSO, Zona de Convergencia Intertropical – ZCIT, entre
+          otros). Todavía sin análisis propio — como proxy disponible hoy se
+          muestra la presión a nivel del mar (SLP).
+        </div>
+        <div class="chart-title mt-2 mb-2">Presión a nivel del mar (SLP)</div>
+        <div class="chart-sub mb-2">Dato más reciente — Pacífico tropical.</div>
+        <div class="chart-figure flip-in mb-3" *ngIf="slpData()?.image_url as slpUrl">
+          <img [src]="slpUrl" alt="Mapa de presión SLP" />
         </div>
 
-        <ng-container [ngSwitch]="otrosView()">
-          <ng-container *ngSwitchCase="'gatillador'">
-            <div class="chart-title mt-2 mb-2">Gatillador/Inhibidor</div>
-            <div class="alert-warning mb-3">
-              Proyección de la línea de investigación: relación del ENSO con
-              sus mecanismos gatilladores e inhibidores (Anticiclón del
-              Pacífico Sur Oriental – APSO, Zona de Convergencia Intertropical
-              – ZCIT, entre otros). Todavía sin análisis propio — como proxy
-              disponible hoy se muestra la presión a nivel del mar (SLP).
-            </div>
-            <div class="chart-title mt-2 mb-2">Presión a nivel del mar (SLP)</div>
-            <div class="chart-sub mb-2">Dato más reciente — Pacífico tropical.</div>
-            <div class="chart-figure flip-in" *ngIf="slpData()?.image_url as slpUrl">
-              <img [src]="slpUrl" alt="Mapa de presión SLP" />
-            </div>
-          </ng-container>
-          <ng-container *ngSwitchCase="'historico'">
-            <app-historico></app-historico>
-          </ng-container>
-          <ng-container *ngSwitchCase="'indice'">
-            <app-indices></app-indices>
-          </ng-container>
-        </ng-container>
+        <app-historico></app-historico>
+
+        <app-indices></app-indices>
       </ng-container>
     </ng-container>
   </ng-container>
