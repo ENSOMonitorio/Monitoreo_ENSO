@@ -202,7 +202,7 @@ body {
    PAGE SHELL
    ═══════════════════════════════════════════ */
 .enso-shell {
-  max-width: 1680px;
+  max-width: min(2200px, 97vw);
   margin: 0 auto;
   padding: 18px 20px 40px;
 }
@@ -332,6 +332,31 @@ body {
   margin: 0 auto;
   border-radius: var(--r-sm);
   border: 1px solid rgba(0,0,0,0.12);
+}
+
+/* Para paneles que se muestran uno encima del otro con mapas de distinta
+   relación ancho/alto (p.ej. Viento cubre casi todo el Pacífico y sale muy
+   aplanado, GOES-19 corta en 150°W por límite del satélite y sale más
+   "cuadrado") — con solo max-width:100% cada uno queda con una altura
+   distinta y se ve descompensado. Se fija una altura común y se deja que
+   object-fit:contain preserve el aspecto real de cada mapa dentro de esa
+   altura, sin recortar ni deformar. */
+.chart-figure--fixed-height {
+  height: 380px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chart-figure--fixed-height img {
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+@media (max-width: 720px) {
+  .chart-figure--fixed-height { height: 220px; }
 }
 
 .mt-2 { margin-top: 8px; }
