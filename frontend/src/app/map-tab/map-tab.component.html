@@ -107,6 +107,18 @@
             <img [src]="anomUrl" alt="Mapa de anomalía de TSM" />
           </div>
         </ng-template>
+
+        <div class="chart-title mt-3 mb-2">Hovmöller — Niño 3.4</div>
+        <div class="chart-sub mb-2">Dato más reciente — región Niño 3.4.</div>
+        <div class="chart-figure mb-3" *ngIf="hov34Data()?.image_url as hov34SurfUrl">
+          <img [src]="hov34SurfUrl" alt="Hovmöller Niño 3.4" />
+        </div>
+
+        <div class="chart-title mt-2 mb-2">Hovmöller — Niño 1+2</div>
+        <div class="chart-sub mb-2">Dato más reciente — región Niño 1+2.</div>
+        <div class="chart-figure" *ngIf="hov12Data()?.image_url as hov12SurfUrl">
+          <img [src]="hov12SurfUrl" alt="Hovmöller Niño 1+2" />
+        </div>
       </ng-container>
       <ng-container *ngIf="topView() === 'mar'">
         <div class="view-toggle mb-2">
@@ -168,43 +180,19 @@
       </ng-container>
 
       <ng-container *ngIf="topView() === 'atmosfera'">
-        <div class="view-toggle mb-2">
-          <button
-            type="button"
-            class="view-toggle-btn view-toggle-btn--sm"
-            [class.view-toggle-btn--active]="atmosferaView() === 'viento'"
-            (click)="setAtmosferaView('viento')"
-          >
-            Viento 850 hPa
-          </button>
-          <button
-            type="button"
-            class="view-toggle-btn view-toggle-btn--sm"
-            [class.view-toggle-btn--active]="atmosferaView() === 'goes'"
-            (click)="setAtmosferaView('goes')"
-          >
-            GOES-19
-          </button>
+        <div class="chart-title mt-2 mb-2">Viento zonal y vectores a 850 hPa</div>
+        <div class="chart-sub mb-2">Dato más reciente — Pacífico tropical.</div>
+        <div class="chart-figure mb-3" *ngIf="vientoData()?.image_url as vientoUrl">
+          <img [src]="vientoUrl" alt="Mapa de viento 850 hPa" />
         </div>
 
-        <ng-container [ngSwitch]="atmosferaView()">
-          <ng-container *ngSwitchCase="'viento'">
-            <div class="chart-title mt-2 mb-2">Viento zonal y vectores a 850 hPa</div>
-            <div class="chart-sub mb-2">Dato más reciente — Pacífico tropical.</div>
-            <div class="chart-figure flip-in" *ngIf="vientoData()?.image_url as vientoUrl">
-              <img [src]="vientoUrl" alt="Mapa de viento 850 hPa" />
-            </div>
-          </ng-container>
-          <ng-container *ngSwitchCase="'goes'">
-            <div class="chart-title mt-2 mb-2">GOES-19 — Temperatura de brillo</div>
-            <div class="chart-sub mb-2">
-              Animación de las últimas imágenes del satélite GOES-19 (Banda 13).
-            </div>
-            <div class="chart-figure flip-in" *ngIf="goesData()?.anim_url as goesUrl">
-              <img [src]="goesUrl" alt="Animación GOES-19" />
-            </div>
-          </ng-container>
-        </ng-container>
+        <div class="chart-title mt-2 mb-2">GOES-19 — Temperatura de brillo</div>
+        <div class="chart-sub mb-2">
+          Animación de las últimas imágenes del satélite GOES-19 (Banda 13).
+        </div>
+        <div class="chart-figure" *ngIf="goesData()?.anim_url as goesUrl">
+          <img [src]="goesUrl" alt="Animación GOES-19" />
+        </div>
       </ng-container>
 
       <ng-container *ngIf="topView() === 'otros'">
