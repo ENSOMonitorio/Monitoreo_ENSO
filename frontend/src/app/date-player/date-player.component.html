@@ -1,4 +1,8 @@
-<div class="chart-figure flip-in" *ngIf="!loading() && imageUrl() as url">
+<div
+  class="chart-figure flip-in"
+  [class.chart-figure--fixed-height]="fixedHeight"
+  *ngIf="!loading() && imageUrl() as url"
+>
   <img [src]="url" [alt]="alt" />
 </div>
 
@@ -36,6 +40,10 @@
     <span class="date-player-label">
       {{ currentDate }} · día {{ index() + 1 }} de {{ dates().length }}
     </span>
+
+    <select class="player-speed" [value]="speed()" (change)="onSpeedChange($event)" title="Velocidad">
+      <option *ngFor="let s of speedOptions" [value]="s">{{ s }}×</option>
+    </select>
   </div>
 
   <input

@@ -478,6 +478,11 @@ body {
    toda la serie diaria disponible, no solo los
    últimos 15 días del GIF)
    ═══════════════════════════════════════════ */
+/* Los custom elements de Angular son inline por defecto si nada los
+   estiliza — se fuerza a block para que clases como mb-3 puestas
+   directamente en <app-date-player> funcionen como se espera. */
+app-date-player { display: block; }
+
 .date-player-controls { margin-top: 10px; }
 
 .date-player-buttons {
@@ -529,6 +534,21 @@ body {
   accent-color: #2f6b46;
   cursor: pointer;
 }
+
+.player-speed {
+  margin-left: auto;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #2f5f42;
+  background: rgba(255,255,255,0.6);
+  border: 1px solid rgba(30,74,48,0.25);
+  border-radius: var(--r-sm);
+  padding: 5px 8px;
+  cursor: pointer;
+}
+
+.player-speed:hover { background: rgba(255,255,255,0.85); }
 
 /* ═══════════════════════════════════════════
    SELECT DE FECHAS (reemplaza dcc.Dropdown/react-select)

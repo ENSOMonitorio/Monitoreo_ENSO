@@ -16,15 +16,21 @@ import { ApiService } from '../shared/api.service';
 export class DatePlayerComponent implements OnChanges, OnDestroy {
   @Input() prefix!: string;
   @Input() alt = '';
+  /** Alto fijo (chart-figure--fixed-height) — para paneles donde esta
+   * imagen se compara al lado de otra con distinta relación ancho/alto
+   * (p.ej. Viento vs. GOES-19 en Atmósfera). */
+  @Input() fixedHeight = false;
 
   dates = signal<string[]>([]);
   index = signal(0);
   imageUrl = signal<string | null>(null);
   playing = signal(false);
   loading = signal(true);
+  speed = signal(1);
+  readonly speedOptions = [0.5, 1, 2, 4, 8];
 
   private timer?: ReturnType<typeof setInterval>;
-  private readonly frameMs = 450;
+  private readonly baseFrameMs = 450;
 
   constructor(private api: ApiService) {}
 
@@ -71,14 +77,7 @@ export class DatePlayerComponent implements OnChanges, OnDestroy {
       this.loadCurrent();
     }
     this.playing.set(true);
-    this.timer = setInterval(() => {
-      if (this.index() >= this.dates().length - 1) {
-        this.pause();
-        return;
-      }
-      this.index.set(this.index() + 1);
-      this.loadCurrent();
-    }, this.frameMs);
+    this.startTimer();
   }
 
   pause(): void {
@@ -87,6 +86,27 @@ export class DatePlayerComponent implements OnChanges, OnDestroy {
       clearInterval(this.timer);
       this.timer = undefined;
     }
+  }
+
+  onSpeedChange(event: Event): void {
+    this.speed.set(Number((event.target as HTMLSelectElement).value));
+    // Si ya estaba reproduciendo, reinicia el intervalo con la nueva
+    // velocidad sin tocar el frame en el que está parado.
+    if (this.playing()) {
+      if (this.timer) clearInterval(this.timer);
+      this.startTimer();
+    }
+  }
+
+  private startTimer(): void {
+    this.timer = setInterval(() => {
+      if (this.index() >= this.dates().length - 1) {
+        this.pause();
+        return;
+      }
+      this.index.set(this.index() + 1);
+      this.loadCurrent();
+    }, this.baseFrameMs / this.speed());
   }
 
   onSlider(event: Event): void {
