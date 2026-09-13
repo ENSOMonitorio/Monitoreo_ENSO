@@ -81,6 +81,13 @@ def test_api_goes19_shape():
     assert "anim_url" in resp.get_json()
 
 
+def test_api_viento_atmosfera_shape():
+    _, client = _client()
+    resp = client.get("/api/viento_atmosfera")
+    assert resp.status_code == 200
+    assert "image_url" in resp.get_json()
+
+
 def test_api_status_shape():
     _, client = _client()
     resp = client.get("/api/status")

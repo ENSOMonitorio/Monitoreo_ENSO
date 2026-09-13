@@ -51,6 +51,10 @@ export interface Goes19Response {
   anim_url: string | null;
 }
 
+export interface VientoAtmosferaResponse {
+  image_url: string | null;
+}
+
 export interface StatusResponse {
   text: string;
   is_running: boolean;
@@ -100,6 +104,10 @@ export class ApiService {
 
   getGoes19(): Observable<Goes19Response> {
     return this.http.get<Goes19Response>('/api/goes19');
+  }
+
+  getVientoAtmosfera(): Observable<VientoAtmosferaResponse> {
+    return this.http.get<VientoAtmosferaResponse>('/api/viento_atmosfera');
   }
 
   getStatus(): Observable<StatusResponse> {

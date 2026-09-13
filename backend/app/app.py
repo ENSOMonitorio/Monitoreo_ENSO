@@ -419,6 +419,15 @@ def api_goes19():
     return jsonify({"anim_url": _fig_url("goes19_anim.gif")})
 
 
+@server.route("/api/viento_atmosfera")
+def api_viento_atmosfera():
+    """Mapa de viento recortado a la misma región que GOES-19 (ver
+    plotting.EXTENT_GOES19_COMPARABLE) — igual que /api/goes19, un único
+    PNG de nombre fijo regenerado a diario por el pipeline, solo para el
+    panel Atmósfera de Subsuperficie."""
+    return jsonify({"image_url": _fig_url("viento_atmosfera.png")})
+
+
 @server.route("/api/status")
 def api_status():
     is_running = _pipeline_running()

@@ -371,6 +371,13 @@ def _run():
     build_recent_animation("anom")
     plotting.plot_wind_850hpa_vectors(u850, v850, date_wind, os.path.join(FIGURES, f"viento_{date_wind}.png"))
     build_recent_animation("viento")
+    # Versión recortada a la misma región que GOES-19 (no hay selector de
+    # fecha ni animación — solo para el panel Atmósfera de Subsuperficie,
+    # donde se compara viento y GOES-19 lado a lado).
+    plotting.plot_wind_850hpa_vectors(
+        u850, v850, date_wind, os.path.join(FIGURES, "viento_atmosfera.png"),
+        extent=plotting.EXTENT_GOES19_COMPARABLE,
+    )
     plotting.plot_slp(slp, date_slp, os.path.join(FIGURES, f"slp_{date_slp}.png"))
     build_recent_animation("slp")
 
