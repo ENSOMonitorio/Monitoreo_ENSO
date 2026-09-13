@@ -8,6 +8,12 @@ cd /root/ENSO_DASHBOARD
 
 echo "==> git pull origin main"
 git fetch origin main
+# checkout explícito antes del reset: este VPS también se usa para trabajo
+# interactivo en ramas feature (docker builds de prueba, etc.), y sin esto
+# "reset --hard origin/main" reescribe silenciosamente la rama que esté
+# activa en ese momento en vez de main — pudo haber tirado commits locales
+# sin pushear si hubiera coincidido con trabajo en curso.
+git checkout main
 git reset --hard origin/main
 
 echo "==> docker compose build"
