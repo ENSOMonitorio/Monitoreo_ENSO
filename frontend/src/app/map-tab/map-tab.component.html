@@ -66,6 +66,10 @@
           <div class="chart-figure flip-in" *ngIf="tsmData()?.image_url as tsmUrl">
             <img [src]="tsmUrl" alt="Mapa de TSM" />
           </div>
+          <ng-container *ngIf="tsmData()?.anim_url as tsmAnimUrl">
+            <div class="chart-title mt-3 mb-2">Evolución — últimos 15 días</div>
+            <div class="chart-figure"><img [src]="tsmAnimUrl" alt="Animación reciente de TSM" /></div>
+          </ng-container>
         </ng-container>
         <ng-template #surfaceAnomView>
           <div class="chart-title mt-2 mb-2">Anomalía de TSM</div>
@@ -73,6 +77,10 @@
           <div class="chart-figure flip-in" *ngIf="anomData()?.image_url as anomUrl">
             <img [src]="anomUrl" alt="Mapa de anomalía de TSM" />
           </div>
+          <ng-container *ngIf="anomData()?.anim_url as anomAnimUrl">
+            <div class="chart-title mt-3 mb-2">Evolución — últimos 15 días</div>
+            <div class="chart-figure"><img [src]="anomAnimUrl" alt="Animación reciente de anomalía de TSM" /></div>
+          </ng-container>
         </ng-template>
 
         <div class="chart-title mt-3 mb-2">Hovmöller — Niño 3.4</div>
