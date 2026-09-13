@@ -3,6 +3,16 @@ ya se rompieron una vez (latitudes incorrectas para Niño 1+2) y deben
 coincidir exactamente entre plotting.py e indices.py."""
 import plotting
 import indices
+from GOES19.goes import DEFAULT_EXTENT as GOES19_DEFAULT_EXTENT
+
+
+def test_viento_atmosfera_extent_matches_goes19():
+    # EXTENT_GOES19_COMPARABLE se mantiene a mano en plotting/common.py — si
+    # alguien mueve el extent de GOES-19 y se olvida de actualizar el otro,
+    # el panel Atmósfera (viento + GOES-19) deja de mostrar la misma región.
+    lon_min, lat_min, lon_max, lat_max = GOES19_DEFAULT_EXTENT
+    expected = [lon_min % 360, lon_max % 360, lat_min, lat_max]
+    assert plotting.EXTENT_GOES19_COMPARABLE == expected
 
 
 def test_nino_regions_have_a_color_from_the_shared_palette():

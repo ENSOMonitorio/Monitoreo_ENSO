@@ -148,8 +148,13 @@
 
       <ng-container *ngIf="topView() === 'atmosfera'">
         <div class="chart-title mt-2 mb-2">Viento zonal y vectores a 850 hPa</div>
-        <div class="chart-sub mb-2">Dato más reciente — Pacífico tropical.</div>
-        <div class="chart-figure chart-figure--fixed-height mb-3" *ngIf="vientoData()?.image_url as vientoUrl">
+        <div class="chart-sub mb-2">
+          Dato más reciente — recortado a la misma región que GOES-19 para poder compararlos.
+        </div>
+        <div
+          class="chart-figure chart-figure--fixed-height mb-3"
+          *ngIf="vientoAtmosferaData()?.image_url as vientoUrl"
+        >
           <img [src]="vientoUrl" alt="Mapa de viento 850 hPa" />
         </div>
 

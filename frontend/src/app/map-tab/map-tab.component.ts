@@ -1,7 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ApiService, FiguresResponse, Goes19Response } from '../shared/api.service';
+import {
+  ApiService,
+  FiguresResponse,
+  Goes19Response,
+  VientoAtmosferaResponse,
+} from '../shared/api.service';
 import { HistoricoComponent } from '../historico/historico.component';
 import { IndicesComponent } from '../indices/indices.component';
 
@@ -35,8 +40,12 @@ export class MapTabComponent implements OnInit {
   hov12Data = signal<FiguresResponse | null>(null);
 
   // Dentro de "Atmósfera": viento 850 hPa y GOES-19, siempre juntos (sin
-  // toggle) — mismos datos que esas pestañas.
-  vientoData = signal<FiguresResponse | null>(null);
+  // toggle). GOES-19 no puede pasar de 150°W (límite del satélite), así que
+  // acá se usa /api/viento_atmosfera — el mismo dato de viento pero
+  // recortado a esa misma región (ver plotting.EXTENT_GOES19_COMPARABLE) —
+  // en vez del image_url de la pestaña Viento (que cubre todo el Pacífico y
+  // no sería comparable lado a lado).
+  vientoAtmosferaData = signal<VientoAtmosferaResponse | null>(null);
   goesData = signal<Goes19Response | null>(null);
 
   // Dentro de "Otros": todo junto en una sola vista (sin sub-botones) —
@@ -62,7 +71,7 @@ export class MapTabComponent implements OnInit {
         this.api.getFigures('anom').subscribe((res) => this.anomData.set(res));
         this.api.getFigures('hovmoller_nino34').subscribe((res) => this.hov34Data.set(res));
         this.api.getFigures('hovmoller_nino12').subscribe((res) => this.hov12Data.set(res));
-        this.api.getFigures('viento').subscribe((res) => this.vientoData.set(res));
+        this.api.getVientoAtmosfera().subscribe((res) => this.vientoAtmosferaData.set(res));
         this.api.getGoes19().subscribe((res) => this.goesData.set(res));
         this.api.getFigures('slp').subscribe((res) => this.slpData.set(res));
       }
