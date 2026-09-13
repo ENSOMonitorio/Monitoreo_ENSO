@@ -76,11 +76,14 @@ body {
    HEADER
    ═══════════════════════════════════════════ */
 .enso-header {
-  background: var(--panel);
+  /* Gris plomo oscuro — a propósito distinto de var(--panel) (casi negro),
+     que se sigue usando en las tarjetas oscuras (Histórico, Índices, etc.).
+     Solo el header cambia. */
+  background: #33383a;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  padding: 0 28px;
-  height: 68px;
+  padding: 0 32px;
+  height: 84px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -89,7 +92,7 @@ body {
   /* Antes iba de borde a borde del navegador — ahora es un bloque flotante,
      del mismo ancho que el contenido de abajo (.enso-shell), para que no se
      sienta "pegado" a los bordes de la pantalla. */
-  max-width: min(2200px, 97vw);
+  max-width: min(2300px, 98.5vw);
   margin: 12px auto 0;
   position: sticky;
   top: 12px;
