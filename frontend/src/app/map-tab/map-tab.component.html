@@ -148,16 +148,10 @@
 
       <ng-container *ngIf="topView() === 'atmosfera'">
         <div class="chart-title mt-2 mb-2">Viento zonal y vectores a 850 hPa</div>
-        <div class="chart-sub mb-2">Dato más reciente — Pacífico tropical.</div>
-        <div class="chart-figure chart-figure--fixed-height mb-3" *ngIf="vientoData()?.image_url as vientoUrl">
-          <img [src]="vientoUrl" alt="Mapa de viento 850 hPa" />
+        <div class="chart-sub mb-2">
+          Recorre el año completo con play/pausa o el control deslizante.
         </div>
-        <ng-container *ngIf="vientoData()?.anim_url as vientoAnimUrl">
-          <div class="chart-title mt-2 mb-2">Evolución — últimos 15 días</div>
-          <div class="chart-figure chart-figure--fixed-height mb-3">
-            <img [src]="vientoAnimUrl" alt="Animación reciente de viento" />
-          </div>
-        </ng-container>
+        <app-date-player prefix="viento" alt="Mapa de viento 850 hPa" [fixedHeight]="true" class="mb-3"></app-date-player>
 
         <div class="chart-title mt-2 mb-2">GOES-19 — Temperatura de brillo</div>
         <div class="chart-sub mb-2">

@@ -1,4 +1,8 @@
-<div class="chart-figure flip-in" *ngIf="!loading() && imageUrl() as url">
+<div
+  class="chart-figure flip-in"
+  [class.chart-figure--fixed-height]="fixedHeight"
+  *ngIf="!loading() && imageUrl() as url"
+>
   <img [src]="url" [alt]="alt" />
 </div>
 

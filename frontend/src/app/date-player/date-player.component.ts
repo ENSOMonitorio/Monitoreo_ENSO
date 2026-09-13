@@ -16,6 +16,10 @@ import { ApiService } from '../shared/api.service';
 export class DatePlayerComponent implements OnChanges, OnDestroy {
   @Input() prefix!: string;
   @Input() alt = '';
+  /** Alto fijo (chart-figure--fixed-height) — para paneles donde esta
+   * imagen se compara al lado de otra con distinta relación ancho/alto
+   * (p.ej. Viento vs. GOES-19 en Atmósfera). */
+  @Input() fixedHeight = false;
 
   dates = signal<string[]>([]);
   index = signal(0);
