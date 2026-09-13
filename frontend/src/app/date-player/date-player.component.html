@@ -1,0 +1,49 @@
+<div class="chart-figure flip-in" *ngIf="!loading() && imageUrl() as url">
+  <img [src]="url" [alt]="alt" />
+</div>
+
+<div class="date-player-controls" *ngIf="!loading() && dates().length > 1">
+  <div class="date-player-buttons">
+    <button type="button" class="player-btn" title="Ir al inicio" (click)="goToStart()">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+        <path d="M6 6h2v12H6zM20 6v12l-9-6z" />
+      </svg>
+    </button>
+    <button type="button" class="player-btn" title="Día anterior" (click)="step(-1)">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+        <path d="M18 6v12l-9-6z" />
+      </svg>
+    </button>
+    <button type="button" class="player-btn player-btn--main" [title]="playing() ? 'Pausar' : 'Reproducir'" (click)="toggle()">
+      <svg *ngIf="!playing()" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+        <path d="M7 5v14l12-7z" />
+      </svg>
+      <svg *ngIf="playing()" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+        <path d="M7 5h4v14H7zM13 5h4v14h-4z" />
+      </svg>
+    </button>
+    <button type="button" class="player-btn" title="Día siguiente" (click)="step(1)">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+        <path d="M6 6v12l9-6z" />
+      </svg>
+    </button>
+    <button type="button" class="player-btn" title="Ir al último dato" (click)="goToLatest()">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+        <path d="M16 6h2v12h-2zM4 6v12l9-6z" />
+      </svg>
+    </button>
+
+    <span class="date-player-label">
+      {{ currentDate }} · día {{ index() + 1 }} de {{ dates().length }}
+    </span>
+  </div>
+
+  <input
+    type="range"
+    class="date-player-slider"
+    min="0"
+    [max]="dates().length - 1"
+    [value]="index()"
+    (input)="onSlider($event)"
+  />
+</div>
