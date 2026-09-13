@@ -36,6 +36,10 @@
     <span class="date-player-label">
       {{ currentDate }} · día {{ index() + 1 }} de {{ dates().length }}
     </span>
+
+    <select class="player-speed" [value]="speed()" (change)="onSpeedChange($event)" title="Velocidad">
+      <option *ngFor="let s of speedOptions" [value]="s">{{ s }}×</option>
+    </select>
   </div>
 
   <input

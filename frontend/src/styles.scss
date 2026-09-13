@@ -530,6 +530,21 @@ body {
   cursor: pointer;
 }
 
+.player-speed {
+  margin-left: auto;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #2f5f42;
+  background: rgba(255,255,255,0.6);
+  border: 1px solid rgba(30,74,48,0.25);
+  border-radius: var(--r-sm);
+  padding: 5px 8px;
+  cursor: pointer;
+}
+
+.player-speed:hover { background: rgba(255,255,255,0.85); }
+
 /* ═══════════════════════════════════════════
    SELECT DE FECHAS (reemplaza dcc.Dropdown/react-select)
    ═══════════════════════════════════════════ */
