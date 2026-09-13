@@ -1,23 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, OnDestroy, OnInit, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { ApiService, MapTabConfig } from './shared/api.service';
-
-// Estas dos ya se ven completas dentro de Subsuperficie (Ver superficie /
-// Ver mapa de variables del mar), así que se ocultan del nav principal para
-// no duplicar la navegación — siguen siendo rutas válidas por URL directa.
-const HIDDEN_FROM_NAV = new Set(['hovmoller_nino34', 'hovmoller_nino12']);
+import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { ApiService } from './shared/api.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule],
+  imports: [RouterOutlet, CommonModule],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
 export class App implements OnInit, OnDestroy {
-  mapTabs = signal<MapTabConfig[]>([]);
-  visibleMapTabs = computed(() => this.mapTabs().filter((tab) => !HIDDEN_FROM_NAV.has(tab.prefix)));
   clock = signal('');
   statusText = signal('');
   isRunning = signal(false);
@@ -30,7 +23,6 @@ export class App implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.api.getConfig().subscribe((cfg) => {
-      this.mapTabs.set(cfg.map_tabs);
       this.authEnabled.set(cfg.auth_enabled);
     });
     this.refreshStatus();

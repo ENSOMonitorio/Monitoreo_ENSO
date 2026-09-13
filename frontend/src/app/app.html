@@ -25,16 +25,6 @@
     </div>
   </div>
 
-  <nav class="enso-tabs">
-    <a
-      *ngFor="let tab of visibleMapTabs()"
-      class="enso-tab"
-      [routerLink]="['/', tab.prefix]"
-      routerLinkActive="enso-tab--selected"
-      >{{ tab.title }}</a
-    >
-  </nav>
-
   <router-outlet></router-outlet>
 
   <footer class="enso-footer">
