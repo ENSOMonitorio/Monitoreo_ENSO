@@ -4,11 +4,12 @@ import { ActivatedRoute } from '@angular/router';
 import { ApiService, FiguresResponse, Goes19Response } from '../shared/api.service';
 import { HistoricoComponent } from '../historico/historico.component';
 import { IndicesComponent } from '../indices/indices.component';
+import { DatePlayerComponent } from '../date-player/date-player.component';
 
 @Component({
   selector: 'app-map-tab',
   standalone: true,
-  imports: [CommonModule, HistoricoComponent, IndicesComponent],
+  imports: [CommonModule, HistoricoComponent, IndicesComponent, DatePlayerComponent],
   templateUrl: './map-tab.component.html',
 })
 export class MapTabComponent implements OnInit {
@@ -20,12 +21,9 @@ export class MapTabComponent implements OnInit {
   // Solo para prefix === 'subsurf': 4 vistas de nivel superior.
   topView = signal<'superficie' | 'mar' | 'atmosfera' | 'otros'>('mar');
 
-  // Dentro de "Ver superficie": datos reales de TSM/Anomalía TSM (misma
-  // fuente que las pestañas TSM y Anomalía de TSM), en vez de un mapa vacío
-  // de referencia.
+  // Dentro de "Ver superficie": <app-date-player> trae sus propios datos
+  // (toda la serie diaria, no solo la fecha más reciente).
   surfaceView = signal<'tsm' | 'anom'>('tsm');
-  tsmData = signal<FiguresResponse | null>(null);
-  anomData = signal<FiguresResponse | null>(null);
 
   // Dentro de "Ver mapa de variables del mar": además del composite (mapa +
   // T observada/anomalía) se puede ver Hovmöller 3.4 y 1+2 — mismos datos
@@ -58,8 +56,6 @@ export class MapTabComponent implements OnInit {
       this.title = routeData['title'];
       this.load();
       if (this.prefix === 'subsurf') {
-        this.api.getFigures('tsm').subscribe((res) => this.tsmData.set(res));
-        this.api.getFigures('anom').subscribe((res) => this.anomData.set(res));
         this.api.getFigures('hovmoller_nino34').subscribe((res) => this.hov34Data.set(res));
         this.api.getFigures('hovmoller_nino12').subscribe((res) => this.hov12Data.set(res));
         this.api.getFigures('viento').subscribe((res) => this.vientoData.set(res));

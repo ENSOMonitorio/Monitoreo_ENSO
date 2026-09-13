@@ -62,25 +62,17 @@
 
         <ng-container *ngIf="surfaceView() === 'tsm'; else surfaceAnomView">
           <div class="chart-title mt-2 mb-2">Temperatura superficial del mar (TSM)</div>
-          <div class="chart-sub mb-2">Dato más reciente — Pacífico tropical.</div>
-          <div class="chart-figure flip-in" *ngIf="tsmData()?.image_url as tsmUrl">
-            <img [src]="tsmUrl" alt="Mapa de TSM" />
+          <div class="chart-sub mb-2">
+            Recorre el año completo con play/pausa o el control deslizante.
           </div>
-          <ng-container *ngIf="tsmData()?.anim_url as tsmAnimUrl">
-            <div class="chart-title mt-3 mb-2">Evolución — últimos 15 días</div>
-            <div class="chart-figure"><img [src]="tsmAnimUrl" alt="Animación reciente de TSM" /></div>
-          </ng-container>
+          <app-date-player prefix="tsm" alt="Mapa de TSM"></app-date-player>
         </ng-container>
         <ng-template #surfaceAnomView>
           <div class="chart-title mt-2 mb-2">Anomalía de TSM</div>
-          <div class="chart-sub mb-2">Dato más reciente — Pacífico tropical.</div>
-          <div class="chart-figure flip-in" *ngIf="anomData()?.image_url as anomUrl">
-            <img [src]="anomUrl" alt="Mapa de anomalía de TSM" />
+          <div class="chart-sub mb-2">
+            Recorre el año completo con play/pausa o el control deslizante.
           </div>
-          <ng-container *ngIf="anomData()?.anim_url as anomAnimUrl">
-            <div class="chart-title mt-3 mb-2">Evolución — últimos 15 días</div>
-            <div class="chart-figure"><img [src]="anomAnimUrl" alt="Animación reciente de anomalía de TSM" /></div>
-          </ng-container>
+          <app-date-player prefix="anom" alt="Mapa de anomalía de TSM"></app-date-player>
         </ng-template>
 
         <div class="chart-title mt-3 mb-2">Hovmöller — Niño 3.4</div>
