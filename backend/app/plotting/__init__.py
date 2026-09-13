@@ -11,7 +11,7 @@ acá para que el resto del código siga usando `import plotting` /
 `plotting.plot_x(...)` sin cambios.
 """
 
-from .common import EXTENT_PACIFICO, EXTENT_GOES19_COMPARABLE, NINO_COLORS, NINO_REGIONS_EQ, NINO_BOXES
+from .common import EXTENT_PACIFICO, NINO_COLORS, NINO_REGIONS_EQ, NINO_BOXES
 from .sst import plot_sst
 from .anomalia import plot_sst_anom
 from .viento import plot_wind_850hpa_vectors
@@ -20,7 +20,7 @@ from .hovmoller import plot_hovmoller_nino, plot_hovmoller_nino_lat
 from .subsuperficie import plot_equatorial_depth_section, plot_subsurf_composite
 
 __all__ = [
-    "EXTENT_PACIFICO", "EXTENT_GOES19_COMPARABLE", "NINO_COLORS", "NINO_REGIONS_EQ", "NINO_BOXES",
+    "EXTENT_PACIFICO", "NINO_COLORS", "NINO_REGIONS_EQ", "NINO_BOXES",
     "plot_sst", "plot_sst_anom", "plot_wind_850hpa_vectors", "plot_slp",
     "plot_hovmoller_nino", "plot_hovmoller_nino_lat",
     "plot_equatorial_depth_section", "plot_subsurf_composite",

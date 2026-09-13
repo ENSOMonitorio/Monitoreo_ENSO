@@ -13,16 +13,6 @@ import cartopy.feature as cfeature
 
 EXTENT_PACIFICO = [115, 360 - 30, -21, 21]
 
-# Mismo recorte que GOES19.goes.DEFAULT_EXTENT ([-150, -21, -25, 21] en
-# convención -180/180, orden lon_min/lat_min/lon_max/lat_max), pasado a
-# 0-360 y orden cartopy (lon_min, lon_max, lat_min, lat_max). Se usa solo
-# para el panel de comparación Atmósfera (viento + GOES-19): GOES-19 no
-# puede extenderse más al oeste de 150°W por límite de geometría del
-# satélite geoestacionario, así que en vez de eso se recorta el mapa de
-# viento a la misma región para que ambos cubran exactamente el mismo
-# lon/lat y sean comparables. Si DEFAULT_EXTENT cambia allá, actualizar acá.
-EXTENT_GOES19_COMPARABLE = [210, 335, -21, 21]
-
 # Paleta única de las cajas Niño — mismo color de contorno Y de área
 # rellena en TODOS los mapas del dashboard (TSM, anomalía, viento, SLP,
 # composite de subsuperficie). Antes cada mapa usaba colores distintos
@@ -106,10 +96,10 @@ def _add_nino_boxes(ax):
                 transform=ccrs.PlateCarree())
 
 
-def _base_map(figsize=(12, 6), extent=None):
+def _base_map(figsize=(12, 6)):
     fig, ax = plt.subplots(1, 1, figsize=figsize,
                             subplot_kw={"projection": ccrs.PlateCarree(central_longitude=180)})
-    ax.set_extent(extent or EXTENT_PACIFICO, crs=ccrs.PlateCarree())
+    ax.set_extent(EXTENT_PACIFICO, crs=ccrs.PlateCarree())
     ax.coastlines(resolution="50m")
     ax.add_feature(cfeature.BORDERS, linestyle=":", edgecolor="black")
     ax.add_feature(cfeature.LAND, edgecolor="black", facecolor="lightgray")

@@ -11,13 +11,12 @@ from .common import _base_map, _add_nino_boxes, _autocrop_whitespace
 def plot_wind_850hpa_vectors(u850_data, v850_data, date_str, out_path,
                               min_val=-15, max_val=15, levels=31, cmap_name="PRGn",
                               quiver_scale=1.8, quiver_step=1,
-                              quiver_width=0.0015, quiver_head_width=4, quiver_head_length=5,
-                              extent=None):
+                              quiver_width=0.0015, quiver_head_width=4, quiver_head_length=5):
     target_date = pd.to_datetime(date_str)
     u850_to_plot = u850_data.sel(time=target_date, method="nearest").squeeze()
     v850_to_plot = v850_data.sel(time=target_date, method="nearest").squeeze()
 
-    fig, ax = _base_map(extent=extent)
+    fig, ax = _base_map()
     cmap = plt.get_cmap(cmap_name)
     contour_levels = np.linspace(min_val, max_val, levels)
     plot_obj = u850_to_plot.plot.contourf(ax=ax, transform=ccrs.PlateCarree(), cmap=cmap,
