@@ -207,22 +207,6 @@ body {
   padding: 18px 20px 40px;
 }
 
-.page-intro { margin: 4px 2px 18px; }
-
-.page-title {
-  font-family: 'Space Grotesk', 'Inter', sans-serif;
-  font-weight: 700;
-  font-size: 1.3rem;
-  color: var(--text);
-  letter-spacing: -0.01em;
-}
-
-.page-sub {
-  color: var(--muted);
-  font-size: 0.85rem;
-  margin-top: 4px;
-}
-
 /* ═══════════════════════════════════════════
    CARDS
    ═══════════════════════════════════════════ */
@@ -233,6 +217,7 @@ body {
   border-radius: var(--r-lg);
   padding: 20px;
   border: 1px solid var(--border);
+  border-top: 3px solid var(--accent-2);
   box-shadow: var(--shadow);
   position: relative;
   margin-bottom: 16px;
@@ -249,13 +234,34 @@ body {
 
 /* Variante para contenido inherentemente claro (mapas matplotlib) — misma
    idea que en los otros dashboards de resiliencia.cloud para que los fondos
-   blancos de las figuras no desentonen. */
+   blancos de las figuras no desentonen. El borde superior de acento se
+   mantiene igual que en las tarjetas oscuras — es lo que las conecta como
+   parte del mismo sistema visual en vez de sentirse como dos apps pegadas. */
 .chart-card.map-panel {
   background: rgba(232, 234, 237, 0.97);
   border-color: rgba(160,165,170,0.3);
+  border-top-color: var(--accent-2);
 }
 .chart-card.map-panel .chart-title { color: #1e4a30; }
 .chart-card.map-panel .chart-sub   { color: #4a7059; }
+
+/* Título de nivel de página (p.ej. "Subsuperficie — Onda Kelvin") — más
+   grande que .chart-title (que se reusa también para cada sub-sección
+   interna) para que haya una jerarquía clara en vez de que todo se lea al
+   mismo tamaño. */
+.panel-title {
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-weight: 700;
+  color: var(--text);
+  font-size: 1.35rem;
+  letter-spacing: -0.01em;
+  padding-left: 14px;
+  border-left: 4px solid var(--accent-2);
+}
+
+.chart-card.map-panel .panel-title {
+  color: #163825;
+}
 
 .chart-header {
   display: flex;
@@ -348,16 +354,38 @@ body {
 }
 
 .view-toggle--vertical {
-  flex: 0 0 200px;
+  flex: 0 0 220px;
   flex-direction: column;
   flex-wrap: nowrap;
+  gap: 6px;
   position: sticky;
   top: 16px;
+  background: rgba(0,0,0,0.035);
+  border: 1px solid rgba(30,74,48,0.12);
+  border-radius: var(--r-lg);
+  padding: 14px;
+}
+
+.nav-section-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #5a8068;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 4px 8px;
 }
 
 .view-toggle--vertical .view-toggle-btn {
   text-align: left;
+  border-radius: var(--r-sm);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  width: 100%;
 }
+
+.view-toggle-icon { flex-shrink: 0; opacity: 0.85; }
 
 @media (max-width: 720px) {
   .subsurf-layout { flex-direction: column; }
@@ -368,6 +396,7 @@ body {
     position: static;
     order: -1;
   }
+  .nav-section-label { display: none; }
 }
 
 .view-toggle-btn {

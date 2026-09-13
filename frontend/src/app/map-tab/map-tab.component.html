@@ -1,7 +1,7 @@
 <div class="chart-card map-panel">
   <div class="chart-header">
     <div>
-      <div class="chart-title">{{ title }}</div>
+      <div class="panel-title">{{ title }}</div>
       <div class="chart-sub" *ngIf="prefix !== 'subsurf'">Elige una fecha para ver el panel correspondiente</div>
     </div>
     <select
@@ -202,13 +202,18 @@
       </div>
 
       <div class="view-toggle view-toggle--vertical">
+        <div class="nav-section-label">Secciones</div>
         <button
           type="button"
           class="view-toggle-btn"
           [class.view-toggle-btn--active]="topView() === 'superficie'"
           (click)="setTopView('superficie')"
         >
-          Ver superficie
+          <svg class="view-toggle-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M2 8c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2" />
+            <path d="M2 14c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2" />
+          </svg>
+          <span>Ver superficie</span>
         </button>
         <button
           type="button"
@@ -216,7 +221,12 @@
           [class.view-toggle-btn--active]="topView() === 'mar'"
           (click)="setTopView('mar')"
         >
-          Ver mapa de variables del mar
+          <svg class="view-toggle-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21" />
+            <line x1="9" y1="3" x2="9" y2="18" />
+            <line x1="15" y1="6" x2="15" y2="21" />
+          </svg>
+          <span>Ver mapa de variables del mar</span>
         </button>
         <button
           type="button"
@@ -224,7 +234,11 @@
           [class.view-toggle-btn--active]="topView() === 'atmosfera'"
           (click)="setTopView('atmosfera')"
         >
-          Atmósfera
+          <svg class="view-toggle-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M3 8h11a3 3 0 1 0-3-3" />
+            <path d="M3 14h15a3 3 0 1 1-3 3" />
+          </svg>
+          <span>Atmósfera</span>
         </button>
         <button
           type="button"
@@ -232,7 +246,13 @@
           [class.view-toggle-btn--active]="topView() === 'otros'"
           (click)="setTopView('otros')"
         >
-          Otros
+          <svg class="view-toggle-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1.5" />
+            <rect x="14" y="3" width="7" height="7" rx="1.5" />
+            <rect x="3" y="14" width="7" height="7" rx="1.5" />
+            <rect x="14" y="14" width="7" height="7" rx="1.5" />
+          </svg>
+          <span>Otros</span>
         </button>
       </div>
       </div>
