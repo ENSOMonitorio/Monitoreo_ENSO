@@ -83,7 +83,7 @@ body {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   padding: 0 32px;
-  height: 84px;
+  height: 108px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -105,14 +105,14 @@ body {
 .logo-top {
   font-family: 'Space Grotesk', 'Inter', sans-serif;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 1.8rem;
   color: var(--text);
   letter-spacing: -0.01em;
   line-height: 1.2;
 }
 
 .logo-sub {
-  font-size: 0.7rem;
+  font-size: 0.85rem;
   color: var(--muted);
   font-weight: 500;
   letter-spacing: 0.05em;
@@ -598,7 +598,12 @@ body {
 
 /* ── RESPONSIVE ── */
 @media (max-width: 760px) {
-  .enso-header { padding: 0 14px; }
+  /* El título/subtítulo más grande (para desktop) no entraba en los 108px
+     fijos en pantallas angostas donde el logo se parte en varias líneas —
+     se deja crecer el alto y se reducen un poco las fuentes. */
+  .enso-header { padding: 14px; height: auto; min-height: 84px; }
+  .logo-top { font-size: 1.3rem; }
+  .logo-sub { font-size: 0.72rem; }
   .enso-shell { padding: 14px 12px 32px; }
   .header-time { display: none; }
   .refresh-status { display: none; }
