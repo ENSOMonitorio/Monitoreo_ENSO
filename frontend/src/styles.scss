@@ -5,11 +5,17 @@
    Mantener sincronizada a mano con esa paleta y con los hex
    literales de backend/app/theme.py (Plotly no puede leer
    variables CSS).
+   Excepción a propósito: --bg. Se pidió un fondo de página claro
+   (gris casi blanco) solo para este dashboard, en vez del verde
+   oscuro del fondo original — el resto de la paleta (--panel,
+   --accent, tarjetas oscuras) se mantiene igual porque todavía
+   contrasta bien: son elementos con su propio fondo, no dependen
+   del fondo de la página para leerse.
    ───────────────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
 
 :root {
-  --bg:        #0d2a1e;
+  --bg:        #eceeed;
   --panel:     rgba(6, 12, 8, 0.95);
   --glass:     rgba(255,255,255,0.04);
   --glass-2:   rgba(255,255,255,0.08);
@@ -49,10 +55,11 @@ html, body { height: 100%; }
 
 body {
   background: var(--bg);
+  /* Gradientes bien sutiles — los originales (pensados sobre fondo verde
+     oscuro) se veían como manchas sucias sobre un fondo casi blanco. */
   background-image:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(47,107,70,0.16), transparent),
-    radial-gradient(ellipse 40% 30% at 90% 80%, rgba(95,207,141,0.06), transparent),
-    radial-gradient(ellipse 60% 40% at 0% 100%, rgba(13,42,30,0.6), transparent);
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(47,107,70,0.05), transparent),
+    radial-gradient(ellipse 40% 30% at 90% 80%, rgba(95,207,141,0.05), transparent);
   background-attachment: fixed;
   color: var(--text);
   font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -565,7 +572,9 @@ body {
    FOOTER
    ═══════════════════════════════════════════ */
 .enso-footer {
-  border-top: 1px solid var(--border);
+  /* var(--border) es blanco muy translúcido, pensado para el fondo oscuro
+     original — sobre el fondo claro actual quedaba invisible. */
+  border-top: 1px solid rgba(0,0,0,0.08);
   margin-top: 20px;
   padding-top: 16px;
   text-align: center;
