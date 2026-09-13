@@ -18,7 +18,13 @@ export const MAP_TABS: { prefix: string; title: string }[] = [
 ];
 
 export const routes: Routes = [
-  { path: '', redirectTo: MAP_TABS[0].prefix, pathMatch: 'full' },
+  // Subsuperficie es ahora la única vista de la app — su columna de
+  // botones verticales (Ver superficie / Ver mapa de variables del mar /
+  // Atmósfera / Otros) cubre todo lo que antes eran pestañas separadas
+  // (TSM, Anomalía, Viento, SLP, Hovmöller, GOES-19, Índices, Histórico).
+  // Esas rutas se mantienen abajo por si alguien entra por URL directa,
+  // pero ya no hay nav que apunte a ellas.
+  { path: '', redirectTo: 'subsurf', pathMatch: 'full' },
   ...MAP_TABS.map((tab) => ({
     path: tab.prefix,
     component: MapTabComponent,
