@@ -162,7 +162,9 @@
         </div>
         <ng-container *ngIf="vientoData()?.anim_url as vientoAnimUrl">
           <div class="chart-title mt-2 mb-2">Evolución — últimos 15 días</div>
-          <div class="chart-figure mb-3"><img [src]="vientoAnimUrl" alt="Animación reciente de viento" /></div>
+          <div class="chart-figure chart-figure--fixed-height mb-3">
+            <img [src]="vientoAnimUrl" alt="Animación reciente de viento" />
+          </div>
         </ng-container>
 
         <div class="chart-title mt-2 mb-2">GOES-19 — Temperatura de brillo</div>
