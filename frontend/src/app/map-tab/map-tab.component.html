@@ -160,6 +160,10 @@
         <div class="chart-figure chart-figure--fixed-height mb-3" *ngIf="vientoData()?.image_url as vientoUrl">
           <img [src]="vientoUrl" alt="Mapa de viento 850 hPa" />
         </div>
+        <ng-container *ngIf="vientoData()?.anim_url as vientoAnimUrl">
+          <div class="chart-title mt-2 mb-2">Evolución — últimos 15 días</div>
+          <div class="chart-figure mb-3"><img [src]="vientoAnimUrl" alt="Animación reciente de viento" /></div>
+        </ng-container>
 
         <div class="chart-title mt-2 mb-2">GOES-19 — Temperatura de brillo</div>
         <div class="chart-sub mb-2">
@@ -184,6 +188,10 @@
         <div class="chart-figure flip-in mb-3" *ngIf="slpData()?.image_url as slpUrl">
           <img [src]="slpUrl" alt="Mapa de presión SLP" />
         </div>
+        <ng-container *ngIf="slpData()?.anim_url as slpAnimUrl">
+          <div class="chart-title mt-2 mb-2">Evolución — últimos 15 días</div>
+          <div class="chart-figure mb-3"><img [src]="slpAnimUrl" alt="Animación reciente de SLP" /></div>
+        </ng-container>
 
         <app-historico></app-historico>
 
