@@ -202,7 +202,7 @@ body {
    PAGE SHELL
    ═══════════════════════════════════════════ */
 .enso-shell {
-  max-width: 1680px;
+  max-width: min(2200px, 97vw);
   margin: 0 auto;
   padding: 18px 20px 40px;
 }
