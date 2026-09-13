@@ -34,9 +34,8 @@ export class MapTabComponent implements OnInit {
   hov34Data = signal<FiguresResponse | null>(null);
   hov12Data = signal<FiguresResponse | null>(null);
 
-  // Dentro de "Atmósfera": viento 850 hPa y GOES-19 — mismos datos que esas
-  // pestañas.
-  atmosferaView = signal<'viento' | 'goes'>('viento');
+  // Dentro de "Atmósfera": viento 850 hPa y GOES-19, siempre juntos (sin
+  // toggle) — mismos datos que esas pestañas.
   vientoData = signal<FiguresResponse | null>(null);
   goesData = signal<Goes19Response | null>(null);
 
@@ -84,10 +83,6 @@ export class MapTabComponent implements OnInit {
 
   setSeaVariablesView(view: 'composite' | 'hov34' | 'hov12'): void {
     this.seaVariablesView.set(view);
-  }
-
-  setAtmosferaView(view: 'viento' | 'goes'): void {
-    this.atmosferaView.set(view);
   }
 
   onDateChange(event: Event): void {
