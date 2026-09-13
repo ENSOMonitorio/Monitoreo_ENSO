@@ -340,6 +340,21 @@ body {
 .mb-3 { margin-bottom: 12px; }
 
 /* ═══════════════════════════════════════════
+   LAYOUT SUBSUPERFICIE — contenido a la izquierda,
+   botones de nivel superior en columna a la derecha.
+   ═══════════════════════════════════════════ */
+.subsurf-layout {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.subsurf-content {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* ═══════════════════════════════════════════
    TOGGLE DE VISTA (Subsuperficie: superficie vs.
    mapa de variables del mar)
    ═══════════════════════════════════════════ */
@@ -347,6 +362,29 @@ body {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.view-toggle--vertical {
+  flex: 0 0 200px;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  position: sticky;
+  top: 16px;
+}
+
+.view-toggle--vertical .view-toggle-btn {
+  text-align: left;
+}
+
+@media (max-width: 720px) {
+  .subsurf-layout { flex-direction: column; }
+  .view-toggle--vertical {
+    flex: 0 0 auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    position: static;
+    order: -1;
+  }
 }
 
 .view-toggle-btn {
