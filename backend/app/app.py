@@ -114,34 +114,32 @@ LOGIN_HTML = """<!DOCTYPE html>
     font-family: 'Inter', system-ui, sans-serif; color: #e2f0e8;
   }}
   .card {{
-    width: 100%; max-width: 720px; margin: 20px;
+    width: 100%; max-width: 960px; margin: 20px;
     display: flex; flex-wrap: wrap; align-items: stretch;
     background: rgba(6,12,8,0.95); backdrop-filter: blur(16px);
     border: 1px solid rgba(255,255,255,0.08); border-radius: 16px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.65); overflow: hidden;
   }}
-  .media {{ flex: 1 1 280px; min-height: 220px; background: #06140d; }}
+  .media {{ flex: 1 1 360px; min-height: 320px; background: #06140d; }}
   .media img {{ width: 100%; height: 100%; object-fit: cover; display: block; }}
-  .panel {{ flex: 1 1 320px; padding: 32px 28px; }}
-  .logo {{ text-align: center; margin-bottom: 24px; }}
+  .panel {{ flex: 1 1 400px; padding: 48px 44px; }}
+  .logo {{ text-align: center; margin-bottom: 32px; }}
   .logo h1 {{
-    font-family: 'Space Grotesk', sans-serif; font-size: 1.35rem; font-weight: 700;
-    line-height: 1.25; letter-spacing: -0.01em; text-wrap: balance;
+    font-family: 'Space Grotesk', sans-serif; font-size: 1.7rem; font-weight: 700;
+    line-height: 1.3; letter-spacing: -0.01em; text-wrap: balance; color: #e2f0e8;
   }}
-  .logo h1 .r {{ color: #ff5252; }}
-  .logo h1 .b {{ color: #5b9bdb; }}
-  .logo p {{ font-size: 0.72rem; color: #5a8f70; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 8px; }}
-  label {{ display: block; font-size: 0.72rem; font-weight: 700; color: #5a8f70;
-           text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }}
+  .logo p {{ font-size: 0.8rem; color: #5a8f70; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 10px; }}
+  label {{ display: block; font-size: 0.78rem; font-weight: 700; color: #5a8f70;
+           text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }}
   input {{
-    width: 100%; padding: 10px 12px; margin-bottom: 16px;
+    width: 100%; padding: 14px 16px; margin-bottom: 20px;
     background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px; color: #e2f0e8; font-size: 0.9rem; font-family: inherit;
+    border-radius: 8px; color: #e2f0e8; font-size: 1rem; font-family: inherit;
   }}
   input:focus {{ outline: none; border-color: #5fcf8d; background: rgba(255,255,255,0.08); }}
   button {{
-    width: 100%; padding: 11px; border: 0; border-radius: 8px; cursor: pointer;
-    background: #2f6b46; color: #e2f0e8; font-weight: 700; font-size: 0.85rem;
+    width: 100%; padding: 14px; border: 0; border-radius: 8px; cursor: pointer;
+    background: #2f6b46; color: #e2f0e8; font-weight: 700; font-size: 0.95rem;
     letter-spacing: 0.01em; font-family: inherit; transition: all 0.2s;
   }}
   button:hover {{ filter: brightness(1.12); transform: translateY(-1px); }}
@@ -156,7 +154,7 @@ LOGIN_HTML = """<!DOCTYPE html>
     <div class="media"><img src="/login-assets/past-el-nino-gif-1.webp" alt="El Niño"></div>
     <div class="panel">
       <div class="logo">
-        <h1><span class="r">E</span>l <span class="r">N</span>iño-<span class="b">O</span>scilación del <span class="b">S</span>ur (ENSO)</h1>
+        <h1>El Niño&#8211;Oscilación del Sur (ENSO)</h1>
         <p>Monitoreo</p>
       </div>
       <form method="POST">
