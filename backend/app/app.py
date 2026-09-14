@@ -139,7 +139,7 @@ LOGIN_HTML = """<!DOCTYPE html>
   input:focus {{ outline: none; border-color: #5fcf8d; background: rgba(255,255,255,0.08); }}
   button {{
     width: 100%; padding: 14px; border: 0; border-radius: 8px; cursor: pointer;
-    background: #2f6b46; color: #e2f0e8; font-weight: 700; font-size: 0.95rem;
+    background: #565b5e; color: #e2f0e8; font-weight: 700; font-size: 0.95rem;
     letter-spacing: 0.01em; font-family: inherit; transition: all 0.2s;
   }}
   button:hover {{ filter: brightness(1.12); transform: translateY(-1px); }}
