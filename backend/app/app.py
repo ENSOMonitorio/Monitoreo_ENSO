@@ -108,9 +108,9 @@ LOGIN_HTML = """<!DOCTYPE html>
   * {{ box-sizing: border-box; margin: 0; padding: 0; }}
   body {{
     min-height: 100vh; display: flex; align-items: center; justify-content: center;
-    background-color: #0d2a1e;
-    background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(47,107,70,0.25), transparent),
-                       radial-gradient(ellipse 60% 40% at 100% 100%, rgba(95,207,141,0.08), transparent);
+    background-color: #eceeed;
+    background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(47,107,70,0.05), transparent),
+                       radial-gradient(ellipse 60% 40% at 100% 100%, rgba(95,207,141,0.05), transparent);
     font-family: 'Inter', system-ui, sans-serif; color: #e2f0e8;
   }}
   .card {{
