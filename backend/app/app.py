@@ -127,7 +127,7 @@ LOGIN_HTML = """<!DOCTYPE html>
     border: 1px solid rgba(0,0,0,0.08); border-radius: 16px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.25); overflow: hidden;
   }}
-  .media {{ flex: 1 1 360px; min-height: 320px; background: #06140d; }}
+  .media {{ flex: 1 1 360px; min-height: 320px; background: #ffffff; }}
   .media img {{ width: 100%; height: 100%; object-fit: cover; display: block; }}
   .panel {{ flex: 1 1 400px; padding: 48px 44px; }}
   label {{ display: block; font-size: 0.78rem; font-weight: 700; color: #4a7a5f;
