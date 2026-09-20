@@ -7,7 +7,7 @@ import matplotlib.patches as mpatches
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 
-from .common import NINO_COLORS, _autocrop_whitespace
+from plotting.common import NINO_COLORS, _autocrop_whitespace
 
 
 def plot_slp(slp_daily_data, date_str, out_path, min_val=981, max_val=1038, contour=3):

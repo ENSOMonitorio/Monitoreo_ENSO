@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 
-from .common import _base_map, _add_nino_boxes, _autocrop_whitespace
+from plotting.common import _base_map, _add_nino_boxes, _autocrop_whitespace
 
 
 def plot_wind_850hpa_vectors(u850_data, v850_data, date_str, out_path,
