@@ -10,7 +10,7 @@ import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 from PIL import Image as PILImage
 
-from .common import NINO_REGIONS_EQ, _lon_label, _perspective_coeffs
+from plotting.common import NINO_REGIONS_EQ, _lon_label, _perspective_coeffs
 
 
 def plot_equatorial_depth_section(band_mean_da, climatology_da, month, out_path,
