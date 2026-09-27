@@ -74,18 +74,6 @@
           </div>
           <app-date-player prefix="anom" alt="Mapa de anomalía de TSM"></app-date-player>
         </ng-template>
-
-        <div class="chart-title mt-3 mb-2">Hovmöller — Niño 3.4</div>
-        <div class="chart-sub mb-2">Dato más reciente — región Niño 3.4.</div>
-        <div class="chart-figure mb-3" *ngIf="hov34Data()?.image_url as hov34SurfUrl">
-          <img [src]="hov34SurfUrl" alt="Hovmöller Niño 3.4" />
-        </div>
-
-        <div class="chart-title mt-2 mb-2">Hovmöller — Niño 1+2</div>
-        <div class="chart-sub mb-2">Dato más reciente — región Niño 1+2.</div>
-        <div class="chart-figure" *ngIf="hov12Data()?.image_url as hov12SurfUrl">
-          <img [src]="hov12SurfUrl" alt="Hovmöller Niño 1+2" />
-        </div>
       </ng-container>
       <ng-container *ngIf="topView() === 'mar'">
         <div class="view-toggle mb-2">
@@ -100,18 +88,10 @@
           <button
             type="button"
             class="view-toggle-btn view-toggle-btn--sm"
-            [class.view-toggle-btn--active]="seaVariablesView() === 'hov34'"
-            (click)="setSeaVariablesView('hov34')"
+            [class.view-toggle-btn--active]="seaVariablesView() === 'dash_boyas'"
+            (click)="setSeaVariablesView('dash_boyas')"
           >
-            Hovmöller — Niño 3.4
-          </button>
-          <button
-            type="button"
-            class="view-toggle-btn view-toggle-btn--sm"
-            [class.view-toggle-btn--active]="seaVariablesView() === 'hov12'"
-            (click)="setSeaVariablesView('hov12')"
-          >
-            Hovmöller — Niño 1+2
+            🌊 App Interactiva Subsuperficie y Boyas TAO
           </button>
         </div>
 
@@ -129,18 +109,19 @@
               </div>
             </ng-container>
           </ng-container>
-          <ng-container *ngSwitchCase="'hov34'">
-            <div class="chart-title mt-2 mb-2">Hovmöller — Niño 3.4</div>
-            <div class="chart-sub mb-2">Dato más reciente — región Niño 3.4.</div>
-            <div class="chart-figure flip-in" *ngIf="hov34Data()?.image_url as hov34Url">
-              <img [src]="hov34Url" alt="Hovmöller Niño 3.4" />
+          <ng-container *ngSwitchCase="'dash_boyas'">
+            <div class="chart-title mt-2 mb-2">
+              🌊 App Interactiva de Subsuperficie y Boyas TAO (Dash)
             </div>
-          </ng-container>
-          <ng-container *ngSwitchCase="'hov12'">
-            <div class="chart-title mt-2 mb-2">Hovmöller — Niño 1+2</div>
-            <div class="chart-sub mb-2">Dato más reciente — región Niño 1+2.</div>
-            <div class="chart-figure flip-in" *ngIf="hov12Data()?.image_url as hov12Url">
-              <img [src]="hov12Url" alt="Hovmöller Niño 1+2" />
+            <div class="chart-sub mb-2">
+              Visualización y análisis interactivo de boyas TAO/TRITON en el Pacífico ecuatorial (TSM, Altura Dinámica, Isoterma de 20°C, Contornos RBF y Vientos).
+            </div>
+            <div class="dash-frame-container mt-2">
+              <iframe
+                src="/subsurf-dash/"
+                class="dash-embedded-frame"
+                title="App Interactiva de Subsuperficie y Boyas TAO"
+              ></iframe>
             </div>
           </ng-container>
         </ng-container>

@@ -359,6 +359,25 @@ body {
   min-width: 0;
 }
 
+/* Contenedor e iframe del Dashboard de Boyas TAO (Dash) */
+.dash-frame-container {
+  width: 100%;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-top: 10px;
+}
+
+.dash-embedded-frame {
+  width: 100%;
+  height: 940px;
+  border: 1px solid rgba(47, 107, 70, 0.22);
+  border-top: 3px solid var(--accent-2);
+  border-radius: var(--r-lg);
+  background: var(--bg);
+  display: block;
+}
+
 /* ═══════════════════════════════════════════
    TOGGLE DE VISTA (Subsuperficie: superficie vs.
    mapa de variables del mar)

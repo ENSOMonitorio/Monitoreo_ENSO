@@ -1,4 +1,10 @@
 Flask>=3.0
+dash>=2.14
+dash-daq>=0.5
+kaleido>=0.2.1
+requests>=2.31
+scipy>=1.10
+openpyxl>=3.1
 plotly>=5.18
 matplotlib>=3.8
 cartopy>=0.22

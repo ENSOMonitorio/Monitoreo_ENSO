@@ -90,6 +90,13 @@ INDEX_REGIONS = {
 
 server = Flask(__name__)
 
+# Montar Dash de Subsuperficie y Boyas TAO en /subsurf-dash/
+try:
+    from subsuperficie.app import mount_dash
+    dash_app = mount_dash(server)
+except Exception as e:
+    print(f"[WARN] No se pudo montar subsuperficie Dash en Flask: {e}")
+
 # Login propio (reemplaza el basic-auth de nginx — mismo usuario/clave, pero
 # con una pantalla en vez del popup nativo del navegador). El hash nunca
 # vive en el código: viene por variable de entorno (docker-compose.yml).
@@ -458,6 +465,8 @@ def api_pipeline_run():
 @server.route("/", defaults={"path": ""})
 @server.route("/<path:path>")
 def spa(path):
+    if path.startswith("subsurf-dash"):
+        abort(404)
     candidate = os.path.join(STATIC_DIR, path) if path else None
     if candidate and os.path.isfile(candidate):
         return send_from_directory(STATIC_DIR, path)
