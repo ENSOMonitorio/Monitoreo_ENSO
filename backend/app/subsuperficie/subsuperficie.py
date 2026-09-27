@@ -1,6 +1,32 @@
 """Subsuperficie — corte ecuatorial y composite de Onda Kelvin."""
 
 import os
+import sys
+import importlib.util
+
+_CUR_DIR = os.path.dirname(os.path.abspath(__file__))
+_APP_DIR = os.path.dirname(_CUR_DIR)
+if _APP_DIR not in sys.path:
+    sys.path.insert(0, _APP_DIR)
+
+# Cargar helpers de plotting.common de forma segura sin disparar circular import en plotting/__init__.py
+try:
+    if "plotting" in sys.modules and hasattr(sys.modules["plotting"], "common"):
+        from plotting.common import NINO_REGIONS_EQ, _lon_label, _perspective_coeffs
+    else:
+        _common_path = os.path.join(_APP_DIR, "plotting", "common.py")
+        if os.path.exists(_common_path):
+            _spec = importlib.util.spec_from_file_location("plotting.common", _common_path)
+            _common_mod = importlib.util.module_from_spec(_spec)
+            sys.modules["plotting.common"] = _common_mod
+            _spec.loader.exec_module(_common_mod)
+            NINO_REGIONS_EQ = _common_mod.NINO_REGIONS_EQ
+            _lon_label = _common_mod._lon_label
+            _perspective_coeffs = _common_mod._perspective_coeffs
+        else:
+            from plotting.common import NINO_REGIONS_EQ, _lon_label, _perspective_coeffs
+except Exception:
+    from plotting.common import NINO_REGIONS_EQ, _lon_label, _perspective_coeffs
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -9,8 +35,6 @@ import matplotlib.patches as mpatches
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 from PIL import Image as PILImage
-
-from plotting.common import NINO_REGIONS_EQ, _lon_label, _perspective_coeffs
 
 
 def plot_equatorial_depth_section(band_mean_da, climatology_da, month, out_path,
