@@ -81,6 +81,42 @@ def test_api_goes19_shape():
     assert "anim_url" in resp.get_json()
 
 
+def test_api_walker_shape():
+    _, client = _client()
+    resp = client.get("/api/walker")
+    assert resp.status_code == 200
+    body = resp.get_json()
+    assert "cross_section_url" in body and "timeseries_url" in body
+    assert body.get("band") == "5S-5N"
+
+
+def test_api_walker_with_custom_band():
+    _, client = _client()
+    resp = client.get("/api/walker?band=2S-2N")
+    assert resp.status_code == 200
+    body = resp.get_json()
+    assert body.get("band") == "2S-2N"
+
+
+def test_api_figures_walker_band():
+    _, client = _client()
+    resp = client.get("/api/figures/walker?band=0")
+    assert resp.status_code == 200
+    body = resp.get_json()
+    assert body["prefix"] == "walker"
+    assert body["band"] == "0"
+
+
+def test_api_figures_walker_vec_band():
+    _, client = _client()
+    resp = client.get("/api/figures/walker_vec?band=5S-5N")
+    assert resp.status_code == 200
+    body = resp.get_json()
+    assert body["prefix"] == "walker_vec"
+    assert body["band"] == "5S-5N"
+
+
+
 def test_api_status_shape():
     _, client = _client()
     resp = client.get("/api/status")
@@ -105,11 +141,10 @@ def test_api_pipeline_run_rejects_when_already_running(monkeypatch):
     assert resp.get_json()["started"] is False
 
 
-def test_spa_fallback_404s_without_a_frontend_build(monkeypatch):
-    # En este checkout backend/app/static/ no existe (se genera recién en el
-    # stage de build de Angular del Dockerfile) — la SPA debe degradar a 404
-    # en vez de reventar, tanto para "/" como para una ruta profunda.
+def test_spa_fallback_404s_without_a_frontend_build(monkeypatch, tmp_path):
     app_module, client = _client()
+    non_existent = str(tmp_path / "non_existent_static")
+    monkeypatch.setattr(app_module, "STATIC_DIR", non_existent)
     assert not os.path.exists(app_module.STATIC_DIR)
     assert client.get("/").status_code == 404
     assert client.get("/indices").status_code == 404

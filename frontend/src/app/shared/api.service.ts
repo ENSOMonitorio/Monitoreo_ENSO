@@ -51,6 +51,11 @@ export interface Goes19Response {
   anim_url: string | null;
 }
 
+export interface WalkerResponse {
+  cross_section_url: string | null;
+  timeseries_url: string | null;
+}
+
 export interface StatusResponse {
   text: string;
   is_running: boolean;
@@ -77,9 +82,11 @@ export class ApiService {
     return this.http.get<ConfigResponse>('/api/config');
   }
 
-  getFigures(prefix: string, date?: string): Observable<FiguresResponse> {
-    const params = date ? { date } : undefined;
-    return this.http.get<FiguresResponse>(`/api/figures/${prefix}`, { params });
+  getFigures(prefix: string, date?: string, band?: string): Observable<FiguresResponse> {
+    const params: Record<string, string> = {};
+    if (date) params['date'] = date;
+    if (band) params['band'] = band;
+    return this.http.get<FiguresResponse>(`/api/figures/${prefix}`, { params: Object.keys(params).length ? params : undefined });
   }
 
   getIndicesCatalog(): Observable<IndicesResponse> {
@@ -100,6 +107,11 @@ export class ApiService {
 
   getGoes19(): Observable<Goes19Response> {
     return this.http.get<Goes19Response>('/api/goes19');
+  }
+
+  getWalker(band?: string): Observable<WalkerResponse> {
+    const params = band ? { band } : undefined;
+    return this.http.get<WalkerResponse>('/api/walker', { params });
   }
 
   getStatus(): Observable<StatusResponse> {

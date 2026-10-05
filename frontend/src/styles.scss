@@ -307,7 +307,9 @@ body {
 .chart-figure { position: relative; z-index: 1; }
 
 .chart-figure img {
+  width: 100%;
   max-width: 100%;
+  height: auto;
   display: block;
   margin: 0 auto;
   border-radius: var(--r-sm);
@@ -507,7 +509,7 @@ app-date-player { display: block; }
 .date-player-buttons {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   margin-bottom: 8px;
   flex-wrap: wrap;
 }
@@ -530,8 +532,8 @@ app-date-player { display: block; }
 .player-btn:hover { background: rgba(255,255,255,0.85); }
 
 .player-btn--main {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   background: #1e4a30;
   color: #e8f5ec;
   border-color: #1e4a30;
@@ -540,8 +542,8 @@ app-date-player { display: block; }
 .player-btn--main:hover { background: #1e4a30; filter: brightness(1.15); }
 
 .date-player-label {
-  margin-left: 6px;
-  font-size: 0.8rem;
+  margin-left: 4px;
+  font-size: 0.78rem;
   font-weight: 600;
   color: #2f5f42;
   font-variant-numeric: tabular-nums;
@@ -554,17 +556,69 @@ app-date-player { display: block; }
   cursor: pointer;
 }
 
-.player-speed {
+.player-toggle-btn {
   margin-left: auto;
   font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.73rem;
   font-weight: 600;
   color: #2f5f42;
   background: rgba(255,255,255,0.6);
   border: 1px solid rgba(30,74,48,0.25);
   border-radius: var(--r-sm);
-  padding: 5px 8px;
+  padding: 4px 8px;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: var(--t);
+  white-space: nowrap;
+}
+
+.player-toggle-btn:hover {
+  background: rgba(255,255,255,0.85);
+}
+
+.player-toggle-btn--active {
+  background: #1e4a30;
+  border-color: #1e4a30;
+  color: #e8f5ec;
+  box-shadow: 0 2px 8px rgba(30,74,48,0.25);
+}
+
+.player-band {
+  margin-left: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.73rem;
+  font-weight: 600;
+  color: #2f5f42;
+  background: rgba(255,255,255,0.6);
+  border: 1px solid rgba(30,74,48,0.25);
+  border-radius: var(--r-sm);
+  padding: 4px 6px;
+  cursor: pointer;
+}
+
+.date-player-buttons:not(:has(.player-toggle-btn)) .player-band {
+  margin-left: auto;
+}
+
+.player-band:hover { background: rgba(255,255,255,0.85); }
+
+.player-speed {
+  margin-left: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.73rem;
+  font-weight: 600;
+  color: #2f5f42;
+  background: rgba(255,255,255,0.6);
+  border: 1px solid rgba(30,74,48,0.25);
+  border-radius: var(--r-sm);
+  padding: 4px 6px;
+  cursor: pointer;
+}
+
+.date-player-buttons:not(:has(.player-toggle-btn)):not(:has(.player-band)) .player-speed {
+  margin-left: auto;
 }
 
 .player-speed:hover { background: rgba(255,255,255,0.85); }

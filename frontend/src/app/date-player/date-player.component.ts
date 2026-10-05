@@ -1,10 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnChanges, OnDestroy, SimpleChanges, signal } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, signal } from '@angular/core';
 import { ApiService } from '../shared/api.service';
 
-/** Reproductor de la serie diaria de un prefix (tsm, anom, viento, slp):
+export interface PlayerBandOption {
+  key: string;
+  label: string;
+}
+
+/** Reproductor de la serie diaria de un prefix (tsm, anom, viento, slp, walker):
  * play/pausa + slider para recorrer todas las fechas disponibles, no solo
- * los últimos 15 días del GIF fijo. Reusa /api/figures/<prefix>?date=... —
+ * los últimos 15 días del GIF fijo. Reusa /api/figures/<prefix>?date=...&band=... —
  * el mismo endpoint que ya usa el selector de fecha de las pestañas
  * normales — así que no hace falta nada nuevo del lado del backend. */
 @Component({
@@ -20,6 +25,11 @@ export class DatePlayerComponent implements OnChanges, OnDestroy {
    * imagen se compara al lado de otra con distinta relación ancho/alto
    * (p.ej. Viento vs. GOES-19 en Atmósfera). */
   @Input() fixedHeight = false;
+  @Input() bands: PlayerBandOption[] = [];
+  @Input() initialBand = '5S-5N';
+  @Input() hasTimeseriesToggle = false;
+  @Output() bandChange = new EventEmitter<string>();
+  @Output() timeseriesToggle = new EventEmitter<boolean>();
 
   dates = signal<string[]>([]);
   index = signal(0);
@@ -27,6 +37,8 @@ export class DatePlayerComponent implements OnChanges, OnDestroy {
   playing = signal(false);
   loading = signal(true);
   speed = signal(1);
+  currentBand = signal<string>('5S-5N');
+  timeseriesActive = signal<boolean>(false);
   readonly speedOptions = [0.5, 1, 2, 4, 8];
 
   private timer?: ReturnType<typeof setInterval>;
@@ -34,22 +46,39 @@ export class DatePlayerComponent implements OnChanges, OnDestroy {
 
   constructor(private api: ApiService) {}
 
+  toggleTimeseries(): void {
+    const next = !this.timeseriesActive();
+    this.timeseriesActive.set(next);
+    this.timeseriesToggle.emit(next);
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['prefix']) {
-      this.pause();
-      this.loading.set(true);
-      this.api.getFigures(this.prefix).subscribe((res) => {
-        // /api/figures/<prefix> devuelve las fechas más nuevas primero (para
-        // el <select> de las pestañas normales) — acá se invierte para que
-        // el slider lea de izquierda (inicio de año) a derecha (hoy), como
-        // una línea de tiempo normal.
-        const chronological = [...res.dates].reverse();
-        this.dates.set(chronological);
-        this.index.set(chronological.length - 1);
-        this.imageUrl.set(res.image_url);
-        this.loading.set(false);
-      });
+    if (changes['initialBand'] && this.initialBand) {
+      if (this.currentBand() !== this.initialBand) {
+        this.currentBand.set(this.initialBand);
+        this.loadCurrent();
+      }
     }
+    if (changes['prefix'] || changes['bands']) {
+      this.fetchInitial();
+    }
+  }
+
+  private fetchInitial(): void {
+    this.pause();
+    this.loading.set(true);
+    const band = this.bands.length ? this.currentBand() : undefined;
+    this.api.getFigures(this.prefix, undefined, band).subscribe((res) => {
+      // /api/figures/<prefix> devuelve las fechas más nuevas primero (para
+      // el <select> de las pestañas normales) — acá se invierte para que
+      // el slider lea de izquierda (inicio de año) a derecha (hoy), como
+      // una línea de tiempo normal.
+      const chronological = [...res.dates].reverse();
+      this.dates.set(chronological);
+      this.index.set(chronological.length - 1);
+      this.imageUrl.set(res.image_url);
+      this.loading.set(false);
+    });
   }
 
   ngOnDestroy(): void {
@@ -86,6 +115,13 @@ export class DatePlayerComponent implements OnChanges, OnDestroy {
       clearInterval(this.timer);
       this.timer = undefined;
     }
+  }
+
+  onBandChange(event: Event): void {
+    const band = (event.target as HTMLSelectElement).value;
+    this.currentBand.set(band);
+    this.bandChange.emit(band);
+    this.loadCurrent();
   }
 
   onSpeedChange(event: Event): void {
@@ -137,6 +173,7 @@ export class DatePlayerComponent implements OnChanges, OnDestroy {
   private loadCurrent(): void {
     const date = this.currentDate;
     if (!date) return;
-    this.api.getFigures(this.prefix, date).subscribe((res) => this.imageUrl.set(res.image_url));
+    const band = this.bands.length ? this.currentBand() : undefined;
+    this.api.getFigures(this.prefix, date, band).subscribe((res) => this.imageUrl.set(res.image_url));
   }
 }
