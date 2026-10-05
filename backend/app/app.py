@@ -65,7 +65,7 @@ def _pipeline_running():
 
 LIMA_TZ = timezone(timedelta(hours=-5))
 
-DAILY_ANIM_PREFIXES = {"tsm", "anom", "viento", "slp"}
+DAILY_ANIM_PREFIXES = {"tsm", "anom", "viento", "slp", "walker", "walker_vec"}
 
 MAP_TABS = [
     ("tsm", "Temperatura superficial del mar (TSM)"),
@@ -75,6 +75,8 @@ MAP_TABS = [
     ("hovmoller_nino34", "Hovmöller — Niño 3.4"),
     ("hovmoller_nino12", "Hovmöller — Niño 1+2"),
     ("subsurf", "Subsuperficie — Onda Kelvin"),
+    ("walker", "Circulación de Walker"),
+    ("walker_vec", "Circulación de Walker con vectores"),
 ]
 _MAP_TAB_PREFIXES = {prefix for prefix, _ in MAP_TABS}
 
@@ -228,7 +230,17 @@ def _fig_url(filename):
     return f"/figures/{filename}?v={int(os.path.getmtime(path))}"
 
 
-def _dates_for(prefix):
+def _dates_for(prefix, band=None):
+    if prefix in ("walker", "walker_vec") and band:
+        pattern = re.compile(rf"^{re.escape(prefix)}_{re.escape(band)}_(\d{{4}}-\d{{2}}-\d{{2}})\.png$")
+        dates = []
+        for f in glob.glob(os.path.join(FIGURES_DIR, f"{prefix}_{band}_*.png")):
+            m = pattern.match(os.path.basename(f))
+            if m:
+                dates.append(m.group(1))
+        if dates:
+            return sorted(dates, reverse=True)
+
     pattern = re.compile(rf"^{re.escape(prefix)}_(\d{{4}}-\d{{2}}-\d{{2}})\.png$")
     dates = []
     for f in glob.glob(os.path.join(FIGURES_DIR, f"{prefix}_*.png")):
@@ -364,13 +376,25 @@ def api_config():
 def api_figures(prefix):
     if prefix not in _MAP_TAB_PREFIXES:
         abort(404)
-    dates = _dates_for(prefix)
+    band = request.args.get("band")
+    if prefix in ("walker", "walker_vec") and not band:
+        band = "5S-5N"
+    dates = _dates_for(prefix, band=band)
     selected = request.args.get("date") or (dates[0] if dates else None)
+    
+    if prefix in ("walker", "walker_vec") and band:
+        image_url = _fig_url(f"{prefix}_{band}_{selected}.png") if selected else None
+        if not image_url and selected:
+            image_url = _fig_url(f"{prefix}_{selected}.png")
+    else:
+        image_url = _fig_url(f"{prefix}_{selected}.png") if selected else None
+
     return jsonify({
         "prefix": prefix,
+        "band": band,
         "dates": dates,
         "selected_date": selected,
-        "image_url": _fig_url(f"{prefix}_{selected}.png") if selected else None,
+        "image_url": image_url,
         "anim_url": _fig_url(f"{prefix}_anim.gif") if prefix in DAILY_ANIM_PREFIXES else None,
         "composite_anim_url": _fig_url("subsurf_composite_anim.gif") if prefix == "subsurf" else None,
     })
@@ -416,6 +440,18 @@ def api_goes19():
     GIF de nombre fijo, regenerado a mano con `python -m GOES19.goes` (desde
     backend/app/) o vía el pipeline cuando se agende."""
     return jsonify({"anim_url": _fig_url("goes19_anim.gif")})
+
+
+@server.route("/api/walker")
+def api_walker():
+    band = request.args.get("band", "5S-5N")
+    cs_url = _fig_url(f"walker_{band}_cross_section.png") or _fig_url(f"walker_cross_section.png")
+    ts_url = _fig_url(f"walker_{band}_timeseries.png") or _fig_url(f"walker_timeseries.png")
+    return jsonify({
+        "band": band,
+        "cross_section_url": cs_url,
+        "timeseries_url": ts_url,
+    })
 
 
 @server.route("/api/status")

@@ -41,6 +41,16 @@
       {{ currentDate }} · día {{ index() + 1 }} de {{ dates().length }}
     </span>
 
+    <select
+      *ngIf="bands.length > 0"
+      class="player-band"
+      [value]="currentBand()"
+      (change)="onBandChange($event)"
+      title="Banda de latitud"
+    >
+      <option *ngFor="let b of bands" [value]="b.key">{{ b.label }}</option>
+    </select>
+
     <select class="player-speed" [value]="speed()" (change)="onSpeedChange($event)" title="Velocidad">
       <option *ngFor="let s of speedOptions" [value]="s">{{ s }}×</option>
     </select>

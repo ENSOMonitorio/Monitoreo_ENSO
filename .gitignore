@@ -1,9 +1,11 @@
 data/raw/
 data/figures/
 data/processed/
+data/goes19/
 scripts/*.log
 __pycache__/
 *.pyc
 secrets.env
 .venv/
 backend/app/static/
+

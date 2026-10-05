@@ -118,7 +118,11 @@ def _base_map(figsize=(12, 6)):
 
 def _lon_label(x):
     x = x % 360
-    return f"{int(round(x))}°E" if x <= 180 else f"{int(round(360 - x))}°W"
+    if round(x) == 0:
+        return "0°"
+    if round(x) == 180:
+        return "180°"
+    return f"{int(round(x))}°E" if x < 180 else f"{int(round(360 - x))}°W"
 
 
 def _perspective_coeffs(src_pts, dst_pts):

@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ApiService, FiguresResponse, Goes19Response } from '../shared/api.service';
+import { ApiService, FiguresResponse, Goes19Response, WalkerResponse } from '../shared/api.service';
 import { HistoricoComponent } from '../historico/historico.component';
 import { IndicesComponent } from '../indices/indices.component';
 import { DatePlayerComponent } from '../date-player/date-player.component';
@@ -35,6 +35,13 @@ export class MapTabComponent implements OnInit {
   // Dentro de "Atmósfera": viento 850 hPa (<app-date-player>, trae sus
   // propios datos) y GOES-19, siempre juntos (sin toggle).
   goesData = signal<Goes19Response | null>(null);
+  walkerData = signal<WalkerResponse | null>(null);
+  readonly walkerBands = [
+    { key: '5S-5N', label: '5°S–5°N' },
+    { key: '2S-2N', label: '2°S–2°N' },
+    { key: '0', label: '0°' },
+  ];
+  walkerBand = signal<string>('5S-5N');
 
   // Dentro de "Otros": todo junto en una sola vista (sin sub-botones) —
   // gatillador/inhibidor del fenómeno (APSO, ZCIT, etc. — proyección de la
@@ -58,9 +65,15 @@ export class MapTabComponent implements OnInit {
         this.api.getFigures('hovmoller_nino34').subscribe((res) => this.hov34Data.set(res));
         this.api.getFigures('hovmoller_nino12').subscribe((res) => this.hov12Data.set(res));
         this.api.getGoes19().subscribe((res) => this.goesData.set(res));
+        this.api.getWalker(this.walkerBand()).subscribe((res) => this.walkerData.set(res));
         this.api.getFigures('slp').subscribe((res) => this.slpData.set(res));
       }
     });
+  }
+
+  onWalkerBandChange(band: string): void {
+    this.walkerBand.set(band);
+    this.api.getWalker(band).subscribe((res) => this.walkerData.set(res));
   }
 
   load(date?: string): void {

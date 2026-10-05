@@ -24,6 +24,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libproj-dev \
     libgeos-dev \
     build-essential \
+    gfortran \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
