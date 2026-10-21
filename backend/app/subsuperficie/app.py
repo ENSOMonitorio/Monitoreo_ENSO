@@ -26,24 +26,23 @@ import pandas as pd
 import netCDF4 as nc
 import requests
 from datetime import datetime
-import plotly.io as pio
 
-from dash import (Dash, dcc, html, Input, Output, State,
+from dash import (Dash, dcc, html, Input, Output,
                   callback_context, no_update)
 import plotly.graph_objects as go
 
 try:
-    from estilo import etiquetas_color, colores_default
+    from estilo import colores_default
     from graficas import (procesar_nc, procesar_nc_perfil, graficar_sst,
                           graficar_dyn, graficar_iso, graficar_w,
                           calcular_datos_contorno_t, construir_plots_contorno_t,
-                          defaults_var, figura_aviso, listar_cmaps)
+                          defaults_var, figura_aviso)
 except ImportError:
-    from subsuperficie.estilo import etiquetas_color, colores_default
+    from subsuperficie.estilo import colores_default
     from subsuperficie.graficas import (procesar_nc, procesar_nc_perfil, graficar_sst,
                                         graficar_dyn, graficar_iso, graficar_w,
                                         calcular_datos_contorno_t, construir_plots_contorno_t,
-                                        defaults_var, figura_aviso, listar_cmaps)
+                                        defaults_var, figura_aviso)
 
 # ============================================================
 # DATOS
@@ -164,9 +163,6 @@ def crear_df_desde_lista(lista_ids):
 BOYAS_POR_VARIABLE = {v: crear_df_desde_lista(BOYAS_FILTRADAS[v])
                       for v in BOYAS_FILTRADAS}
 
-# Lista de colormaps (una vez, al arrancar)
-CMAPS_LIST = listar_cmaps()
-
 # ============================================================
 # CACHÉ NetCDF + CACHÉ CONTORNO T
 # ============================================================
@@ -262,98 +258,21 @@ def _accordion_item(titulo, icono, contenido, abierto=True):
     return html.Details([summary, body], **kwargs)
 
 
-def _slider_color(var_id, idx):
-    labs = etiquetas_color(var_id)
-    defs = colores_default(var_id)
-    return html.Div([
-        html.Label(labs[idx], className="form-label",
-                   style={"fontSize": "0.78rem", "marginBottom": "2px"}),
-        html.Div(style={"display": "flex", "gap": "6px",
-                        "alignItems": "center"}, children=[
-            html.Div(id=f"prev{idx+1}_{var_id}",
-                     style={"width": "32px", "height": "32px",
-                            "borderRadius": "6px",
-                            "border": "1px solid #B8D4E3",
-                            "backgroundColor": defs[idx],
-                            "flexShrink": "0"}),
-            dcc.Input(id=f"col{idx+1}_{var_id}", type="text",
-                      value=defs[idx], placeholder="#RRGGBB",
-                      debounce=True,
-                      style={"flex": "1", "height": "32px",
-                             "border": "1px solid #B8D4E3",
-                             "borderRadius": "6px",
-                             "padding": "4px 8px",
-                             "fontFamily": "monospace",
-                             "fontSize": "0.82rem"}),
-        ]),
-    ], style={"marginBottom": "8px"})
-
-
-def _panel_colores(var_id):
-    """Para T: selectores de cmap. Para el resto: 5 colores hex."""
-    if var_id == "t":
-        cmap_options = [{"label": c, "value": c} for c in CMAPS_LIST]
-        return html.Div([
-            html.Div("Elige la paleta de color (cmap de matplotlib).",
-                     style={"color": "#64748B", "fontSize": "0.78rem",
-                            "marginBottom": "10px"}),
-            html.Label("Paleta para Temperatura (años):",
-                       className="form-label"),
-            dcc.Dropdown(id="cmap_temp_t",
-                         options=cmap_options,
-                         value="gist_rainbow_r",
-                         clearable=False,
-                         style={"marginBottom": "14px"}),
-            html.Label("Paleta para Anomalías:", className="form-label"),
-            dcc.Dropdown(id="cmap_anom_t",
-                         options=cmap_options,
-                         value="RdBu_r",
-                         clearable=False),
-        ])
-    return html.Div([
-        html.Div("Personaliza los 5 colores principales del gráfico.",
-                 style={"color": "#64748B", "fontSize": "0.78rem",
-                        "marginBottom": "10px"}),
-        *[_slider_color(var_id, i) for i in range(5)],
-    ])
-
-
-def _panel_tema(var_id):
-    default = "bw" if var_id == "w" else "minimal"
-    return html.Div([
-        html.Label("Tema de la gráfica:", className="form-label"),
-        dcc.Dropdown(id=f"tema_{var_id}",
-                     options=[
-                         {"label": "Minimal", "value": "minimal"},
-                         {"label": "Blanco y negro", "value": "bw"},
-                         {"label": "Clásico", "value": "classic"},
-                         {"label": "Claro", "value": "light"},
-                         {"label": "Gris (defecto ggplot)", "value": "gray"},
-                     ], value=default, clearable=False),
-    ])
-
-
-def _boton_descarga(id_boton):
-    return html.Button(
-        "⬇", id=id_boton, n_clicks=0, className="btn-dl-header",
-        title="Descargar PNG (900 dpi)",
-    )
-
-
-def _card_grafica(titulo, id_graph, id_dl_btn, altura="560px"):
+def _card_grafica(titulo, id_graph, altura="560px"):
     return html.Div([
         html.Div([
             html.Span(titulo),
-            _boton_descarga(id_dl_btn),
         ], className="card-header"),
-        html.Div(dcc.Graph(id=id_graph, style={"height": altura}),
-                 className="card-body"),
+        html.Div(dcc.Graph(
+            id=id_graph,
+            style={"height": altura},
+            config={"modeBarButtonsToRemove": ["toImage"], "displaylogo": False}
+        ), className="card-body"),
     ], className="card")
 
 
 def crear_tab_variable(var_id, titulo):
     df = BOYAS_POR_VARIABLE.get(var_id, pd.DataFrame())
-    defs = defaults_var[var_id]
     if df is not None and len(df) > 0:
         boya_options = [{"label": r["label"], "value": r["id"]}
                         for _, r in df.iterrows()]
@@ -385,11 +304,6 @@ def crear_tab_variable(var_id, titulo):
                      className="aviso-warn"),
         ], abierto=False)
 
-    panel_tema = None
-    if var_id in ("sst", "dyn", "iso", "w"):
-        panel_tema = _accordion_item("Apariencia", "🎨",
-                                     _panel_tema(var_id), abierto=False)
-
     # ===== Contenido de gráficas =====
     if var_id == "t":
         contenido_graficas = html.Div([
@@ -413,40 +327,30 @@ def crear_tab_variable(var_id, titulo):
                     "boxShadow": "0 2px 8px rgba(7, 89, 133, 0.08)",
                 },
             ),
-            _card_grafica("📈 Serie Histórica P1", f"hist_p1_{var_id}",
-                          f"btn_dl_hist_p1_{var_id}", "450px"),
-            _card_grafica("📈 Serie Histórica P2", f"hist_p2_{var_id}",
-                          f"btn_dl_hist_p2_{var_id}", "450px"),
-            _card_grafica("📊 Anomalías P1", f"anom_p1_{var_id}",
-                          f"btn_dl_anom_p1_{var_id}", "450px"),
-            _card_grafica("📊 Anomalías P2", f"anom_p2_{var_id}",
-                          f"btn_dl_anom_p2_{var_id}", "450px"),
+            _card_grafica("📈 Serie Histórica P1", f"hist_p1_{var_id}", "450px"),
+            _card_grafica("📈 Serie Histórica P2", f"hist_p2_{var_id}", "450px"),
+            _card_grafica("📊 Anomalías P1", f"anom_p1_{var_id}", "450px"),
+            _card_grafica("📊 Anomalías P2", f"anom_p2_{var_id}", "450px"),
         ])
     elif var_id == "w":
         contenido_graficas = html.Div([
             html.Div(style={"display": "grid",
                             "gridTemplateColumns": "1fr 1fr",
                             "gap": "15px"}, children=[
-                _card_grafica("📈 Serie Histórica P1", f"hist_p1_{var_id}",
-                              f"btn_dl_hist_p1_{var_id}", "820px"),
-                _card_grafica("📈 Serie Histórica P2", f"hist_p2_{var_id}",
-                              f"btn_dl_hist_p2_{var_id}", "820px"),
+                _card_grafica("📈 Serie Histórica P1", f"hist_p1_{var_id}", "820px"),
+                _card_grafica("📈 Serie Histórica P2", f"hist_p2_{var_id}", "820px"),
             ]),
             html.Div(style={"display": "grid",
                             "gridTemplateColumns": "1fr 1fr",
                             "gap": "15px"}, children=[
-                _card_grafica("📊 Anomalías P1", f"anom_p1_{var_id}",
-                              f"btn_dl_anom_p1_{var_id}", "820px"),
-                _card_grafica("📊 Anomalías P2", f"anom_p2_{var_id}",
-                              f"btn_dl_anom_p2_{var_id}", "820px"),
+                _card_grafica("📊 Anomalías P1", f"anom_p1_{var_id}", "820px"),
+                _card_grafica("📊 Anomalías P2", f"anom_p2_{var_id}", "820px"),
             ]),
         ])
     else:
         contenido_graficas = html.Div([
-            _card_grafica("📈 Serie Histórica", f"hist_{var_id}",
-                          f"btn_dl_hist_{var_id}", "560px"),
-            _card_grafica("📊 Anomalías", f"anom_{var_id}",
-                          f"btn_dl_anom_{var_id}", "560px"),
+            _card_grafica("📈 Serie Histórica", f"hist_{var_id}", "560px"),
+            _card_grafica("📊 Anomalías", f"anom_{var_id}", "560px"),
         ])
 
     sidebar_children = [
@@ -481,28 +385,11 @@ def crear_tab_variable(var_id, titulo):
     ]
     if extra_panel is not None:
         sidebar_children.append(extra_panel)
-    sidebar_children.append(_accordion_item("Colores", "🎨",
-                                             _panel_colores(var_id),
-                                             abierto=False))
-    if panel_tema is not None:
-        sidebar_children.append(panel_tema)
-    sidebar_children.append(_accordion_item("Títulos y etiquetas", "🔤", [
-        html.Label("Título histórico (opcional):", className="form-label"),
-        dcc.Textarea(id=f"titulo_hist_{var_id}", value=defs["titulo_hist"],
-                     style={"width": "100%", "minHeight": "60px"}),
-        html.Label("Título anomalías (opcional):", className="form-label",
-                   style={"marginTop": "8px"}),
-        dcc.Textarea(id=f"titulo_anom_{var_id}", value=defs["titulo_anom"],
-                     style={"width": "100%", "minHeight": "60px"}),
-        html.Label("Etiqueta eje Y (histórico):", className="form-label",
-                   style={"marginTop": "8px"}),
-        dcc.Input(id=f"ylab_hist_{var_id}", value=defs["ylab_hist"],
-                  style={"width": "100%"}),
-        html.Label("Etiqueta eje Y (anomalías):", className="form-label",
-                   style={"marginTop": "8px"}),
-        dcc.Input(id=f"ylab_anom_{var_id}", value=defs["ylab_anom"],
-                  style={"width": "100%"}),
-    ], abierto=False))
+
+    sidebar = html.Div(sidebar_children, className="sidebar")
+    content = html.Div(contenido_graficas, className="content-area")
+    return html.Div([sidebar, content], className="main-container",
+                    id=f"tab-{var_id}", style={"display": "none"})
 
     sidebar = html.Div(sidebar_children, className="sidebar")
     content = html.Div(contenido_graficas, className="content-area")
@@ -527,22 +414,6 @@ app = Dash(
 app.layout = html.Div([
     dcc.Store(id="boya-activa", data=None),
     dcc.Interval(id="timer-t-iv", interval=200, n_intervals=0, disabled=True),
-
-    *[dcc.Store(id=f"fig_{nombre}_{vid}")
-      for vid in ["sst", "dyn", "iso", "w"]
-      for nombre in ["hist", "anom"]],
-    *[dcc.Store(id=f"fig_{nombre}_{pid}_w")
-      for pid in ["p1", "p2"] for nombre in ["hist", "anom"]],
-    *[dcc.Store(id=f"fig_{nombre}_{pid}_t")
-      for pid in ["p1", "p2"] for nombre in ["hist", "anom"]],
-
-    *[dcc.Download(id=f"dl_{nombre}_{vid}")
-      for vid in ["sst", "dyn", "iso", "w"]
-      for nombre in ["hist", "anom"]],
-    *[dcc.Download(id=f"dl_{nombre}_{pid}_w")
-      for pid in ["p1", "p2"] for nombre in ["hist", "anom"]],
-    *[dcc.Download(id=f"dl_{nombre}_{pid}_t")
-      for pid in ["p1", "p2"] for nombre in ["hist", "anom"]],
 
     html.Div([
         html.Div([html.Span("🌊", style={"fontSize": "1.3rem"}),
@@ -725,30 +596,6 @@ app.clientside_callback(
 )
 
 
-# ============================================================
-# PREVIEW DE COLORES (solo para sst/dyn/iso/w; t ya no usa colores hex)
-# ============================================================
-def _registrar_preview_color(var_id):
-    inputs = [Input(f"col{i}_{var_id}", "value") for i in range(1, 6)]
-    outputs = [Output(f"prev{i}_{var_id}", "style") for i in range(1, 6)]
-
-    @app.callback(outputs, inputs, prevent_initial_call=False)
-    def _update(*colors):
-        result = []
-        for c in colors:
-            c = c or "#FFFFFF"
-            if not c.startswith("#") and re.match(r"^[0-9A-Fa-f]{3,6}$", c):
-                c = "#" + c
-            result.append({"width": "32px", "height": "32px",
-                           "borderRadius": "6px",
-                           "border": "1px solid #B8D4E3",
-                           "backgroundColor": c,
-                           "flexShrink": "0"})
-        return result
-
-
-for _v in ["sst", "dyn", "iso", "w"]:
-    _registrar_preview_color(_v)
 
 
 # ============================================================
@@ -903,10 +750,7 @@ def registrar_click_boya(clickData):
 # ============================================================
 # HELPERS DE GRÁFICAS
 # ============================================================
-def _computa_fig_var(vid, args):
-    (boya_id, y1, y2, c1, c2, c3, c4, c5,
-     th, ta, ylh, yla, *resto) = args
-    tema = resto[0] if resto else "minimal"
+def _computa_fig_var(vid, boya_id, y1, y2):
     if not boya_id:
         return None
     df_var = BOYAS_POR_VARIABLE.get(vid, pd.DataFrame())
@@ -936,7 +780,15 @@ def _computa_fig_var(vid, args):
         y2 = int(y2) if y2 else anio_actual - 1
     except Exception:
         y1, y2 = 1997, anio_actual - 1
-    colores = [c1, c2, c3, c4, c5]
+
+    defs = defaults_var[vid]
+    th = defs["titulo_hist"]
+    ta = defs["titulo_anom"]
+    ylh = defs["ylab_hist"]
+    yla = defs["ylab_anom"]
+    colores = colores_default(vid)
+    tema = "minimal"
+
     if vid == "sst":
         return graficar_sst(df_merge, (y1, y1+1), (y2, y2+1),
                             th, ta, ylh, yla, colores, tema)
@@ -949,10 +801,7 @@ def _computa_fig_var(vid, args):
     return None
 
 
-def _computa_fig_w(args):
-    (boya_id, y1, y2, c1, c2, c3, c4, c5,
-     th, ta, ylh, yla, *resto) = args
-    tema = resto[0] if resto else "bw"
+def _computa_fig_w(boya_id, y1, y2):
     if not boya_id:
         return None
     df_var = BOYAS_POR_VARIABLE.get("w", pd.DataFrame())
@@ -978,7 +827,15 @@ def _computa_fig_w(args):
         y2 = int(y2) if y2 else anio_actual - 1
     except Exception:
         y1, y2 = 1997, anio_actual - 1
-    colores = [c1, c2, c3, c4, c5]
+
+    defs = defaults_var["w"]
+    th = defs["titulo_hist"]
+    ta = defs["titulo_anom"]
+    ylh = defs["ylab_hist"]
+    yla = defs["ylab_anom"]
+    colores = colores_default("w")
+    tema = "bw"
+
     return graficar_w(df_merge, (y1, y1+1), (y2, y2+1),
                       th, ta, ylh, yla, colores, tema)
 
@@ -995,44 +852,30 @@ def _registrar_cb(var_id):
         outputs = [Output(f"hist_p1_{var_id}", "figure"),
                    Output(f"hist_p2_{var_id}", "figure"),
                    Output(f"anom_p1_{var_id}", "figure"),
-                   Output(f"anom_p2_{var_id}", "figure"),
-                   Output(f"fig_hist_p1_{var_id}", "data"),
-                   Output(f"fig_hist_p2_{var_id}", "data"),
-                   Output(f"fig_anom_p1_{var_id}", "data"),
-                   Output(f"fig_anom_p2_{var_id}", "data")]
+                   Output(f"anom_p2_{var_id}", "figure")]
     else:
         outputs = [Output(f"hist_{var_id}", "figure"),
-                   Output(f"anom_{var_id}", "figure"),
-                   Output(f"fig_hist_{var_id}", "data"),
-                   Output(f"fig_anom_{var_id}", "data")]
+                   Output(f"anom_{var_id}", "figure")]
 
     inputs = [Input(id_boya, "value"),
-              Input(id_p1, "value"), Input(id_p2, "value")]
-    for i in range(1, 6):
-        inputs.append(Input(f"col{i}_{var_id}", "value"))
-    inputs += [Input(f"titulo_hist_{var_id}", "value"),
-               Input(f"titulo_anom_{var_id}", "value"),
-               Input(f"ylab_hist_{var_id}", "value"),
-               Input(f"ylab_anom_{var_id}", "value")]
-    if var_id in ("sst", "dyn", "iso", "w"):
-        inputs.append(Input(f"tema_{var_id}", "value"))
+              Input(id_p1, "value"),
+              Input(id_p2, "value")]
 
     def make_render(vid):
-        def render(*args):
-            boya_id = args[0]
+        def render(boya_id, y1, y2):
             if not boya_id:
-                return (figura_aviso("Datos insuficientes", "Seleccione una boya y verifique los datos"),) * (8 if vid == "w" else 4)
+                return (figura_aviso("Datos insuficientes", "Seleccione una boya y verifique los datos"),) * (4 if vid == "w" else 2)
 
             df_var = BOYAS_POR_VARIABLE.get(vid, pd.DataFrame())
             rows = df_var[df_var["id"] == boya_id]
             if len(rows) == 0:
-                return (figura_aviso("Datos insuficientes", "Seleccione una boya y verifique los datos"),) * (8 if vid == "w" else 4)
+                return (figura_aviso("Datos insuficientes", "Seleccione una boya y verifique los datos"),) * (4 if vid == "w" else 2)
             boya = rows.iloc[0]
 
             ncfile = obtener_nc_boya(vid, boya)
             if ncfile is None:
                 fig_err = figura_aviso("Sin datos", f"No se pudo descargar/abrir el NetCDF ({_nombre_archivo_nc(vid, boya)})")
-                return (fig_err,) * (8 if vid == "w" else 4)
+                return (fig_err,) * (4 if vid == "w" else 2)
 
             var_nc = MAPA_VARIABLES_NC.get(vid)
             if var_nc is None:
@@ -1040,13 +883,13 @@ def _registrar_cb(var_id):
                 vars_t = [v for v in vars_all if re.match(r"^T_\d+", v)]
                 if not vars_t:
                     fig_err = figura_aviso("Sin datos", "No hay variables T_*")
-                    return (fig_err,) * (8 if vid == "w" else 4)
+                    return (fig_err,) * (4 if vid == "w" else 2)
                 var_nc = vars_t[0]
 
             df_merge = procesar_nc(ncfile, var_nc)
             if df_merge is None or len(df_merge) == 0:
                 fig_err = figura_aviso("Sin datos", "No se pudieron procesar los datos")
-                return (fig_err,) * (8 if vid == "w" else 4)
+                return (fig_err,) * (4 if vid == "w" else 2)
 
             anios_disp = df_merge["anio"].unique()
             anios_clim = [a for a in anios_disp if 1991 <= a <= 2020]
@@ -1055,20 +898,20 @@ def _registrar_cb(var_id):
                     "Datos insuficientes",
                     f"Se requieren al menos 25 años para la climatología.<br>"
                     f"Años disponibles en [1991-2020]: {len(anios_clim)}")
-                return (fig_err,) * (8 if vid == "w" else 4)
+                return (fig_err,) * (4 if vid == "w" else 2)
 
             if vid == "w":
-                r = _computa_fig_w(args)
+                r = _computa_fig_w(boya_id, y1, y2)
                 if r is None:
                     fig_err = figura_aviso("Datos insuficientes", "Seleccione una boya y verifique los datos")
-                    return (fig_err, fig_err, fig_err, fig_err, None, None, None, None)
-                return (r["hist_p1"], r["hist_p2"], r["anom_p1"], r["anom_p2"],
-                        r["hist_p1"], r["hist_p2"], r["anom_p1"], r["anom_p2"])
-            r = _computa_fig_var(vid, args)
+                    return (fig_err, fig_err, fig_err, fig_err)
+                return (r["hist_p1"], r["hist_p2"], r["anom_p1"], r["anom_p2"])
+
+            r = _computa_fig_var(vid, boya_id, y1, y2)
             if r is None:
                 fig_err = figura_aviso("Datos insuficientes", "Seleccione una boya y verifique los datos")
-                return fig_err, fig_err, None, None
-            return r["hist"], r["anom"], r["hist"], r["anom"]
+                return fig_err, fig_err
+            return r["hist"], r["anom"]
         return render
 
     app.callback(outputs, inputs, prevent_initial_call=False)(
@@ -1084,50 +927,42 @@ for _v in ["sst", "dyn", "iso", "w"]:
 # ============================================================
 @app.callback(
     [Output("hist_p1_t", "figure"), Output("hist_p2_t", "figure"),
-     Output("anom_p1_t", "figure"), Output("anom_p2_t", "figure"),
-     Output("fig_hist_p1_t", "data"), Output("fig_hist_p2_t", "data"),
-     Output("fig_anom_p1_t", "data"), Output("fig_anom_p2_t", "data")],
+     Output("anom_p1_t", "figure"), Output("anom_p2_t", "figure")],
     [Input("boya_t", "value"),
      Input("anio_p1_t", "value"), Input("anio_p2_t", "value"),
-     Input("cmap_temp_t", "value"), Input("cmap_anom_t", "value"),
-     Input("titulo_hist_t", "value"), Input("titulo_anom_t", "value"),
-     Input("ylab_hist_t", "value"), Input("ylab_anom_t", "value"),
      Input("clim_ini_t", "date"), Input("clim_fin_t", "date"),
      Input("prof_max_t", "value")],
     prevent_initial_call=False,
 )
-def render_t(boya_id, y1, y2, cmap_temp, cmap_anom,
-             th, ta, ylh, yla, clim_ini, clim_fin, prof_max):
+def render_t(boya_id, y1, y2, clim_ini, clim_fin, prof_max):
     fig_aviso = figura_aviso(
         "Datos insuficientes",
         "Seleccione una boya y verifique los datos")
     if not boya_id:
-        return (fig_aviso, fig_aviso, fig_aviso, fig_aviso,
-                None, None, None, None)
+        return (fig_aviso, fig_aviso, fig_aviso, fig_aviso)
     df_var = BOYAS_POR_VARIABLE.get("t", pd.DataFrame())
     rows = df_var[df_var["id"] == boya_id]
     if len(rows) == 0:
-        return (fig_aviso, fig_aviso, fig_aviso, fig_aviso,
-                None, None, None, None)
+        return (fig_aviso, fig_aviso, fig_aviso, fig_aviso)
     boya = rows.iloc[0]
     ncfile = obtener_nc_boya("t", boya)
     if ncfile is None:
         fig_err = figura_aviso(
             "Sin datos",
             f"No se pudo abrir el NetCDF ({_nombre_archivo_nc('t', boya)})")
-        return (fig_err, fig_err, fig_err, fig_err, None, None, None, None)
+        return (fig_err, fig_err, fig_err, fig_err)
     vars_all = list(ncfile.variables.keys())
     vars_t = [v for v in vars_all if re.match(r"^T_\d+", v)]
     if not vars_t:
         fig_err = figura_aviso("Sin datos", "No hay variables T_*")
-        return (fig_err, fig_err, fig_err, fig_err, None, None, None, None)
+        return (fig_err, fig_err, fig_err, fig_err)
     df_perfil = procesar_nc_perfil(ncfile, vars_t[0])
     if df_perfil is None or len(df_perfil) == 0:
         fig_err = figura_aviso(
             "Sin datos",
             "No se pudo procesar el perfil.<br>"
             "Revise la terminal para más detalles.")
-        return (fig_err, fig_err, fig_err, fig_err, None, None, None, None)
+        return (fig_err, fig_err, fig_err, fig_err)
     try:
         y1 = int(y1) if y1 else 1997
         y2 = int(y2) if y2 else anio_actual - 1
@@ -1139,66 +974,23 @@ def render_t(boya_id, y1, y2, cmap_temp, cmap_anom,
     datos = _datos_t_cached(boya_id, df_perfil,
                             (y1, y1+1), (y2, y2+1),
                             clim_ini, clim_fin, prof_max)
+
+    defs = defaults_var["t"]
+    th = defs["titulo_hist"]
+    ta = defs["titulo_anom"]
+    ylh = defs["ylab_hist"]
+    yla = defs["ylab_anom"]
+    cmap_temp = "gist_rainbow_r"
+    cmap_anom = "RdBu_r"
+
     try:
         r = construir_plots_contorno_t(datos, th, ta, ylh, yla,
-                                       cmap_temp=cmap_temp or "gist_rainbow_r",
-                                       cmap_anom=cmap_anom or "RdBu_r")
-        return (r["hist_p1"], r["hist_p2"], r["anom_p1"], r["anom_p2"],
-                r["hist_p1"], r["hist_p2"], r["anom_p1"], r["anom_p2"])
+                                       cmap_temp=cmap_temp,
+                                       cmap_anom=cmap_anom)
+        return (r["hist_p1"], r["hist_p2"], r["anom_p1"], r["anom_p2"])
     except Exception as e:
         fig_err = figura_aviso("Error al generar gráfico", str(e))
-        return (fig_err, fig_err, fig_err, fig_err, None, None, None, None)
-
-
-# ============================================================
-# CALLBACKS DE DESCARGA PNG
-# ============================================================
-def _descargar_png(fig_dict, filename):
-    if fig_dict is None:
-        return no_update
-    try:
-        fig = go.Figure(fig_dict)
-        img = pio.to_image(fig, format="png", width=1400, height=700,
-                           scale=2)
-        return dcc.send_bytes(img, filename)
-    except Exception:
-        return no_update
-
-
-def _registrar_dl(sufijo_id, fig_id, dl_id, nombre, var_suffix):
-    @app.callback(
-        Output(dl_id, "data"),
-        Input(f"btn_dl_{sufijo_id}{var_suffix}", "n_clicks"),
-        State(fig_id, "data"),
-        prevent_initial_call=True,
-    )
-    def _dl(n, fig_data):
-        if not n:
-            return no_update
-        return _descargar_png(
-            fig_data,
-            f"{nombre}_{sufijo_id}{var_suffix.replace('_','')}_"
-            f"{datetime.now():%Y%m%d}.png")
-    return _dl
-
-
-for vid in ["sst", "dyn", "iso"]:
-    _registrar_dl("hist", f"fig_hist_{vid}", f"dl_hist_{vid}",
-                  "hist", f"_{vid}")
-    _registrar_dl("anom", f"fig_anom_{vid}", f"dl_anom_{vid}",
-                  "anom", f"_{vid}")
-
-for pid in ["p1", "p2"]:
-    _registrar_dl(f"hist_{pid}", f"fig_hist_{pid}_w", f"dl_hist_{pid}_w",
-                  "hist", "_w")
-    _registrar_dl(f"anom_{pid}", f"fig_anom_{pid}_w", f"dl_anom_{pid}_w",
-                  "anom", "_w")
-
-for pid in ["p1", "p2"]:
-    _registrar_dl(f"hist_{pid}", f"fig_hist_{pid}_t", f"dl_hist_{pid}_t",
-                  "hist", "_t")
-    _registrar_dl(f"anom_{pid}", f"fig_anom_{pid}_t", f"dl_anom_{pid}_t",
-                  "anom", "_t")
+        return (fig_err, fig_err, fig_err, fig_err)
 
 
 def mount_dash(server_instance):
