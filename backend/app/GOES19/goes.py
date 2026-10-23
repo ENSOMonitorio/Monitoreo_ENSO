@@ -156,7 +156,7 @@ def make_frame(
 	extent: tuple[float, float, float, float],
 	band: int = 13,
 ) -> Path:
-	fig = plt.figure(figsize=(12, 12), dpi=120)
+	fig = plt.figure(figsize=(12, 4), dpi=120)
 	ax = plt.axes(projection=ccrs.PlateCarree())
 	fig.subplots_adjust(left=0.06, right=0.85, top=0.92, bottom=0.06)
 

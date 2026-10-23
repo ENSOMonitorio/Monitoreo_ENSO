@@ -20,3 +20,4 @@ boto3>=1.28
 gdal==3.10.3
 shapely>=2.0
 pyproj>=3.5
+scipy>=1.10

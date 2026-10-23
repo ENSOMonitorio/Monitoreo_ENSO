@@ -22,3 +22,9 @@ def test_import_layout_historico():
 
 def test_import_indices():
     importlib.import_module("indices")
+
+
+def test_import_walker():
+    importlib.import_module("viento.walker")
+    importlib.import_module("viento.code_walker")
+

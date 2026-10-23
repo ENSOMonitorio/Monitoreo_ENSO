@@ -34,6 +34,7 @@ PROJECT_ROOT = os.path.dirname(BACKEND_DIR)
 sys.path.insert(0, os.path.join(BACKEND_DIR, "app"))
 import indices  # noqa: E402
 import plotting  # noqa: E402
+from viento.walker import generar_figuras_walker  # noqa: E402
 
 RAW = os.path.join(PROJECT_ROOT, "data", "raw")
 PROCESSED = os.path.join(PROJECT_ROOT, "data", "processed")
@@ -371,6 +372,20 @@ def _run():
     build_recent_animation("anom")
     plotting.plot_wind_850hpa_vectors(u850, v850, date_wind, os.path.join(FIGURES, f"viento_{date_wind}.png"))
     build_recent_animation("viento")
+
+    try:
+        generar_figuras_walker(
+            os.path.join(RAW, "uwnd.nc"),
+            os.path.join(RAW, "vwnd.nc"),
+            os.path.join(FIGURES, "walker_cross_section.png"),
+            os.path.join(FIGURES, "walker_timeseries.png"),
+            dates_to_plot=[date_wind],
+        )
+        build_recent_animation("walker")
+        log.info("Circulación de Walker actualizada")
+    except Exception:
+        log.exception("Fallo generando la circulación de Walker — se continúa sin ella.")
+
     plotting.plot_slp(slp, date_slp, os.path.join(FIGURES, f"slp_{date_slp}.png"))
     build_recent_animation("slp")
 

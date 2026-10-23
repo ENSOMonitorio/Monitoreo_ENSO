@@ -19,6 +19,12 @@ from .common import EXTENT_PACIFICO, NINO_COLORS, NINO_REGIONS_EQ, NINO_BOXES
 from tsm.sst import plot_sst
 from anomalia.anomalia import plot_sst_anom
 from viento.viento import plot_wind_850hpa_vectors
+from viento.walker import (
+    plot_walker_cross_section,
+    plot_walker_timeseries,
+    generar_figuras_walker,
+    indice_intensidad_walker,
+)
 from slp.slp import plot_slp
 from hovmoller.hovmoller import plot_hovmoller_nino, plot_hovmoller_nino_lat
 from subsuperficie.subsuperficie import plot_equatorial_depth_section, plot_subsurf_composite
@@ -28,4 +34,6 @@ __all__ = [
     "plot_sst", "plot_sst_anom", "plot_wind_850hpa_vectors", "plot_slp",
     "plot_hovmoller_nino", "plot_hovmoller_nino_lat",
     "plot_equatorial_depth_section", "plot_subsurf_composite",
+    "plot_walker_cross_section", "plot_walker_timeseries",
+    "generar_figuras_walker", "indice_intensidad_walker",
 ]

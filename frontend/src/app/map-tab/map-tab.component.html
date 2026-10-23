@@ -134,11 +134,34 @@
         </div>
         <app-date-player prefix="viento" alt="Mapa de viento 850 hPa" [fixedHeight]="true" class="mb-3"></app-date-player>
 
+        <div class="chart-title mt-2 mb-2">Circulación de Walker</div>
+        <div class="chart-sub mb-2">
+          Sección presión-longitud calculada a partir del viento divergente ecuatorial. Recorre las fechas con play/pausa o el control deslizante y selecciona el promedio latitudinal.
+        </div>
+        <app-date-player
+          prefix="walker"
+          alt="Sección vertical de la circulación de Walker"
+          [bands]="walkerBands"
+          (bandChange)="onWalkerBandChange($event)"
+          [hasTimeseriesToggle]="true"
+          (timeseriesToggle)="onWalkerTimeseriesToggle($event)"
+          class="mb-3"
+        ></app-date-player>
+        
+        <ng-container *ngIf="showWalkerTimeseries()">
+          <div class="chart-sub mb-2" *ngIf="walkerData()?.timeseries_url">
+            Índice de intensidad de la Circulación de Walker en el Pacífico occidental (120°E–180°, 300–700 hPa).
+          </div>
+          <div class="chart-figure flip-in mb-3" *ngIf="walkerData()?.timeseries_url as walkerTsUrl">
+            <img [src]="walkerTsUrl" alt="Índice de intensidad de la Circulación de Walker" />
+          </div>
+        </ng-container>
+
         <div class="chart-title mt-2 mb-2">GOES-19 — Temperatura de brillo</div>
         <div class="chart-sub mb-2">
           Animación de las últimas imágenes del satélite GOES-19 (Banda 13).
         </div>
-        <div class="chart-figure chart-figure--fixed-height" *ngIf="goesData()?.anim_url as goesUrl">
+        <div class="chart-figure" *ngIf="goesData()?.anim_url as goesUrl">
           <img [src]="goesUrl" alt="Animación GOES-19" />
         </div>
       </ng-container>
