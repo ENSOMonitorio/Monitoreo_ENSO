@@ -1,6 +1,6 @@
 # Rediseño del frontend del Monitor ENSO
 
-Fecha: 2026-11-08 · Estado: propuesta para aprobar
+Fecha: 2026-11-08 · Estado: aprobado (2026-11-17)
 Mockup navegable: https://claude.ai/artifact/Dpe6dyJZwTmWNf73tH7M4e (login, portada y 9 vistas de Explorar)
 
 ## 1. Intención
@@ -182,10 +182,12 @@ Ajustar `assets/estilo.css` y `estilo.py` a los tokens y fuentes de §5. Quitar 
 
 ## 8. Entregas (un PR cada una)
 
-1. Sistema visual + cabecera + rutas nuevas con redirecciones + login rediseñado (sin Google todavía).
-2. `/api/resumen` (tests primero) + portada Situación.
-3. Explorar: las 9 vistas, la línea de tiempo y la comparación.
-4. Tema de Plotly + estilo de la app Dash + Histórico.
+1. Sistema visual + cabecera + tema claro de Plotly + login rediseñado (sin Google todavía). Sin rutas
+   nuevas: las pantallas actuales se ven con el estilo nuevo. El tema de Plotly entra aquí porque, sin él,
+   los gráficos quedan ilegibles sobre las tarjetas blancas.
+2. `/api/resumen` (tests primero) + portada Situación + ruta por defecto `situacion` + navegación de la cabecera.
+3. Explorar: las 9 vistas, la línea de tiempo y la comparación + redirecciones de las rutas viejas.
+4. Estilo de la app Dash + Histórico.
 5. Login con Google y lista de correos (con revisión de Spiderman).
 
 En cada una: Cami revisa antes del merge, Dodo revisa después del deploy y Rocki anota en `HISTORIAL.md`.
