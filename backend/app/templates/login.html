@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Iniciar sesión · Monitor ENSO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  /* Mismos tokens que frontend/src/styles.scss (spec de rediseño §5). El login
+     lo sirve Flask antes de la SPA, así que no carga esa hoja de estilos. */
+  :root {
+    --bg: #F3F5F6; --surface: #FFFFFF; --line: #DCE2E6; --control: #C9D2D9;
+    --ink: #0E2233; --ink-2: #45576A; --muted: #5C6E80;
+    --accent: #0F5E86; --accent-soft: #E3EEF4;
+    --warm: #8E1F12; --warm-bg: #FDF3EE; --warm-line: #F1C9B8;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  .page { min-height: 100vh; display: flex; flex-wrap: wrap; align-items: stretch; }
+
+  .intro { flex: 3 1 620px; min-width: 0; background: var(--surface); padding: 40px 56px; display: flex; flex-direction: column; justify-content: space-between; gap: 40px; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-text { display: flex; flex-direction: column; gap: 1px; }
+  .brand-name { font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 19px; letter-spacing: -0.01em; }
+  .brand-sub { font-size: 12px; color: var(--muted); }
+  .hero { display: flex; flex-wrap: wrap; align-items: center; gap: 32px 48px; }
+  .hero-text { flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
+  .eyebrow { margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  h1 { margin: 0; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 52px; line-height: 1.04; letter-spacing: -0.03em; max-width: 11ch; }
+  .lead { margin: 0; font-size: 17px; line-height: 1.55; color: var(--ink-2); max-width: 44ch; }
+  .features { margin: 8px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .features li { display: flex; align-items: center; gap: 12px; font-size: 15px; }
+  .feature-icon { flex: none; width: 32px; height: 32px; border-radius: 8px; background: var(--accent-soft); display: inline-flex; align-items: center; justify-content: center; }
+  .globe { flex: 0 1 400px; min-width: 240px; display: flex; flex-direction: column; align-items: center; gap: 10px; margin: 0; }
+  .globe img { width: 100%; max-width: 400px; height: auto; display: block; }
+  .globe figcaption { font-size: 12px; color: var(--muted); }
+  .sources { margin: 0; font-size: 12px; color: var(--muted); }
+
+  .access { flex: 2 1 400px; min-width: 0; border-left: 1px solid var(--line); padding: 40px 32px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+  .card { width: 100%; max-width: 400px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 36px 32px; display: flex; flex-direction: column; gap: 20px; }
+  .card h2 { margin: 0; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 28px; letter-spacing: -0.02em; }
+  .card-sub { margin: 6px 0 0; font-size: 14px; color: var(--muted); }
+  .field { display: flex; flex-direction: column; gap: 8px; }
+  label { font-size: 14px; font-weight: 500; }
+  input { width: 100%; min-height: 48px; padding: 0 14px; border: 1px solid var(--control); border-radius: 10px; background: var(--surface); color: var(--ink); font: 16px 'Inter', sans-serif; }
+  input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+  .password { position: relative; }
+  .password input { padding-right: 92px; }
+  .toggle { position: absolute; right: 4px; top: 4px; height: 40px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; color: var(--accent); font: 500 14px 'Inter', sans-serif; cursor: pointer; }
+  .toggle:focus-visible { outline: 2px solid var(--accent); }
+  .error { display: flex; gap: 10px; align-items: center; padding: 12px 14px; border-radius: 10px; background: var(--warm-bg); border: 1px solid var(--warm-line); color: var(--warm); font-size: 14px; }
+  .error svg { flex: none; }
+  .submit { min-height: 48px; border: 0; border-radius: 10px; background: var(--ink); color: #FFFFFF; font: 600 15px 'Inter', sans-serif; cursor: pointer; }
+  .submit:hover { background: #1A3348; }
+  .submit:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .note { margin: 0; display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+  .disclaimer { margin: 0; max-width: 400px; text-align: center; font-size: 12px; color: var(--muted); }
+
+  @media (max-width: 760px) {
+    .intro { padding: 28px 20px; gap: 28px; }
+    h1 { font-size: 38px; }
+    .access { border-left: 0; border-top: 1px solid var(--line); padding: 28px 16px; }
+    .card { padding: 28px 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <section class="intro" aria-label="Monitor ENSO">
+    <div class="brand">
+      <svg width="40" height="40" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="17" fill="#0E2233"/><circle cx="24" cy="11" r="3.2" fill="#E8875E"/><path d="M5 19.5c3.2 0 3.2-3 6.5-3s3.2 3 6.5 3 3.2-3 6.5-3 3.2 3 6.5 3" fill="none" stroke="#F3F5F6" stroke-width="2" stroke-linecap="round"/><path d="M7.5 25c2.6 0 2.6-2.2 5.2-2.2s2.6 2.2 5.2 2.2 2.6-2.2 5.2-2.2 2.6 2.2 5.2 2.2" fill="none" stroke="#7FB3D5" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <span class="brand-text">
+        <span class="brand-name">Monitor ENSO</span>
+        <span class="brand-sub">Perú · Pacífico tropical</span>
+      </span>
+    </div>
+
+    <div class="hero">
+      <div class="hero-text">
+        <p class="eyebrow">Monitoreo diario</p>
+        <h1>El Niño–Oscilación del Sur</h1>
+        <p class="lead">El estado del Pacífico tropical y del mar frente al Perú, actualizado cada día.</p>
+        <ul class="features">
+          <li><span class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0F5E86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h13"/></svg></span>La situación del día, explicada en simple</li>
+          <li><span class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0F5E86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l5-6 4 4 8-9"/></svg></span>Índices Niño, mapas y su evolución en el año</li>
+          <li><span class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0F5E86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2"/><path d="M2 15c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2"/></svg></span>Océano, atmósfera, boyas TAO y satélite</li>
+        </ul>
+      </div>
+      <figure class="globe">
+        <img src="/login-assets/past-el-nino-gif-1.webp" alt="Globo animado con la anomalía de temperatura del mar en el Pacífico durante un evento El Niño">
+        <figcaption>Anomalía de TSM durante un El Niño pasado</figcaption>
+      </figure>
+    </div>
+
+    <p class="sources">Fuentes: NOAA OISST · NCEP GDAS y GODAS · TAO/TRITON · GOES-19</p>
+  </section>
+
+  <section class="access" aria-label="Acceso">
+    <form class="card" method="POST">
+      <div>
+        <h2>Iniciar sesión</h2>
+        <p class="card-sub">Ingresa con el usuario del monitor.</p>
+      </div>
+
+      <div class="field">
+        <label for="usuario">Usuario</label>
+        <input id="usuario" name="username" type="text" autocomplete="username" required autofocus>
+      </div>
+
+      <div class="field">
+        <label for="clave">Contraseña</label>
+        <div class="password">
+          <input id="clave" name="password" type="password" autocomplete="current-password" required>
+          <button type="button" class="toggle" id="toggle-clave" aria-controls="clave" aria-label="Mostrar contraseña">Mostrar</button>
+        </div>
+      </div>
+
+      {% if error %}
+      <div class="error" role="alert">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        Usuario o contraseña incorrectos.
+      </div>
+      {% endif %}
+
+      <button type="submit" class="submit">Iniciar sesión</button>
+
+      <p class="note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>La sesión queda abierta 7 días en este equipo.</p>
+    </form>
+    <p class="disclaimer">Uso interno. La información es referencial y no reemplaza los comunicados del ENFEN.</p>
+  </section>
+</div>
+<script>
+  (function () {
+    var btn = document.getElementById('toggle-clave');
+    var input = document.getElementById('clave');
+    btn.addEventListener('click', function () {
+      var show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.textContent = show ? 'Ocultar' : 'Mostrar';
+      btn.setAttribute('aria-label', show ? 'Ocultar contraseña' : 'Mostrar contraseña');
+    });
+  })();
+</script>
+</body>
+</html>

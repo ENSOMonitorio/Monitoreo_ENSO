@@ -18,7 +18,7 @@ from datetime import datetime, timezone, timedelta
 
 import pandas as pd
 import plotly.graph_objects as go
-from flask import Flask, Response, abort, jsonify, redirect, request, send_from_directory, session
+from flask import Flask, Response, abort, jsonify, redirect, render_template, request, send_from_directory, session
 from werkzeug.security import check_password_hash
 
 import layout_historico
@@ -110,78 +110,14 @@ server.permanent_session_lifetime = timedelta(days=7)
 AUTH_USER = os.environ.get("ENSO_AUTH_USER", "")
 AUTH_PASS_HASH = os.environ.get("ENSO_AUTH_PASS_HASH", "")
 
-LOGIN_HTML = """<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Iniciar sesión — Monitor ENSO</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-<style>
-  * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-  body {{
-    min-height: 100vh; display: flex; flex-direction: column; align-items: center;
-    justify-content: center; gap: 24px;
-    background-color: #eceeed;
-    background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(47,107,70,0.05), transparent),
-                       radial-gradient(ellipse 60% 40% at 100% 100%, rgba(95,207,141,0.05), transparent);
-    font-family: 'Inter', system-ui, sans-serif; color: #1a1a1a;
-  }}
-  .logo {{ text-align: center; padding: 0 20px; }}
-  .logo h1 {{
-    font-family: 'Space Grotesk', sans-serif; font-size: 1.7rem; font-weight: 700;
-    line-height: 1.3; letter-spacing: -0.01em; text-wrap: balance; color: #000000;
-  }}
-  .logo p {{ font-size: 0.8rem; color: #5a6a60; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 10px; }}
-  .card {{
-    width: 100%; max-width: 960px; margin: 0 20px;
-    display: flex; flex-wrap: wrap; align-items: stretch;
-    background: #f4f5f4; backdrop-filter: blur(16px);
-    border: 1px solid rgba(0,0,0,0.08); border-radius: 16px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.25); overflow: hidden;
-  }}
-  .media {{ flex: 1 1 360px; min-height: 320px; background: #ffffff; }}
-  .media img {{ width: 100%; height: 100%; object-fit: cover; display: block; }}
-  .panel {{ flex: 1 1 400px; padding: 48px 44px; }}
-  label {{ display: block; font-size: 0.78rem; font-weight: 700; color: #4a7a5f;
-           text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }}
-  input {{
-    width: 100%; padding: 14px 16px; margin-bottom: 20px;
-    background: #ffffff; border: 1px solid rgba(0,0,0,0.15);
-    border-radius: 8px; color: #1a1a1a; font-size: 1rem; font-family: inherit;
-  }}
-  input:focus {{ outline: none; border-color: #2f6b46; background: #ffffff; }}
-  button {{
-    width: 100%; padding: 14px; border: 0; border-radius: 8px; cursor: pointer;
-    background: #565b5e; color: #f5f5f5; font-weight: 700; font-size: 0.95rem;
-    letter-spacing: 0.01em; font-family: inherit; transition: all 0.2s;
-  }}
-  button:hover {{ filter: brightness(1.12); transform: translateY(-1px); }}
-  .error {{
-    margin-top: 14px; padding: 10px 12px; border-radius: 8px; font-size: 0.8rem;
-    background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.35); color: #b91c1c;
-  }}
-</style>
-</head>
-<body>
-  <div class="logo">
-    <h1>El Niño&#8211;Oscilación del Sur (ENSO)</h1>
-    <p>Monitoreo</p>
-  </div>
-  <div class="card">
-    <div class="media"><img src="/login-assets/past-el-nino-gif-1.webp" alt="El Niño"></div>
-    <div class="panel">
-      <form method="POST">
-        <label>Usuario</label>
-        <input type="text" name="username" autofocus required>
-        <label>Contraseña</label>
-        <input type="password" name="password" required>
-        <button type="submit">Iniciar sesión</button>
-        {error_html}
-      </form>
-    </div>
-  </div>
-</body>
-</html>"""
+
+def _safe_next(target):
+    """Destino tras el login: solo rutas internas. Sin esto, un enlace como
+    /login?next=https://otro.sitio llevaba a la persona fuera del monitor
+    justo después de escribir su clave (redirección abierta)."""
+    if not target or not target.startswith("/") or target.startswith("//") or "\\" in target:
+        return "/"
+    return target
 
 
 @server.before_request
@@ -196,16 +132,16 @@ def _require_login():
 
 @server.route("/login", methods=["GET", "POST"])
 def login():
-    error_html = ""
+    error = False
     if request.method == "POST":
         u = request.form.get("username", "")
         p = request.form.get("password", "")
         if u == AUTH_USER and check_password_hash(AUTH_PASS_HASH, p):
             session.permanent = True
             session["logged_in"] = True
-            return redirect(request.args.get("next") or "/")
-        error_html = '<div class="error">Usuario o contraseña incorrectos.</div>'
-    return LOGIN_HTML.format(error_html=error_html)
+            return redirect(_safe_next(request.args.get("next")))
+        error = True
+    return render_template("login.html", error=error)
 
 
 @server.route("/logout")
