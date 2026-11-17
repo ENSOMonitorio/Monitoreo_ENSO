@@ -73,6 +73,66 @@ describe('App', () => {
     expect(btn.textContent?.trim()).toBe('Actualizar datos');
   });
 
+  describe('botón Actualizar datos', () => {
+    const pipe = (running: boolean) => ({
+      running, ok: true, error: null, last_attempt_ts: null, last_success: {},
+    });
+
+    beforeEach(() => vi.useFakeTimers());
+    afterEach(() => vi.useRealTimers());
+
+    function click(el: HTMLElement): HTMLButtonElement {
+      const btn = el.querySelector('button.header-refresh') as HTMLButtonElement;
+      btn.click();
+      fixture!.detectChanges();
+      return btn;
+    }
+
+    it('se deshabilita apenas se hace clic, antes de que responda el servidor', () => {
+      const el = render(noAuth, idle('x'));
+      const btn = click(el);
+      expect(btn.disabled).toBe(true);
+      expect(btn.textContent?.trim()).toBe('Actualizando…');
+      TestBed.inject(HttpTestingController).expectOne('/api/pipeline/run');
+    });
+
+    it('sigue en Actualizando… mientras el pipeline todavía no escribió su lock', () => {
+      const el = render(noAuth, idle('x'));
+      const btn = click(el);
+      const http = TestBed.inject(HttpTestingController);
+      http.expectOne('/api/pipeline/run').flush({ started: true }, { status: 202, statusText: 'Accepted' });
+
+      vi.advanceTimersByTime(4000);
+      http.expectOne('/api/pipeline/status').flush(pipe(false)); // aún arrancando
+      fixture!.detectChanges();
+      expect(btn.disabled).toBe(true);
+
+      vi.advanceTimersByTime(4000);
+      http.expectOne('/api/pipeline/status').flush(pipe(true));
+      vi.advanceTimersByTime(4000);
+      http.expectOne('/api/pipeline/status').flush(pipe(false)); // terminó
+      http.expectOne('/api/status').flush(idle('Actualizado 17 nov · 08:00'));
+      fixture!.detectChanges();
+      expect(btn.disabled).toBe(false);
+      expect(btn.textContent?.trim()).toBe('Actualizar datos');
+    });
+
+    it('si ya había una corrida (409) también queda esperando', () => {
+      const el = render(noAuth, idle('x'));
+      const btn = click(el);
+      const http = TestBed.inject(HttpTestingController);
+      http.expectOne('/api/pipeline/run').flush(
+        { started: false, reason: 'already_running' }, { status: 409, statusText: 'Conflict' });
+      fixture!.detectChanges();
+      expect(btn.disabled).toBe(true);
+
+      vi.advanceTimersByTime(4000);
+      http.expectOne('/api/pipeline/status').flush(pipe(true));
+      fixture!.detectChanges();
+      expect(btn.disabled).toBe(true);
+    });
+  });
+
   it('oculta Salir sin login', () => {
     const el = render(noAuth, idle('x'));
     expect(el.querySelector('a.header-logout')).toBeNull();
