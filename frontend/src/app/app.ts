@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ApiService } from './shared/api.service';
 
@@ -11,12 +11,16 @@ import { ApiService } from './shared/api.service';
   styleUrl: './app.scss',
 })
 export class App implements OnInit, OnDestroy {
-  clock = signal('');
   statusText = signal('');
   isRunning = signal(false);
   authEnabled = signal(false);
 
-  private clockTimer?: ReturnType<typeof setInterval>;
+  // El backend antepone "⚠" cuando la última corrida del pipeline falló
+  // (ver _status_text en backend/app/app.py).
+  statusOk = computed(() => !this.statusText().startsWith('⚠'));
+  // El ícono ya marca la advertencia; el texto visible no repite el "⚠".
+  statusLabel = computed(() => this.statusText().replace(/^⚠\s*/, ''));
+
   private pollTimer?: ReturnType<typeof setInterval>;
 
   constructor(private api: ApiService) {}
@@ -26,32 +30,14 @@ export class App implements OnInit, OnDestroy {
       this.authEnabled.set(cfg.auth_enabled);
     });
     this.refreshStatus();
-    this.tickClock();
-    this.clockTimer = setInterval(() => this.tickClock(), 1000);
   }
 
   ngOnDestroy(): void {
-    clearInterval(this.clockTimer);
     clearInterval(this.pollTimer);
   }
 
   onRefreshClick(): void {
     this.api.runPipeline().subscribe(() => this.refreshStatus());
-  }
-
-  private tickClock(): void {
-    this.clock.set(
-      new Date().toLocaleString('es-PE', {
-        timeZone: 'America/Lima',
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false,
-      }),
-    );
   }
 
   private refreshStatus(): void {

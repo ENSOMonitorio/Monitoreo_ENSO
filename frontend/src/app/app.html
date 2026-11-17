@@ -1,28 +1,53 @@
-<header class="enso-header">
-  <div class="logo">
-    <div>
-      <div class="logo-top">Monitor ENSO</div>
-      <div class="logo-sub">Perú · Pacífico tropical</div>
+<header class="app-header">
+  <div class="app-header-inner">
+    <a class="brand" href="/">
+      <svg class="brand-mark" width="36" height="36" viewBox="0 0 36 36" aria-hidden="true">
+        <circle cx="18" cy="18" r="17" fill="#0E2233" />
+        <circle cx="24" cy="11" r="3.2" fill="#E8875E" />
+        <path d="M5 19.5c3.2 0 3.2-3 6.5-3s3.2 3 6.5 3 3.2-3 6.5-3 3.2 3 6.5 3" fill="none" stroke="#F3F5F6" stroke-width="2" stroke-linecap="round" />
+        <path d="M7.5 25c2.6 0 2.6-2.2 5.2-2.2s2.6 2.2 5.2 2.2 2.6-2.2 5.2-2.2 2.6 2.2 5.2 2.2" fill="none" stroke="#7FB3D5" stroke-width="1.6" stroke-linecap="round" />
+      </svg>
+      <span class="brand-text">
+        <span class="brand-name">Monitor ENSO</span>
+        <span class="brand-sub">Perú · Pacífico tropical</span>
+      </span>
+    </a>
+
+    <!-- Hueco para Situación / Explorar / Histórico (entrega 2). -->
+    <div class="header-nav"></div>
+
+    <div class="header-actions">
+      <span
+        class="header-status"
+        [class.header-status--warn]="!statusOk()"
+        [attr.title]="statusText()"
+        *ngIf="statusText()"
+      >
+        <svg *ngIf="statusOk()" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+          <circle cx="8" cy="8" r="7" fill="#DDF0E4" />
+          <path d="M4.8 8.2l2.1 2.1 4.3-4.6" fill="none" stroke="#1B6B3A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <svg *ngIf="!statusOk()" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+          <circle cx="8" cy="8" r="7" fill="#FBE8E1" />
+          <path d="M8 4.5v4.2M8 11.2v.1" fill="none" stroke="#8E1F12" stroke-width="1.8" stroke-linecap="round" />
+        </svg>
+        <span class="header-status-text">{{ statusLabel() }}</span>
+      </span>
+      <button type="button" class="header-refresh" [disabled]="isRunning()" (click)="onRefreshClick()">
+        {{ isRunning() ? 'Actualizando…' : 'Actualizar datos' }}
+      </button>
+      <a *ngIf="authEnabled()" class="header-logout" href="/logout">Salir</a>
     </div>
-  </div>
-  <div class="header-right">
-    <div class="refresh-status">{{ statusText() }}</div>
-    <button class="apply-btn" [disabled]="isRunning()" (click)="onRefreshClick()">
-      ↻ Actualizar datos
-    </button>
-    <div class="live-badge"><span class="live-dot"></span>EN VIVO</div>
-    <div class="header-time">{{ clock() }}</div>
-    <a *ngIf="authEnabled()" class="logout-link" href="/logout">Cerrar sesión</a>
   </div>
 </header>
 
-<div class="enso-shell">
+<main class="enso-shell">
   <router-outlet></router-outlet>
+</main>
 
-  <footer class="enso-footer">
-    <p>
-      Fuentes: NOAA OISST v2 · NCEP GDAS · NOAA CPC. Pipeline propio ejecutado diariamente en
-      este servidor.
-    </p>
-  </footer>
-</div>
+<footer class="app-footer">
+  <div class="app-footer-inner">
+    <span>Fuentes: NOAA OISST v2 · NCEP GDAS · NCEP GODAS · NOAA CPC · GOES-19. Pipeline propio, se actualiza cada día.</span>
+    <span>Monitor ENSO · referencial, no reemplaza al ENFEN</span>
+  </div>
+</footer>
