@@ -15,6 +15,7 @@ import secrets
 import subprocess
 import sys
 from datetime import datetime, timezone, timedelta
+from urllib.parse import urlsplit
 
 import pandas as pd
 import plotly.graph_objects as go
@@ -115,7 +116,17 @@ def _safe_next(target):
     """Destino tras el login: solo rutas internas. Sin esto, un enlace como
     /login?next=https://otro.sitio llevaba a la persona fuera del monitor
     justo después de escribir su clave (redirección abierta)."""
-    if not target or not target.startswith("/") or target.startswith("//") or "\\" in target:
+    if not target:
+        return "/"
+    # Los navegadores borran tabs y saltos de línea de las URLs (WHATWG):
+    # "/\t/otro.sitio" llegaría como "//otro.sitio". Cualquier carácter de
+    # control invalida el destino.
+    if any(ord(c) < 0x20 or ord(c) == 0x7F for c in target):
+        return "/"
+    if not target.startswith("/") or target.startswith("//") or "\\" in target:
+        return "/"
+    parts = urlsplit(target)
+    if parts.scheme or parts.netloc:
         return "/"
     return target
 

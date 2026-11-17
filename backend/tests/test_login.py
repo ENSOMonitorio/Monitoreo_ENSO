@@ -47,7 +47,12 @@ def test_good_login_redirects_to_next_path(auth_client):
     assert urlparse(resp.headers["Location"]).path == "/subsurf"
 
 
-@pytest.mark.parametrize("bad", ["https://evil.example", "//evil.example", "/\\evil.example"])
+@pytest.mark.parametrize("bad", [
+    "https://evil.example", "//evil.example", "/\\evil.example",
+    # Los navegadores (WHATWG URL) borran tabs y saltos de línea: "/\t/x" llega como "//x".
+    "/\t/evil.example", "/\n/evil.example", "/\r/evil.example",
+    "javascript:alert(1)",
+])
 def test_good_login_ignores_external_next(auth_client, bad):
     resp = auth_client.post("/login", query_string={"next": bad},
                             data={"username": "demo", "password": "clave"})
