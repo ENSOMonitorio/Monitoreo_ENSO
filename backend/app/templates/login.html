@@ -10,7 +10,7 @@
   /* Mismos tokens que frontend/src/styles.scss (spec de rediseño §5). El login
      lo sirve Flask antes de la SPA, así que no carga esa hoja de estilos. */
   :root {
-    --bg: #F3F5F6; --surface: #FFFFFF; --line: #DCE2E6; --control: #C9D2D9;
+    --bg: #F3F5F6; --surface: #FFFFFF; --line: #DCE2E6; --control-strong: #84919D;
     --ink: #0E2233; --ink-2: #45576A; --muted: #5C6E80;
     --accent: #0F5E86; --accent-soft: #E3EEF4;
     --warm: #8E1F12; --warm-bg: #FDF3EE; --warm-line: #F1C9B8;
@@ -43,7 +43,7 @@
   .card-sub { margin: 6px 0 0; font-size: 14px; color: var(--muted); }
   .field { display: flex; flex-direction: column; gap: 8px; }
   label { font-size: 14px; font-weight: 500; }
-  input { width: 100%; min-height: 48px; padding: 0 14px; border: 1px solid var(--control); border-radius: 10px; background: var(--surface); color: var(--ink); font: 16px 'Inter', sans-serif; }
+  input { width: 100%; min-height: 48px; padding: 0 14px; border: 1px solid var(--control-strong); border-radius: 10px; background: var(--surface); color: var(--ink); font: 16px 'Inter', sans-serif; }
   input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
   .password { position: relative; }
   .password input { padding-right: 92px; }

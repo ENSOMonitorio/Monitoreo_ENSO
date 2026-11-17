@@ -15,6 +15,7 @@
   --line:        #DCE2E6;
   --line-soft:   #E6EAED;
   --control:     #C9D2D9;
+  --control-strong: #84919D; /* borde de campos: 3.2:1 sobre blanco */
   --ink:         #0E2233;
   --ink-2:       #45576A;
   --muted:       #5C6E80;
@@ -378,7 +379,7 @@ a:hover { color: #0B4766; }
   background: transparent;
   border-radius: 0;
   position: sticky;
-  top: 16px;
+  top: 88px; /* bajo la cabecera fija */
 }
 
 .nav-section-label {
@@ -507,7 +508,7 @@ app-date-player { display: block; }
   font-size: 0.8125rem;
   color: var(--ink);
   background: var(--surface);
-  border: 1px solid var(--control);
+  border: 1px solid var(--control-strong);
   border-radius: var(--r-sm);
   min-height: 40px;
   padding: 0 10px;
@@ -523,7 +524,7 @@ app-date-player { display: block; }
   font-family: var(--font-body);
   font-size: 0.875rem;
   background: var(--surface);
-  border: 1px solid var(--control);
+  border: 1px solid var(--control-strong);
   border-radius: var(--r-sm);
   color: var(--ink);
   min-height: 40px;

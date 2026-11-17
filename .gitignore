@@ -7,3 +7,7 @@ __pycache__/
 secrets.env
 .venv/
 backend/app/static/
+
+# Historial de cambios (lo lleva Rocki): no se versiona porque el deploy hace
+# "git reset --hard origin/main" en este checkout y borraría entradas sin commit.
+HISTORIAL.md
