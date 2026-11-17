@@ -1,52 +1,45 @@
 /* ─────────────────────────────────────────────
-   MONITOR ENSO · Design System
-   Paleta: Verde Bosque Oscuro — portada tal cual desde
-   backend/app/assets/style.css (fuente de verdad original).
-   Mantener sincronizada a mano con esa paleta y con los hex
-   literales de backend/app/theme.py (Plotly no puede leer
-   variables CSS).
-   Excepción a propósito: --bg. Se pidió un fondo de página claro
-   (gris casi blanco) solo para este dashboard, en vez del verde
-   oscuro del fondo original — el resto de la paleta (--panel,
-   --accent, tarjetas oscuras) se mantiene igual porque todavía
-   contrasta bien: son elementos con su propio fondo, no dependen
-   del fondo de la página para leerse.
+   MONITOR ENSO · Sistema visual
+   Fuente de verdad: docs/superpowers/specs/2026-11-08-rediseno-frontend-design.md §5.
+   Claro y frío ("atlas científico"): las figuras de matplotlib tienen fondo
+   blanco, así que las tarjetas también lo son. Rojo/azul solo significan
+   cálido/frío; la identidad de las regiones Niño la dan sus colores
+   (iguales a NINO_COLORS de backend/app/plotting/common.py). Los hex de
+   Plotly viven en backend/app/theme.py (Plotly no lee variables CSS).
    ───────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
 :root {
-  --bg:        #eceeed;
-  --panel:     rgba(6, 12, 8, 0.95);
-  --glass:     rgba(255,255,255,0.04);
-  --glass-2:   rgba(255,255,255,0.08);
+  --bg:          #F3F5F6;
+  --surface:     #FFFFFF;
+  --line:        #DCE2E6;
+  --line-soft:   #E6EAED;
+  --control:     #C9D2D9;
+  --ink:         #0E2233;
+  --ink-2:       #45576A;
+  --muted:       #5C6E80;
+  --accent:      #0F5E86;
+  --accent-soft: #E3EEF4;
+  --warm:        #8E1F12;
+  --warm-soft:   #FBE8E1;
+  --warm-line:   #F1C9B8;
+  --ok:          #1B6B3A;
+  --ok-soft:     #DDF0E4;
 
-  --accent:    #2f6b46;
-  --accent-glow: rgba(47,107,70,0.35);
-  --accent-2:  #5fcf8d;
-  --accent-2-glow: rgba(95,207,141,0.25);
-  --green:     #5fcf8d;
+  --nino12: #c62828;
+  --nino3:  #2e7d32;
+  --nino34: #1565c0;
+  --nino4:  #7b1fa2;
 
-  --text:      #e2f0e8;
-  --text-2:    #a0bfaa;
-  --muted:     #5a8f70;
-
-  --border:    rgba(255,255,255,0.07);
-  --border-2:  rgba(47,107,70,0.35);
-
-  --success:   #22c55e;
-  --warn:      #f59e0b;
-  --error:     #ef4444;
-
-  --shadow-sm:  0 2px 8px rgba(0,0,0,0.5);
-  --shadow:     0 8px 32px rgba(0,0,0,0.55);
-  --shadow-lg:  0 20px 60px rgba(0,0,0,0.65);
+  --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --font-body:    'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono:    'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace;
 
   --r-sm: 8px;
   --r:    12px;
   --r-lg: 16px;
-  --r-xl: 20px;
 
-  --t: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --t: all 0.18s ease;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -54,229 +47,63 @@
 html, body { height: 100%; }
 
 body {
-  background: var(--bg);
-  /* Gradientes bien sutiles — los originales (pensados sobre fondo verde
-     oscuro) se veían como manchas sucias sobre un fondo casi blanco. */
-  background-image:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(47,107,70,0.05), transparent),
-    radial-gradient(ellipse 40% 30% at 90% 80%, rgba(95,207,141,0.05), transparent);
-  background-attachment: fixed;
-  color: var(--text);
-  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  min-height: 100%;
   margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100%;
 }
 
-::-webkit-scrollbar { width: 9px; height: 9px; }
-::-webkit-scrollbar-track { background: rgba(0,0,0,0.15); border-radius: 99px; }
-::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: #3d8a5a; }
+a { color: var(--accent); }
+a:hover { color: #0B4766; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--control); border-radius: 99px; border: 2px solid var(--bg); }
+::-webkit-scrollbar-thumb:hover { background: #AEB9C2; }
 
 /* ═══════════════════════════════════════════
-   HEADER
+   HEADER y FOOTER — ver Tarea 2 (cabecera nueva)
    ═══════════════════════════════════════════ */
-.enso-header {
-  /* Gris plomo oscuro — a propósito distinto de var(--panel) (casi negro),
-     que se sigue usando en las tarjetas oscuras (Histórico, Índices, etc.).
-     Solo el header cambia. */
-  background: #33383a;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  padding: 0 32px;
-  height: 108px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border: 1px solid var(--border-2);
-  border-radius: var(--r-xl);
-  /* Antes iba de borde a borde del navegador — ahora es un bloque flotante,
-     del mismo ancho que el contenido de abajo (.enso-shell), para que no se
-     sienta "pegado" a los bordes de la pantalla. */
-  max-width: min(2300px, 98.5vw);
-  margin: 12px auto 0;
-  position: sticky;
-  top: 12px;
-  z-index: 100;
-  box-shadow: var(--shadow);
-}
-
-.logo { display: flex; align-items: center; gap: 12px; }
-
-.logo-top {
-  font-family: 'Space Grotesk', 'Inter', sans-serif;
-  font-weight: 700;
-  font-size: 1.8rem;
-  color: var(--text);
-  letter-spacing: -0.01em;
-  line-height: 1.2;
-}
-
-.logo-sub {
-  font-size: 0.85rem;
-  color: var(--muted);
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.header-right { display: flex; align-items: center; gap: 14px; }
-
-.live-badge {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  background: rgba(95,207,141,0.08);
-  border: 1px solid rgba(95,207,141,0.25);
-  padding: 6px 13px;
-  border-radius: 99px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--green);
-  letter-spacing: 0.08em;
-}
-
-.live-dot {
-  width: 7px;
-  height: 7px;
-  background: var(--green);
-  border-radius: 50%;
-  flex-shrink: 0;
-  display: inline-block;
-  animation: pulse-dot 2s ease-in-out infinite;
-  box-shadow: 0 0 8px var(--green);
-}
-
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 8px var(--green); }
-  50%       { opacity: 0.6; transform: scale(0.85); box-shadow: 0 0 4px var(--green); }
-}
-
-.refresh-status {
-  font-size: 0.75rem;
-  color: var(--muted);
-  white-space: nowrap;
-}
-
-.apply-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background: var(--accent);
-  color: #e2f0e8;
-  border-radius: var(--r-sm);
-  border: 0;
-  cursor: pointer;
-  font-family: 'Inter', sans-serif;
-  font-weight: 700;
-  font-size: 0.82rem;
-  white-space: nowrap;
-  transition: var(--t);
-  letter-spacing: 0.01em;
-}
-
-.apply-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px var(--accent-glow);
-  filter: brightness(1.1);
-}
-
-.apply-btn:active:not(:disabled) { transform: translateY(0); }
-
-.apply-btn:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-  transform: none !important;
-  box-shadow: none !important;
-  filter: none !important;
-}
-
-.logout-link {
-  font-size: 0.78rem;
-  color: var(--muted);
-  text-decoration: none;
-  padding: 6px 4px;
-  transition: var(--t);
-}
-
-.logout-link:hover { color: var(--accent-2); }
-
-.header-time {
-  font-family: 'Space Grotesk', monospace;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-2);
-  letter-spacing: 0.02em;
-  background: var(--glass-2);
-  padding: 6px 13px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  white-space: nowrap;
-}
 
 /* ═══════════════════════════════════════════
    PAGE SHELL
    ═══════════════════════════════════════════ */
 .enso-shell {
-  max-width: min(2200px, 97vw);
+  max-width: 1320px;
   margin: 0 auto;
-  padding: 18px 20px 40px;
+  padding: 32px 32px 48px;
 }
 
 /* ═══════════════════════════════════════════
-   CARDS
+   TARJETAS
    ═══════════════════════════════════════════ */
 .chart-card {
-  background: var(--panel);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: var(--r-lg);
-  padding: 20px;
-  border: 1px solid var(--border);
-  border-top: 3px solid var(--accent-2);
-  box-shadow: var(--shadow);
-  position: relative;
+  padding: 24px;
   margin-bottom: 16px;
+  position: relative;
 }
 
-.chart-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: var(--r-lg);
-  background: linear-gradient(135deg, rgba(47,107,70,0.06) 0%, transparent 60%);
-  pointer-events: none;
-}
+/* .map-panel era la variante clara de las tarjetas oscuras; ahora todas
+   son claras, se mantiene la clase por compatibilidad con los templates. */
+.chart-card.map-panel { background: var(--surface); }
 
-/* Variante para contenido inherentemente claro (mapas matplotlib) — misma
-   idea que en los otros dashboards de resiliencia.cloud para que los fondos
-   blancos de las figuras no desentonen. El borde superior de acento se
-   mantiene igual que en las tarjetas oscuras — es lo que las conecta como
-   parte del mismo sistema visual en vez de sentirse como dos apps pegadas. */
-.chart-card.map-panel {
-  background: rgba(232, 234, 237, 0.97);
-  border-color: rgba(160,165,170,0.3);
-  border-top-color: var(--accent-2);
-}
-.chart-card.map-panel .chart-title { color: #1e4a30; }
-.chart-card.map-panel .chart-sub   { color: #4a7059; }
-
-/* Título de nivel de página (p.ej. "Subsuperficie — Onda Kelvin") — más
-   grande que .chart-title (que se reusa también para cada sub-sección
-   interna) para que haya una jerarquía clara en vez de que todo se lea al
-   mismo tamaño. */
 .panel-title {
-  font-family: 'Space Grotesk', 'Inter', sans-serif;
-  font-weight: 700;
-  color: var(--text);
-  font-size: 1.35rem;
-  letter-spacing: -0.01em;
-  padding-left: 14px;
-  border-left: 4px solid var(--accent-2);
-}
-
-.chart-card.map-panel .panel-title {
-  color: #163825;
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 1.5rem;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
 }
 
 .chart-header {
@@ -284,43 +111,38 @@ body {
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 14px;
-  position: relative;
-  z-index: 1;
+  margin-bottom: 16px;
   flex-wrap: wrap;
 }
 
 .chart-title {
-  font-family: 'Space Grotesk', 'Inter', sans-serif;
-  font-weight: 700;
-  color: var(--text);
-  font-size: 1rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 1.05rem;
   letter-spacing: -0.01em;
 }
 
 .chart-sub {
   color: var(--muted);
-  font-size: 0.8rem;
-  margin-top: 3px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin-top: 4px;
 }
 
-.chart-figure { position: relative; z-index: 1; }
+.chart-figure { position: relative; }
 
 .chart-figure img {
   max-width: 100%;
   display: block;
   margin: 0 auto;
   border-radius: var(--r-sm);
-  border: 1px solid rgba(0,0,0,0.12);
+  background: #FFFFFF;
 }
 
-/* Para paneles que se muestran uno encima del otro con mapas de distinta
-   relación ancho/alto (p.ej. Viento cubre casi todo el Pacífico y sale muy
-   aplanado, GOES-19 corta en 150°W por límite del satélite y sale más
-   "cuadrado") — con solo max-width:100% cada uno queda con una altura
-   distinta y se ve descompensado. Se fija una altura común y se deja que
-   object-fit:contain preserve el aspecto real de cada mapa dentro de esa
-   altura, sin recortar ni deformar. */
+/* Paneles apilados con mapas de distinta proporción (Viento muy aplanado,
+   GOES-19 más cuadrado): altura común + object-fit:contain para que no se
+   vean descompensados, sin recortar ni deformar. */
 .chart-figure--fixed-height {
   height: 380px;
   display: flex;
@@ -345,12 +167,13 @@ body {
 .mb-3 { margin-bottom: 12px; }
 
 /* ═══════════════════════════════════════════
-   LAYOUT SUBSUPERFICIE — contenido a la izquierda,
-   botones de nivel superior en columna a la derecha.
+   LAYOUT SUBSUPERFICIE — menú de secciones a la
+   izquierda (como el menú lateral del rediseño),
+   contenido a la derecha.
    ═══════════════════════════════════════════ */
 .subsurf-layout {
   display: flex;
-  gap: 20px;
+  gap: 32px;
   align-items: flex-start;
 }
 
@@ -359,122 +182,121 @@ body {
   min-width: 0;
 }
 
-/* Contenedor e iframe del Dashboard de Boyas TAO (Dash) */
+/* App de Boyas TAO (Dash) embebida */
 .dash-frame-container {
   width: 100%;
+  border: 1px solid var(--line);
   border-radius: var(--r-lg);
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   margin-top: 10px;
 }
 
 .dash-embedded-frame {
   width: 100%;
   height: 940px;
-  border: 1px solid rgba(47, 107, 70, 0.22);
-  border-top: 3px solid var(--accent-2);
-  border-radius: var(--r-lg);
-  background: var(--bg);
+  border: 0;
+  background: var(--surface);
   display: block;
 }
 
 /* ═══════════════════════════════════════════
-   TOGGLE DE VISTA (Subsuperficie: superficie vs.
-   mapa de variables del mar)
+   CONTROLES DE VISTA
+   Horizontal = control segmentado; vertical = menú lateral.
    ═══════════════════════════════════════════ */
 .view-toggle {
-  display: flex;
-  gap: 8px;
+  display: inline-flex;
   flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px;
+  background: #E6EBEE;
+  border-radius: 10px;
+}
+
+.view-toggle-btn {
+  border: 0;
+  background: transparent;
+  color: var(--ink-2);
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: var(--r-sm);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: var(--t);
+}
+
+.view-toggle-btn:hover { background: rgba(14, 34, 51, 0.06); color: var(--ink); }
+
+.view-toggle-btn--active,
+.view-toggle-btn--active:hover {
+  background: var(--ink);
+  color: #FFFFFF;
+}
+
+.view-toggle-btn--sm {
+  min-height: 32px;
+  padding: 0 12px;
+  font-size: 0.8125rem;
 }
 
 .view-toggle--vertical {
-  flex: 0 0 220px;
+  order: -1;
+  flex: 0 0 240px;
+  display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
-  gap: 6px;
+  gap: 2px;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
   position: sticky;
   top: 16px;
-  background: rgba(0,0,0,0.035);
-  border: 1px solid rgba(30,74,48,0.12);
-  border-radius: var(--r-lg);
-  padding: 14px;
 }
 
 .nav-section-label {
-  font-size: 0.68rem;
-  font-weight: 700;
-  color: #5a8068;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  margin: 0 4px 8px;
+  margin: 0 0 6px 12px;
 }
 
 .view-toggle--vertical .view-toggle-btn {
   text-align: left;
-  border-radius: var(--r-sm);
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 12px;
+  min-height: 40px;
+  padding: 0 12px;
   width: 100%;
+}
+
+.view-toggle--vertical .view-toggle-btn--active,
+.view-toggle--vertical .view-toggle-btn--active:hover {
+  background: var(--accent-soft);
+  color: var(--ink);
+  font-weight: 600;
 }
 
 .view-toggle-icon { flex-shrink: 0; opacity: 0.85; }
 
 @media (max-width: 720px) {
-  .subsurf-layout { flex-direction: column; }
+  .subsurf-layout { flex-direction: column; gap: 20px; }
   .view-toggle--vertical {
     flex: 0 0 auto;
     flex-direction: row;
     flex-wrap: wrap;
     position: static;
-    order: -1;
   }
+  .view-toggle--vertical .view-toggle-btn { width: auto; }
   .nav-section-label { display: none; }
 }
 
-.view-toggle-btn {
-  border: 1px solid rgba(30,74,48,0.25);
-  background: rgba(255,255,255,0.6);
-  color: #2f5f42;
-  padding: 7px 14px;
-  border-radius: 99px;
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 0.78rem;
-  letter-spacing: 0.01em;
-  cursor: pointer;
-  transition: var(--t);
-}
-
-.view-toggle-btn:hover { background: rgba(255,255,255,0.85); }
-
-.view-toggle-btn--active {
-  background: #1e4a30;
-  border-color: #1e4a30;
-  color: #e8f5ec;
-  box-shadow: 0 4px 14px rgba(30,74,48,0.3);
-}
-
-/* Variante para el sub-toggle TSM / Anomalía dentro de "Ver superficie" —
-   un poco más chico para leerse como un control secundario, anidado. */
-.view-toggle-btn--sm {
-  padding: 5px 11px;
-  font-size: 0.72rem;
-  background: rgba(255,255,255,0.4);
-}
-
-.view-toggle-btn--sm.view-toggle-btn--active {
-  background: #2f6b46;
-  border-color: #2f6b46;
-}
-
-/* Efecto "flip" al cambiar de vista: las imágenes son PNG/GIF generados en
-   el servidor (no hay geometría 3D real en el navegador), así que el giro
-   es un truco de CSS sobre el contenedor, no una rotación real del mapa.
-   Perspectiva más corta (500px) + más duración (0.9s) para que el giro se
-   note bien en una imagen tan ancha, en vez de leerse como un simple fade. */
+/* Giro al cambiar de vista: truco de CSS sobre el contenedor (las imágenes
+   son PNG/GIF del servidor, no hay geometría 3D real). */
 @keyframes flip-in {
   0%   { transform: perspective(500px) rotateY(-110deg) scale(0.9); opacity: 0; filter: brightness(0.6); }
   35%  { opacity: 1; }
@@ -493,22 +315,19 @@ body {
 }
 
 /* ═══════════════════════════════════════════
-   REPRODUCTOR DE FECHAS (play/pausa + slider por
-   toda la serie diaria disponible, no solo los
-   últimos 15 días del GIF)
+   REPRODUCTOR DE FECHAS (toda la serie diaria)
    ═══════════════════════════════════════════ */
-/* Los custom elements de Angular son inline por defecto si nada los
-   estiliza — se fuerza a block para que clases como mb-3 puestas
-   directamente en <app-date-player> funcionen como se espera. */
+/* Los custom elements de Angular son inline por defecto: block para que
+   clases como mb-3 puestas en <app-date-player> funcionen. */
 app-date-player { display: block; }
 
-.date-player-controls { margin-top: 10px; }
+.date-player-controls { margin-top: 12px; }
 
 .date-player-buttons {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   flex-wrap: wrap;
 }
 
@@ -516,101 +335,93 @@ app-date-player { display: block; }
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   flex-shrink: 0;
-  border-radius: 50%;
-  border: 1px solid rgba(30,74,48,0.25);
-  background: rgba(255,255,255,0.6);
-  color: #2f5f42;
+  border-radius: 10px;
+  border: 1px solid var(--control);
+  background: var(--surface);
+  color: var(--ink);
   cursor: pointer;
   transition: var(--t);
 }
 
-.player-btn:hover { background: rgba(255,255,255,0.85); }
+.player-btn:hover { background: #F6F8F9; }
 
 .player-btn--main {
-  width: 40px;
-  height: 40px;
-  background: #1e4a30;
-  color: #e8f5ec;
-  border-color: #1e4a30;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #FFFFFF;
+  border-color: var(--ink);
 }
 
-.player-btn--main:hover { background: #1e4a30; filter: brightness(1.15); }
+.player-btn--main:hover { background: #1A3348; }
 
 .date-player-label {
-  margin-left: 6px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #2f5f42;
+  margin-left: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--ink-2);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
 .date-player-slider {
   width: 100%;
-  accent-color: #2f6b46;
+  accent-color: var(--ink);
   cursor: pointer;
 }
 
 .player-speed {
   margin-left: auto;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #2f5f42;
-  background: rgba(255,255,255,0.6);
-  border: 1px solid rgba(30,74,48,0.25);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--control);
   border-radius: var(--r-sm);
-  padding: 5px 8px;
+  min-height: 40px;
+  padding: 0 10px;
   cursor: pointer;
 }
 
-.player-speed:hover { background: rgba(255,255,255,0.85); }
+.player-speed:hover { background: #F6F8F9; }
 
 /* ═══════════════════════════════════════════
-   SELECT DE FECHAS (reemplaza dcc.Dropdown/react-select)
+   SELECT DE FECHAS
    ═══════════════════════════════════════════ */
 .enso-dropdown {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.85rem;
-  background: var(--glass);
-  border: 1px solid var(--border);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  background: var(--surface);
+  border: 1px solid var(--control);
   border-radius: var(--r-sm);
-  color: var(--text);
-  min-height: 38px;
-  padding: 6px 10px;
+  color: var(--ink);
+  min-height: 40px;
+  padding: 0 10px;
   min-width: 180px;
   transition: var(--t);
 }
 
-.enso-dropdown:hover { border-color: var(--border-2); }
-.enso-dropdown:focus {
-  outline: none;
-  border-color: var(--accent-2);
-  background: var(--glass-2);
-}
-
-.enso-dropdown option {
-  background: #0b1f16;
-  color: var(--text-2);
-}
+.enso-dropdown:hover { border-color: #AEB9C2; }
 
 /* ═══════════════════════════════════════════
-   ALERTAS (reemplaza dbc.Alert)
+   AVISOS
    ═══════════════════════════════════════════ */
 .alert-warning {
-  background: rgba(245,158,11,0.08);
-  border: 1px solid rgba(245,158,11,0.3);
-  color: #f3c375;
-  border-radius: var(--r-sm);
+  background: var(--warm-soft);
+  border: 1px solid var(--warm-line);
+  color: var(--ink-2);
+  border-radius: 10px;
   padding: 12px 14px;
-  font-size: 0.85rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 /* ═══════════════════════════════════════════
-   EVENT CARDS (contexto histórico)
+   TARJETAS DE EVENTOS (contexto histórico)
    ═══════════════════════════════════════════ */
 .event-row {
   display: flex;
@@ -620,71 +431,53 @@ app-date-player { display: block; }
 }
 
 .event-card {
-  background: var(--glass);
-  border: 1px solid var(--border);
-  border-top: 2px solid var(--accent-2);
-  border-radius: var(--r-sm);
-  padding: 14px 16px;
-  min-width: 235px;
-  max-width: 235px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 16px;
+  min-width: 240px;
+  max-width: 240px;
   flex-shrink: 0;
   transition: var(--t);
 }
 
-.event-card:hover {
-  background: var(--glass-2);
-  border-color: var(--border-2);
-  transform: translateY(-2px);
-}
+.event-card:hover { border-color: var(--control); }
 
 .event-year {
-  font-family: 'Space Grotesk', 'Inter', sans-serif;
-  color: var(--accent-2);
-  font-weight: 700;
-  font-size: 0.78rem;
-  letter-spacing: 0.02em;
+  font-family: var(--font-display);
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 1.1rem;
+  letter-spacing: -0.01em;
 }
 
 .event-title {
-  font-weight: 700;
-  color: var(--text);
-  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 0.95rem;
   margin: 6px 0 5px;
 }
 
 .event-stat {
-  font-weight: 700;
-  color: var(--text-2);
-  font-size: 0.78rem;
+  font-family: var(--font-mono);
+  color: var(--ink-2);
+  font-size: 0.8rem;
   margin-bottom: 6px;
 }
 
 .event-desc {
-  color: var(--text-2);
-  font-size: 0.78rem;
-  line-height: 1.45;
-  margin-bottom: 8px;
+  color: var(--ink-2);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  margin: 0 0 8px;
 }
 
 .event-src {
+  font-family: var(--font-mono);
   text-transform: uppercase;
   color: var(--muted);
-  font-size: 0.65rem;
+  font-size: 0.6875rem;
   letter-spacing: 0.06em;
-}
-
-/* ═══════════════════════════════════════════
-   FOOTER
-   ═══════════════════════════════════════════ */
-.enso-footer {
-  /* var(--border) es blanco muy translúcido, pensado para el fondo oscuro
-     original — sobre el fondo claro actual quedaba invisible. */
-  border-top: 1px solid rgba(0,0,0,0.08);
-  margin-top: 20px;
-  padding-top: 16px;
-  text-align: center;
-  color: var(--muted);
-  font-size: 0.78rem;
 }
 
 /* ═══════════════════════════════════════════
@@ -694,13 +487,6 @@ app-date-player { display: block; }
 
 /* ── RESPONSIVE ── */
 @media (max-width: 760px) {
-  /* El título/subtítulo más grande (para desktop) no entraba en los 108px
-     fijos en pantallas angostas donde el logo se parte en varias líneas —
-     se deja crecer el alto y se reducen un poco las fuentes. */
-  .enso-header { padding: 14px; height: auto; min-height: 84px; }
-  .logo-top { font-size: 1.3rem; }
-  .logo-sub { font-size: 0.72rem; }
-  .enso-shell { padding: 14px 12px 32px; }
-  .header-time { display: none; }
-  .refresh-status { display: none; }
+  .enso-shell { padding: 20px 16px 32px; }
+  .chart-card { padding: 16px; }
 }
