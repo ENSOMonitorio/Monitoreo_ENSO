@@ -93,8 +93,8 @@ def build_oni_figure():
         customdata=labels,
         hovertemplate="<b>%{x}</b> · ONI %{y:.2f}<br>%{customdata}<extra></extra>",
     ))
-    fig.add_hline(y=0, line_width=1, line_color="rgba(255,255,255,0.25)")
-    fig.update_layout(theme.dark_layout(
+    fig.add_hline(y=0, line_width=1, line_color=theme.AXIS)
+    fig.update_layout(theme.chart_layout(
         yaxis_title="ONI (°C)", xaxis_title=None,
         height=400, margin=dict(t=20, b=30, l=50, r=20),
         bargap=0.15,

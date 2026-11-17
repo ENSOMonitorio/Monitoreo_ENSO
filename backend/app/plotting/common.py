@@ -15,14 +15,9 @@ EXTENT_PACIFICO = [115, 360 - 30, -21, 21]
 
 # Paleta única de las cajas Niño — mismo color de contorno Y de área
 # rellena en TODOS los mapas del dashboard (TSM, anomalía, viento, SLP,
-# composite de subsuperficie). Antes cada mapa usaba colores distintos
-# (negro/rojo/azul sin relleno en unos, otra paleta en otros).
-NINO_COLORS = {
-    "Niño 4":   "#7b1fa2",
-    "Niño 3.4": "#1565c0",
-    "Niño 3":   "#2e7d32",
-    "Niño 1+2": "#c62828",
-}
+# composite de subsuperficie). Vive en theme.py (sin matplotlib/cartopy)
+# para que el servidor web la use sin cargar el stack de graficado.
+from theme import NINO_COLORS  # noqa: E402
 
 # Cajas Niño en convención 0-360, límites reales (lon Y lat — mismos que
 # indices.py NINO_REGIONS_0_360) para el mapa/paneles del corte

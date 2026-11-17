@@ -81,11 +81,16 @@ _MAP_TAB_PREFIXES = {prefix for prefix, _ in MAP_TABS}
 # Mismas 4 regiones que indices.py/pipeline calculan en el CSV; hoy la
 # pestaña "Índices" del frontend solo dibuja nino12/nino34, pero la API
 # expone las 4 por si se quiere ampliar luego.
+# Mismos colores que las cajas Niño de los mapas (theme.NINO_COLORS), para
+# que el gráfico de cada región y su caja en el mapa se reconozcan.
 INDEX_REGIONS = {
-    "nino12": {"label": "Niño 1+2", "color": "#e2574a"},
-    "nino34": {"label": "Niño 3.4", "color": "#5b9bdb"},
-    "nino3": {"label": "Niño 3", "color": "#f0a35f"},
-    "nino4": {"label": "Niño 4", "color": "#9b7fd1"},
+    key: {"label": label, "color": theme.NINO_COLORS[label]}
+    for key, label in (
+        ("nino12", "Niño 1+2"),
+        ("nino34", "Niño 3.4"),
+        ("nino3", "Niño 3"),
+        ("nino4", "Niño 4"),
+    )
 }
 
 server = Flask(__name__)
@@ -267,13 +272,15 @@ def _index_region_figure(df, col, label, color):
         line=dict(color=color, width=2.5),
         fill="tozeroy", fillcolor=_hex_to_rgba(color, 0.10),
     ))
-    fig.add_hline(y=0, line_color="rgba(160,191,170,0.35)", line_width=1)
-    fig.add_hline(y=0.5, line_dash="dot", line_color="rgba(226,87,74,0.75)",
+    warm = theme.NINO_COLORS["Niño 1+2"]
+    cold = theme.NINO_COLORS["Niño 3.4"]
+    fig.add_hline(y=0, line_color=theme.AXIS, line_width=1)
+    fig.add_hline(y=0.5, line_dash="dot", line_color=_hex_to_rgba(warm, 0.75),
                   annotation_text="+0.5 °C · umbral El Niño", annotation_position="top left",
-                  annotation_font_color="#e2574a")
-    fig.add_hline(y=-0.5, line_dash="dot", line_color="rgba(91,155,219,0.65)",
+                  annotation_font_color=theme.TEXT_2)
+    fig.add_hline(y=-0.5, line_dash="dot", line_color=_hex_to_rgba(cold, 0.75),
                   annotation_text="-0.5 °C · umbral La Niña", annotation_position="bottom left",
-                  annotation_font_color="#5b9bdb")
+                  annotation_font_color=theme.TEXT_2)
 
     if len(valid):
         peak_idx = valid[col].idxmax()
@@ -283,22 +290,22 @@ def _index_region_figure(df, col, label, color):
 
         fig.add_trace(go.Scatter(
             x=[peak_date], y=[peak_val], mode="markers",
-            marker=dict(size=9, color=color, line=dict(width=2, color="#0d2a1e")),
+            marker=dict(size=9, color=color, line=dict(width=2, color=theme.SURFACE)),
             showlegend=False, hoverinfo="skip",
         ))
         fig.add_annotation(
             x=peak_date, y=peak_val, text=f"Pico: {peak_val:.2f} °C<br>{peak_date.strftime('%d %b')}",
             showarrow=True, arrowhead=2, ax=0, ay=-42,
-            font=dict(color=color, size=11), bgcolor="rgba(6,12,8,0.9)",
+            font=dict(color=theme.TEXT, size=11), bgcolor=theme.SURFACE,
             bordercolor=color, borderwidth=1, borderpad=4,
         )
         fig.add_annotation(
             xref="paper", yref="paper", x=0.99, y=1.16, xanchor="right",
             text=f"{days_over} días sobre el umbral de El Niño en lo que va de 2026",
-            showarrow=False, font=dict(color="#a0bfaa", size=11),
+            showarrow=False, font=dict(color=theme.MUTED, size=11),
         )
 
-    fig.update_layout(theme.dark_layout(
+    fig.update_layout(theme.chart_layout(
         yaxis_title="Anomalía (°C)", height=380,
         margin=dict(t=55, l=50, r=20, b=40),
         showlegend=False,
