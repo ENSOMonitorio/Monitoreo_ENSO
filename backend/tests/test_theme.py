@@ -61,3 +61,31 @@ def test_historico_figure_has_no_dark_leftovers():
     assert "rgba(255,255,255" not in body
     for dark in DARK_LEFTOVERS:
         assert dark not in body, dark
+
+
+def _relative_luminance(hex_color):
+    h = hex_color.lstrip("#")
+    chans = []
+    for i in (0, 2, 4):
+        c = int(h[i:i + 2], 16) / 255
+        chans.append(c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4)
+    r, g, b = chans
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+def _contrast_on_white(hex_color):
+    return 1.05 / (_relative_luminance(hex_color) + 0.05)
+
+
+def test_oni_bar_colors_are_visible_on_white():
+    """Las barras del ONI van sobre tarjetas blancas: cada nivel necesita
+    al menos 3:1 (WCAG 1.4.11) y oscurecer a medida que sube la intensidad."""
+    import layout_historico as lh
+
+    for ramp in (lh._NINO_COLORS, lh._NINA_COLORS):
+        levels = sorted(ramp)
+        for level in levels:
+            assert _contrast_on_white(ramp[level]) >= 3.0, (level, ramp[level])
+        lums = [_relative_luminance(ramp[lv]) for lv in levels]
+        assert lums == sorted(lums, reverse=True)
+    assert _contrast_on_white(lh._NEUTRAL) >= 3.0

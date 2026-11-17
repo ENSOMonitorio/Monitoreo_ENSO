@@ -67,9 +67,11 @@ def _classify(v):
     return "Neutral", 0
 
 
-_NINO_COLORS = {1: "#f6cbb8", 2: "#ea9271", 3: "#ff6b52", 4: "#ff3b2f"}
-_NINA_COLORS = {1: "#cfe0f7", 2: "#8fb8ea", 3: "#5b9bdb", 4: "#3d7dc9"}
-_NEUTRAL = "#8a97a3"
+# Rampas sobre fondo blanco: cada nivel con contraste >= 3:1 (WCAG 1.4.11)
+# y más oscuro cuanto más intenso el evento (ver tests/test_theme.py).
+_NINO_COLORS = {1: "#D9734A", 2: "#C24E2C", 3: "#9E2A1C", 4: "#6E140C"}
+_NINA_COLORS = {1: "#5B8CC8", 2: "#3B6DAE", 3: "#24518F", 4: "#12335F"}
+_NEUTRAL = "#7F8C98"
 
 
 def build_oni_figure():
